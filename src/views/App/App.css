@@ -45,3 +45,18 @@
 .read-the-docs {
   color: #888;
 }
+canvas {
+  max-width: 100%;
+  height: auto;
+  display: block; /* Pour éviter tout espace blanc en dessous */
+}
+
+.max-frequency-display {
+  padding: 10px;
+  margin: 10px;
+  background-color: #1a1a1a;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+

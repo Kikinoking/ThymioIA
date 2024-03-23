@@ -37,7 +37,7 @@ p {
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: 4.2em;
   line-height: 1.1;
 }
 
@@ -53,7 +53,7 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: #a5ff64;
 }
 button:focus,
 button:focus-visible {
@@ -73,3 +73,26 @@ button:focus-visible {
   }
 }
 
+
+canvas {
+  max-width: 100%;
+  height: auto;
+  display: block; /* Pour éviter tout espace blanc en dessous */
+}
+
+.max-frequency-display {
+  padding: 10px;
+  margin: 10px;
+  background-color: #1a1a1a;
+  border: 1px solid #ddd;
+  text-align: center;
+
+  
+}
+.note-display {
+  padding: 10px;
+  margin: 10px;
+  background-color: #1a1a1a;
+  border: 1px solid #ddd;
+  text-align: center;
+}
