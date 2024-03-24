@@ -27,6 +27,17 @@ const App = observer(() => {
   const chartRef = useRef(null);
   const [chart, setChart] = useState(null);
   const [maxFreq, setMaxFreq] = useState(null);
+  const [isContinuousRecording, setIsContinuousRecording] = useState(false);
+  const [audioContext, setAudioContext] = useState(null);
+  const [audioStream, setAudioStream] = useState(null);
+  const analyserRef = useRef(null);
+  const audioContextRef = useRef(null);
+
+  const [maxDetectedFreq, setMaxDetectedFreq] = useState(null); //USed when recording not continuous
+  const [noteRecording, setNoteRecording] = useState(null);
+
+
+  const [recordDuration, setRecordDuration] = useState(5000);  //Record duration
 
   const [robots, setRobots] = useState<string[]>([]);
   const [controledRobot, setControledRobot] = useState<string>('');
@@ -36,7 +47,7 @@ const App = observer(() => {
   useEffect(() => {
     if (chartRef.current && !chart) {
       const newChart = new Chart(chartRef.current, {
-        type: 'bar',
+        type: 'line',
         data: {
           labels: [],
           datasets: [{
@@ -84,95 +95,181 @@ const App = observer(() => {
     }
   }, [chart, chartRef.current   ]);
 
-  const updateChart = (frequencies, amplitudes) => {
-    if (chart) {
-      chart.data.labels = frequencies;
-      chart.data.datasets[0].data = amplitudes;
-      chart.update();
+  const toggleContinuousRecording = () => {
+    // Si on démarre l'enregistrement continu, arrête l'enregistrement audio si actif
+    if (!isContinuousRecording && isRecording) {
+      setIsRecording(false);  
+    }
+
+    setIsContinuousRecording(!isContinuousRecording);
+
+    if (!isContinuousRecording) {
+      startContinuousRecording();
+    } else {
+      stopContinuousRecording();
     }
   };
 
-  const startRecording = async () => {
+  const startContinuousRecording = async () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       console.error("getUserMedia n'est pas supporté par ce navigateur.");
       return;
     }
-  
+    
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mediaRecorder = new MediaRecorder(stream);
-  
-    let audioChunks = [];
-    mediaRecorder.ondataavailable = (event) => {
-      audioChunks.push(event.data);
-    };
-  
-    mediaRecorder.start();
-    setIsRecording(true);
-  
-    mediaRecorder.onstop = async () => {
-      setIsRecording(false);
-      const audioBlob = new Blob(audioChunks, { 'type': 'audio/wav; codecs=opus' });
+    setAudioStream(stream);
+
+    // Initialisation et stockage de audioContext dans le ref
+    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioContextRef.current.createMediaStreamSource(stream);
+    analyserRef.current = audioContextRef.current.createAnalyser();
+    source.connect(analyserRef.current);
     
-      if (audioUrl) {
-        URL.revokeObjectURL(audioUrl);
-      }
-      const newAudioUrl = URL.createObjectURL(audioBlob);
-      setAudioUrl(newAudioUrl);
-    
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const audioBuffer = await audioContext.decodeAudioData(await audioBlob.arrayBuffer());
-      const analyser = audioContext.createAnalyser();
-      const source = audioContext.createBufferSource();
-      source.buffer = audioBuffer;
-    
-      // Création d'un gain node pour "silencer" la sortie audio
-      const gainNode = audioContext.createGain();
-      gainNode.gain.setValueAtTime(0, audioContext.currentTime); // Mettre le gain à 0 pour ne pas entendre le son
-    
-      source.connect(analyser);
-      analyser.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-    
-      analyser.fftSize = 4096;
-      source.start(0);
-    
-      source.onended = () => {
-        let floatDataArray = new Float32Array(analyser.frequencyBinCount);
-        analyser.getFloatFrequencyData(floatDataArray);
-        let sampleRate = audioContext.sampleRate;
-        let frequencies = floatDataArray.map((value, index) => index * (sampleRate / analyser.fftSize));
-    
-        let maxAmplitudeIndex = floatDataArray.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
-        let maxAmplitudeFrequency = frequencies[maxAmplitudeIndex];
-        let maxAmplitude = floatDataArray[maxAmplitudeIndex];
-        let amplitudes = Array.from(floatDataArray).map(value => value === -Infinity ? 0 : value);
-        let filteredFrequencies = [];
-        let filteredAmplitudes = [];
-        for (let i = 0; i < frequencies.length; i++) {
-          if (frequencies[i] >= 200 && frequencies[i] <= 2001) {
-            filteredFrequencies.push(frequencies[i]);
-            filteredAmplitudes.push(amplitudes[i]);
-          }
-        }
-    
-        setMaxFreq(maxAmplitudeFrequency);
-        if (maxAmplitudeFrequency) {
-          const noteDetected = frequencyToNoteNumber(maxAmplitudeFrequency);
-          setNote(noteDetected);
-        } else {
-          setNote(null);
-        }
-        console.log(`Fréquence avec l'amplitude la plus élevée: ${maxAmplitudeFrequency} Hz, Amplitude: ${maxAmplitude} dB`);
-        updateChart(filteredFrequencies, filteredAmplitudes);
-      };
-    };
-    
-  
-    
-    setTimeout(() => {
-      mediaRecorder.stop();
-    }, 5000);
+    analyserRef.current.fftSize = 4096;
+    setIsContinuousRecording(true);
   };
+
+  useEffect(() => {
+    // Vérifiez que audioContext et analyser sont définis avant de démarrer getFrequencies
+    if (isContinuousRecording && audioContextRef.current && analyserRef.current) {
+      getFrequencies();
+    }
+  }, [isContinuousRecording, audioContextRef.current, analyserRef.current]);
+  
+  const getFrequencies = () => {
+    if (!isContinuousRecording || !analyserRef.current || !audioContextRef.current) {
+      return;
+    }
+
+    const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+    analyserRef.current.getByteFrequencyData(dataArray);
+
+    let maxIndex = 0;
+    let maxValue = 0;
+    for (let i = 0; i < dataArray.length; i++) {
+      if (dataArray[i] > maxValue) {
+        maxValue = dataArray[i];
+        maxIndex = i;
+      }
+    }
+
+    const maxFrequency = maxIndex * audioContextRef.current.sampleRate / analyserRef.current.fftSize;
+    setMaxFreq(maxFrequency);
+    const noteDetected = frequencyToNoteNumber(maxFrequency);
+    setNote(noteDetected);
+    if (isContinuousRecording) {
+      requestAnimationFrame(getFrequencies);
+    }
+  };
+
+
+  // Utilisez useEffect pour démarrer l'analyse lorsque isContinuousRecording est true.
+  useEffect(() => {
+    if (isContinuousRecording && analyserRef.current) {
+      getFrequencies();
+    }
+  }, [isContinuousRecording]);
+  
+  const stopContinuousRecording = () => {
+    console.log("Arrêt de l'enregistrement continu.");
+    setIsContinuousRecording(false);
+  
+    if (audioStream) {
+      audioStream.getTracks().forEach(track => track.stop());
+      setAudioStream(null);
+    }
+  
+    if (audioContext) {
+      audioContext.close();
+      setAudioContext(null);
+    }
+  
+    setMaxFreq(null);
+  };
+  
+
+  const updateChart = (frequencies, amplitudes) => {
+  if (chart) {
+    chart.data.labels = frequencies;
+    chart.data.datasets[0].data = amplitudes.map(dB => dB === -Infinity ? 0 : dB); // Convertir -Infinity en 0 pour l'affichage
+    chart.update();
+  }
+};
+
+  const startRecording = async () => {
+   if (isContinuousRecording) {
+    stopContinuousRecording();
+  }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    console.error("getUserMedia n'est pas supporté par ce navigateur.");
+    return;
+  }
+
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const mediaRecorder = new MediaRecorder(stream);
+
+  setIsRecording(true);
+  let audioChunks = [];
+  mediaRecorder.ondataavailable = (event) => {
+    audioChunks.push(event.data);
+  };
+
+  mediaRecorder.start();
+
+  mediaRecorder.onstop = async () => {
+    setIsRecording(false);
+    const audioBlob = new Blob(audioChunks, { 'type': 'audio/wav; codecs=opus' });
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+    }
+    const newAudioUrl = URL.createObjectURL(audioBlob);
+    setAudioUrl(newAudioUrl);
+
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const audioBuffer = await audioContext.decodeAudioData(await audioBlob.arrayBuffer());
+    const analyser = audioContext.createAnalyser();
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+
+    source.connect(analyser);
+    analyser.fftSize = 4096;
+
+    // Assurez-vous que start() est appelé une seule fois par instance de source.
+    source.start(0);
+    
+    source.onended = () => {
+  const dataArray = new Float32Array(analyser.frequencyBinCount);
+  analyser.getFloatFrequencyData(dataArray);
+
+  let frequencies = dataArray.map((_, index) => index * audioContext.sampleRate / analyser.fftSize);
+  let amplitudes = dataArray.map(value => value === -Infinity ? 0 : value);
+
+  // Filtrer pour les fréquences entre 200 Hz et 2 kHz
+  let filteredFrequencies = [];
+  let filteredAmplitudes = [];
+  for (let i = 0; i < frequencies.length; i++) {
+    if (frequencies[i] >= 200 && frequencies[i] <= 2000) {
+      filteredFrequencies.push(frequencies[i]);
+      filteredAmplitudes.push(amplitudes[i]);
+    }
+  }
+
+  let maxIndex = filteredAmplitudes.indexOf(Math.max(...filteredAmplitudes));
+  let maxFrequency = filteredFrequencies[maxIndex];
+  setMaxDetectedFreq(maxFrequency);
+  const detectedNote = frequencyToNoteNumber(maxFrequency);
+  setNote(detectedNote);
+  setNoteRecording(detectedNote);
+
+  // Mise à jour du graphique avec seulement les fréquences filtrées
+  updateChart(filteredFrequencies, filteredAmplitudes);
+};
+  };
+
+  setTimeout(() => {
+    mediaRecorder.stop();
+  }, recordDuration);
+};
 
   const onClickGetRobots = async () => {
     const _robots = await user.getRobotsUuids();
@@ -228,20 +325,49 @@ const App = observer(() => {
           <button onClick={() => onAction('BACKWARD')}>BACKWARD</button>
           <button onClick={() => onAction('LEFT')}>LEFT</button>
           <button onClick={() => onAction('RIGHT')}>RIGHT</button>
+          <br />
+           
           <button onClick={startRecording} disabled={isRecording}>
+            {/* Slider pour ajuster la durée de l'enregistrement */}
+          <label htmlFor="recordDuration">Durée d'enregistrement: {recordDuration / 1000} secondes</label>
+          <input
+            id="recordDuration"
+            type="range"
+            min="1000"
+            max="10000"
+            step="1000"
+            value={recordDuration}
+            onChange={(e) => setRecordDuration(Number(e.target.value))}
+          />
           <div className='max-frequency-display'>
               {maxFreq !== null && (
-              <p>Fréquence Max: {maxFreq.toFixed(2)} Hz</p>
+              <p>Fréquence Max: {maxDetectedFreq.toFixed(2)} Hz</p>
                )}
           </div>
           <div className='note-display'>
-            {note && (
-              <p>Note: {note}</p>
+            {noteRecording && (
+              <p>Note: {noteRecording}</p>
             )}
           </div>
 
             {isRecording ? 'Enregistrement...' : 'Enregistrer Audio'}</button>
+            <br />
             {audioUrl && <button onClick={() => new Audio(audioUrl).play()}>Playback</button>}
+        <br />
+        <button onClick={toggleContinuousRecording}>
+            {isContinuousRecording ? 'Arrêter l\'enregistrement continu' : 'Démarrer l\'enregistrement continu'}
+            <div className='note-display'>
+          {maxFreq !== null && (
+          <p>Fréquence Max: {maxFreq.toFixed(2)} Hz</p>
+        )}
+        </div>
+        <div className='note-display'>
+            {note && (
+              <p>Note: {note}</p>
+            )}
+          </div>
+        </button>
+        
           <canvas ref={chartRef} width="400" height="400"></canvas>
           <pre>{JSON.stringify(user.captors.state, null)}</pre>
 
