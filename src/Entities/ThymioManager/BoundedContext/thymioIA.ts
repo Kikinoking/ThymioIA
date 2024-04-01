@@ -39,7 +39,7 @@ export class ThymioIA implements IThymioIA {
         const model = tf.sequential();
 
         // Ajustando la capa de entrada para que coincida con los datos de entrada reales ([9])
-        model.add(tf.layers.dense({ units: 16, inputShape: [9], activation: 'relu' }));
+        model.add(tf.layers.dense({ units: 16, inputShape: [10], activation: 'relu' }));
         // Ajustar la capa de salida para que coincida con el número de acciones posibles (5)
         model.add(tf.layers.dense({ units: 5, activation: 'softmax' }));
 
@@ -58,36 +58,45 @@ export class ThymioIA implements IThymioIA {
       }
     });
 
-  trainModel = async (data: DataEntry[]) => {
-    // Inicializar el modelo y asignarlo a this.model
-    this.model = await this.initModel();
+    trainModel = async (data: DataEntry[]) => {
+      this.model = await this.initModel();
+    
+      if (!this.model) {
+        console.error('Model not initialized');
+        return;
+      }
+    
+      data.forEach(item => {
+        console.log(`Length of input: ${item.input.length + 1}`); // +1 pour inclure la note
+      });
+    
+      const xs = tf.tensor2d(data.map(item => {
+        return [...item.input.map(bit => parseFloat(bit))];//, parseFloat(item.note)];
+      }));
+    
+      const actionsAsIndices = data.map(item => this.actionMapping[item.output as keyof typeof this.actionMapping]);
+      const ys = tf.oneHot(tf.tensor1d(actionsAsIndices, 'int32'), Object.keys(this.actionMapping).length);
+    
+      await this.model.fit(xs, ys, {
+        epochs: 50,
+      });
+    };  
 
-    if (!this.model) {
-      console.error('Model not initialized');
-      return;
-    }
-
-    // Preparar los datos para el entrenamiento
-    const xs = tf.tensor2d(data.map(item => item.input.map(bit => parseInt(bit, 10))));
-    const actionsAsIndices = data.map(item => this.actionMapping[item.output as keyof typeof this.actionMapping]);
-    const ys = tf.oneHot(tf.tensor1d(actionsAsIndices, 'int32'), Object.keys(this.actionMapping).length);
-
-    // Entrenar el modelo
-    await this.model.fit(xs, ys, {
-      epochs: 50,
-    });
-  };
-
-  predict = (uuid: string, input: string[]) => {
-    if (!this.model) {
-      console.error('Model not initialized');
-      return;
-    }
-
-    const inputTensor = tf.tensor2d([input.map(bit => parseInt(bit, 2))]);
-    const prediction = this.model.predict(inputTensor) as tf.Tensor<tf.Rank>;
-    prediction.array().then((list: any) => {
-      const predictedIndex = list[0].indexOf(Math.max(...list[0]));
+    predict = (uuid: string, captors: number[], currentNote: string) => {
+      if (!this.model) {
+        console.error('Model not initialized');
+        return;
+      }
+    
+      const noteValue = parseFloat(currentNote) || 0;  // Gérer le cas null.
+      const captorsNumeric = captors.map(c => parseFloat(c));
+      
+      const inputTensor = tf.tensor2d([captorsNumeric.concat(noteValue)]);
+      const prediction = this.model.predict(inputTensor) as tf.Tensor<tf.Rank>;
+    
+  
+    prediction.array().then((array: any) => {
+      const predictedIndex = array[0].indexOf(Math.max(...array[0]));
       const predictedAction = Object.keys(this.actionMapping).find(key => this.actionMapping[key] === predictedIndex);
       console.log('Prediction:', predictedAction);
       this.emitMotorEvent(uuid, predictedAction as string);

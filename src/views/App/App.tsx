@@ -21,7 +21,7 @@ function frequencyToNoteNumber(frequency) {
 
 
 const App = observer(() => {
-  const [note, setNote] = useState(null);
+  const [note, setNote] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
   const chartRef = useRef(null);
@@ -34,7 +34,7 @@ const App = observer(() => {
   const audioContextRef = useRef(null);
 
   const [maxDetectedFreq, setMaxDetectedFreq] = useState(null); //USed when recording not continuous
-  const [noteRecording, setNoteRecording] = useState(null);
+  const [noteRecording, setNoteRecording] = useState(0);
 
 
   const [recordDuration, setRecordDuration] = useState(5000);  //Record duration
@@ -284,22 +284,31 @@ const App = observer(() => {
   const onAction = async (action: string) => {
     setTrainer([...trainer, { uuid: controledRobot, action, captors: user.captors.state[controledRobot] }]);
     await user.emitMotorEvent(controledRobot, action);
+    const currentNote = noteRecording;
+
+ 
+    setTrainer([...trainer, { uuid: controledRobot, action, captors: user.captors.state[controledRobot], note: currentNote }]);
+    await user.emitMotorEvent(controledRobot, action);
+
   };
 
   const onExecute = async () => {
-    const data = trainer.map(({ action, captors }) => ({
-      input: captors.map(captor => captor.toString()),
-      output: action,
-    }));
-
-    await user.trainModel(data);
-    setMode('PREDICT');
+    if (mode === 'TRAIN') {
+      const data = trainer.map(({ action, captors, }) => ({
+        input: [...captors.map(captor => parseFloat(captor)), note ? parseFloat(note) : 0],
+        output: action,
+      }));
+  
+      console.log("Verifying input sizes:", data.map(d => d.input.length));
+      await user.trainModel(data);
+      setMode('PREDICT');
+    }
   };
 
   useEffect(() => {
     if (mode === 'PREDICT') {
       const data = user.captors.state[controledRobot].map(captor => captor.toString());
-      user.predict(controledRobot, data);
+      user.predict(controledRobot, data, note);
     }
   }, [mode, user.captors.state, controledRobot]);
 
@@ -307,7 +316,7 @@ const App = observer(() => {
     const interval = setInterval(() => {
       if (mode === 'PREDICT') {
         const data = user.captors.state[controledRobot].map(captor => captor.toString());
-        user.predict(controledRobot, data);
+        user.predict(controledRobot, data, note);
       }
     }, 1000);
 
@@ -372,32 +381,32 @@ const App = observer(() => {
           <pre>{JSON.stringify(user.captors.state, null)}</pre>
 
           <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexDirection: 'column',
-              width: '100%',
-            }}
-          >
-            {trainer.map(({ action, captors }, index) => (
-              <div
-                key={index}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  width: '250px',
-                  height: '1.2rem',
-                }}
-              >
-                <p>{action}</p>
-                <pre>{JSON.stringify(captors, null)}</pre>
-              </div>
-            ))}
-            <br />
-            <button onClick={onExecute}>EXECUTE</button>
-          </div>
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    width: '100%',
+  }}
+>
+  {trainer.map(({ action, captors,  note }, index) => (
+    <div
+      key={index}
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '100%', // Assurez-vous que cela est suffisant pour une ligne
+        marginBottom: '5px', // Espace entre les éléments
+      }}
+    >
+      <span>{`Action: ${action}, `}</span>
+      <span>{`Captors: [${captors.join(', ')}], `}</span>
+      <span>{`Note: ${note}`}</span>
+    </div>
+  ))}
+  <br />
+  <button onClick={onExecute}>EXECUTE</button>
+</div>
         </>
       ) : (
         <>
