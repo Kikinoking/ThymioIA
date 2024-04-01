@@ -5,7 +5,9 @@ import { thymioManagerFactory } from '../../Entities/ThymioManager';
 import { observer } from 'mobx-react';
 
 Chart.register(...registerables);
-const user = thymioManagerFactory({ user: 'AllUser', activity: 'ThymioIA', hosts: ['localhost'] });
+const user = thymioManagerFactory({ user: 'AllUser', activity: 'ThymioIA', hosts: ['localhost'] }); 
+
+
 
 function frequencyToNoteNumber(frequency) {
   const A4 = 440;
@@ -305,6 +307,28 @@ const App = observer(() => {
     }
   };
 
+  const stopExecutionAndReset = () => {
+   
+    setMode('TRAIN');
+    if (controledRobot) {
+      user.emitMotorEvent(controledRobot, 'STOP');
+    }
+  
+  
+  }
+
+  const resetModelAndTrainer = async () => {
+    // Réinitialisez le modèle
+    
+  
+    // Réinitialisez le trainer
+    setTrainer([]);
+    stopExecutionAndReset();
+  
+    // Réinitialiser d'autres états si nécessaire
+    // setRobots([]), setControledRobot(''), etc.
+  };
+  
   useEffect(() => {
     if (mode === 'PREDICT') {
       const data = user.captors.state[controledRobot].map(captor => captor.toString());
@@ -406,6 +430,11 @@ const App = observer(() => {
   ))}
   <br />
   <button onClick={onExecute}>EXECUTE</button>
+  
+  {mode === 'PREDICT' && (
+        <button onClick={stopExecutionAndReset}>Arrêter et Revenir à l'Entraînement</button>
+      )}
+  <button onClick={resetModelAndTrainer}>Réinitialiser le Modèle et l'Entraîneur</button>
 </div>
         </>
       ) : (

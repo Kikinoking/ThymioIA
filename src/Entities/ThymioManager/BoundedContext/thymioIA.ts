@@ -37,7 +37,7 @@ export class ThymioIA implements IThymioIA {
       try {
         // Inicializar el modelo
         const model = tf.sequential();
-
+       
         // Ajustando la capa de entrada para que coincida con los datos de entrada reales ([9])
         model.add(tf.layers.dense({ units: 16, inputShape: [10], activation: 'relu' }));
         // Ajustar la capa de salida para que coincida con el número de acciones posibles (5)
@@ -45,7 +45,7 @@ export class ThymioIA implements IThymioIA {
 
         // Compilar el modelo con los ajustes adecuados
         model.compile({
-          optimizer: 'adam',
+          optimizer:  tf.train.adam(0.001),
           // Usar 'categoricalCrossentropy' para un problema de clasificación multiclase
           loss: 'categoricalCrossentropy',
           metrics: ['accuracy'],
