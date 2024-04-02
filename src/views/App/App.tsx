@@ -3,12 +3,19 @@ import { Chart ,registerables} from 'chart.js';
 import './App.css';
 import { thymioManagerFactory } from '../../Entities/ThymioManager';
 import { observer } from 'mobx-react';
+import { noteToNumberMapping } from '../../noteMapping';
 
 Chart.register(...registerables);
+
+//Map tones to a given number so that data is in a good format for NN
 const user = thymioManagerFactory({ user: 'AllUser', activity: 'ThymioIA', hosts: ['localhost'] }); 
 
 
-
+/**
+ * Convertit une fréquence en note musicale.
+ * @param {number} frequency - La fréquence à convertir en note musicale.
+ * @returns {string} La note musicale correspondante à la fréquence donnée.
+ */
 function frequencyToNoteNumber(frequency) {
   const A4 = 440;
   const C0 = A4 * Math.pow(2, -4.75);
@@ -20,6 +27,7 @@ function frequencyToNoteNumber(frequency) {
   let note = noteNames[n];
   return note + octave;
 }
+
 
 
 const App = observer(() => {
@@ -43,7 +51,7 @@ const App = observer(() => {
 
   const [robots, setRobots] = useState<string[]>([]);
   const [controledRobot, setControledRobot] = useState<string>('');
-  const [trainer, setTrainer] = useState<{ uuid: string; action: string; captors: number[] }[]>([]);
+  const [trainer, setTrainer] = useState<{ uuid: string; action: string; captors: number[];note?: string }[]>([]);
   const [mode, setMode] = useState<'TRAIN' | 'PREDICT'>('TRAIN');
 
   useEffect(() => {
@@ -156,11 +164,14 @@ const App = observer(() => {
     }
 
     const maxFrequency = maxIndex * audioContextRef.current.sampleRate / analyserRef.current.fftSize;
-    setMaxFreq(maxFrequency);
-    const noteDetected = frequencyToNoteNumber(maxFrequency);
-    setNote(noteDetected);
-    if (isContinuousRecording) {
-      requestAnimationFrame(getFrequencies);
+    if (maxFrequency > 0) {
+        setMaxFreq(maxFrequency);
+        const noteDetected = frequencyToNoteNumber(maxFrequency);
+        setNote(noteDetected);
+      }
+
+      if (isContinuousRecording) {
+          requestAnimationFrame(getFrequencies);
     }
   };
 
@@ -260,7 +271,7 @@ const App = observer(() => {
   let maxFrequency = filteredFrequencies[maxIndex];
   setMaxDetectedFreq(maxFrequency);
   const detectedNote = frequencyToNoteNumber(maxFrequency);
-  setNote(detectedNote);
+  
   setNoteRecording(detectedNote);
 
   // Mise à jour du graphique avec seulement les fréquences filtrées
@@ -284,22 +295,31 @@ const App = observer(() => {
   };
 
   const onAction = async (action: string) => {
-    setTrainer([...trainer, { uuid: controledRobot, action, captors: user.captors.state[controledRobot] }]);
+    const currentNoteRecording = noteRecording;
+    
+    const newEntry = {
+      uuid: controledRobot,
+      action,
+      captors: user.captors.state[controledRobot] || [],
+      note: currentNoteRecording
+    };
+    setTrainer(trainer => [...trainer, newEntry]);
+    //setTrainer([...trainer, { uuid: controledRobot, action, captors: user.captors.state[controledRobot] }]);
     await user.emitMotorEvent(controledRobot, action);
-    const currentNote = noteRecording;
+    //const currentNote = note;
 
  
-    setTrainer([...trainer, { uuid: controledRobot, action, captors: user.captors.state[controledRobot], note: currentNote }]);
-    await user.emitMotorEvent(controledRobot, action);
+    //setTrainer([...trainer, { uuid: controledRobot, action, captors: user.captors.state[controledRobot], note: currentNote }]);
+    //await user.emitMotorEvent(controledRobot, action);
 
   };
 
   const onExecute = async () => {
     if (mode === 'TRAIN') {
-      const data = trainer.map(({ action, captors, }) => ({
-        input: [...captors.map(captor => parseFloat(captor)), note ? parseFloat(note) : 0],
-        output: action,
-      }));
+      const data = trainer.map(({ action, captors, note}) => ({
+        input: [...captors, note && noteToNumberMapping[note] ? noteToNumberMapping[note] : 0], // Utilisez la note stockée pour chaque entrée
+      output: action,
+    }));
   
       console.log("Verifying input sizes:", data.map(d => d.input.length));
       await user.trainModel(data);
@@ -373,7 +393,7 @@ const App = observer(() => {
             onChange={(e) => setRecordDuration(Number(e.target.value))}
           />
           <div className='max-frequency-display'>
-              {maxFreq !== null && (
+              {maxDetectedFreq !== null && (
               <p>Fréquence Max: {maxDetectedFreq.toFixed(2)} Hz</p>
                )}
           </div>

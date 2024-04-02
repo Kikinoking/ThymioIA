@@ -3,6 +3,7 @@ import { BoundedContext, Container, Observable, createObservable, subscribe } fr
 import { Activity, DataEntry, Robot, TdmController, Thymio } from '../Model';
 import type IThymioIA from '../Model/thymioIA.model';
 import * as tf from '@tensorflow/tfjs';
+import { noteToNumberMapping } from '../../../noteMapping';
 
 @BoundedContext({ key: 'ThymioIA', predicate: [] })
 export class ThymioIA implements IThymioIA {
@@ -82,22 +83,28 @@ export class ThymioIA implements IThymioIA {
       });
     };  
 
-    predict = (uuid: string, captors: number[], currentNote: string) => {
+    predict = (uuid: string, captors: number[], currentNote: string ) => {
       if (!this.model) {
         console.error('Model not initialized');
         return;
       }
     
-      const noteValue = parseFloat(currentNote) || 0;  // Gérer le cas null.
+      const noteValue = noteToNumberMapping[currentNote] || 0;  // Gérer le cas null.
       const captorsNumeric = captors.map(c => parseFloat(c));
       
       const inputTensor = tf.tensor2d([captorsNumeric.concat(noteValue)]);
+      console.log('Input tensor:', captorsNumeric.concat(noteValue));
       const prediction = this.model.predict(inputTensor) as tf.Tensor<tf.Rank>;
     
   
     prediction.array().then((array: any) => {
+      console.log('Raw prediction:', array[0]);
       const predictedIndex = array[0].indexOf(Math.max(...array[0]));
+      console.log('Predicted index:', predictedIndex);
       const predictedAction = Object.keys(this.actionMapping).find(key => this.actionMapping[key] === predictedIndex);
+      if (!predictedAction) {
+        console.error(`No action found for predicted index: ${predictedIndex}`);
+        return;}
       console.log('Prediction:', predictedAction);
       this.emitMotorEvent(uuid, predictedAction as string);
     });
