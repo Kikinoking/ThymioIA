@@ -4,6 +4,7 @@ import { Activity, DataEntry, Robot, TdmController, Thymio } from '../Model';
 import type IThymioIA from '../Model/thymioIA.model';
 import * as tf from '@tensorflow/tfjs';
 import { noteToNumberMapping } from '../../../noteMapping';
+import BarChart from '../../BarChart';
 
 @BoundedContext({ key: 'ThymioIA', predicate: [] })
 export class ThymioIA implements IThymioIA {

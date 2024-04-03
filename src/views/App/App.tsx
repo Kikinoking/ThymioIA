@@ -4,6 +4,9 @@ import './App.css';
 import { thymioManagerFactory } from '../../Entities/ThymioManager';
 import { observer } from 'mobx-react';
 import { noteToNumberMapping } from '../../noteMapping';
+import React from 'react';
+import BarChart from './BarChart';
+
 
 Chart.register(...registerables);
 
@@ -53,6 +56,11 @@ const App = observer(() => {
   const [controledRobot, setControledRobot] = useState<string>('');
   const [trainer, setTrainer] = useState<{ uuid: string; action: string; captors: number[];note?: string }[]>([]);
   const [mode, setMode] = useState<'TRAIN' | 'PREDICT'>('TRAIN');
+
+//For bar chart
+  const [predictions, setPredictions] = React.useState([0.2, 0.3, 0.1, 0.15, 0.25]); 
+  const labels = ["STOP", "FORWARD", "BACKWARD", "LEFT", "RIGHT"]; 
+
 
   useEffect(() => {
     if (chartRef.current && !chart) {
@@ -349,6 +357,7 @@ const App = observer(() => {
     // setRobots([]), setControledRobot(''), etc.
   };
   
+  
   useEffect(() => {
     if (mode === 'PREDICT') {
       const data = user.captors.state[controledRobot].map(captor => captor.toString());
@@ -367,6 +376,7 @@ const App = observer(() => {
     return () => clearInterval(interval);
   });
 
+
   return (
     <>
       <h1>ThymioAI</h1>
@@ -379,101 +389,80 @@ const App = observer(() => {
           <button onClick={() => onAction('LEFT')}>LEFT</button>
           <button onClick={() => onAction('RIGHT')}>RIGHT</button>
           <br />
-           
+          
           <button onClick={startRecording} disabled={isRecording}>
-            {/* Slider pour ajuster la durée de l'enregistrement */}
-          <label htmlFor="recordDuration">Durée d'enregistrement: {recordDuration / 1000} secondes</label>
-          <input
-            id="recordDuration"
-            type="range"
-            min="1000"
-            max="10000"
-            step="1000"
-            value={recordDuration}
-            onChange={(e) => setRecordDuration(Number(e.target.value))}
-          />
+            <label htmlFor="recordDuration">Durée d'enregistrement: {recordDuration / 1000} secondes</label>
+            <input
+              id="recordDuration"
+              type="range"
+              min="1000"
+              max="10000"
+              step="1000"
+              value={recordDuration}
+              onChange={(e) => setRecordDuration(Number(e.target.value))}
+            />
+          </button>
+          <br />
           <div className='max-frequency-display'>
-              {maxDetectedFreq !== null && (
-              <p>Fréquence Max: {maxDetectedFreq.toFixed(2)} Hz</p>
-               )}
+            {maxDetectedFreq !== null && <p>Fréquence Max: {maxDetectedFreq.toFixed(2)} Hz</p>}
           </div>
           <div className='note-display'>
-            {noteRecording && (
-              <p>Note: {noteRecording}</p>
-            )}
+            {noteRecording && <p>Note: {noteRecording}</p>}
           </div>
-
-            {isRecording ? 'Enregistrement...' : 'Enregistrer Audio'}</button>
-            <br />
-            {audioUrl && <button onClick={() => new Audio(audioUrl).play()}>Playback</button>}
-        <br />
-        <button onClick={toggleContinuousRecording}>
+          {audioUrl && <button onClick={() => new Audio(audioUrl).play()}>Playback</button>}
+  
+          <br />
+          <button onClick={toggleContinuousRecording}>
             {isContinuousRecording ? 'Arrêter l\'enregistrement continu' : 'Démarrer l\'enregistrement continu'}
-            <div className='note-display'>
-          {maxFreq !== null && (
-          <p>Fréquence Max: {maxFreq.toFixed(2)} Hz</p>
-        )}
-        </div>
-        <div className='note-display'>
-            {note && (
-              <p>Note: {note}</p>
-            )}
+          </button>
+  
+          <div className='note-display'>
+            {maxFreq !== null && <p>Fréquence Max: {maxFreq.toFixed(2)} Hz</p>}
           </div>
-        </button>
-        
+          <div className='note-display'>
+            {note && <p>Note: {note}</p>}
+          </div>
+          
           <canvas ref={chartRef} width="400" height="400"></canvas>
           <pre>{JSON.stringify(user.captors.state, null)}</pre>
-
-          <div
-  style={{
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'column',
-    width: '100%',
-  }}
->
-  {trainer.map(({ action, captors,  note }, index) => (
-    <div
-      key={index}
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        width: '100%', // Assurez-vous que cela est suffisant pour une ligne
-        marginBottom: '5px', // Espace entre les éléments
-      }}
-    >
-      <span>{`Action: ${action}, `}</span>
-      <span>{`Captors: [${captors.join(', ')}], `}</span>
-      <span>{`Note: ${note}`}</span>
-    </div>
-  ))}
-  <br />
-  <button onClick={onExecute}>EXECUTE</button>
   
-  {mode === 'PREDICT' && (
-        <button onClick={stopExecutionAndReset}>Arrêter et Revenir à l'Entraînement</button>
-      )}
-  <button onClick={resetModelAndTrainer}>Réinitialiser le Modèle et l'Entraîneur</button>
-</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', width: '100%' }}>
+            {trainer.map(({ action, captors, note }, index) => (
+              <div key={index} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '5px' }}>
+                <span>Action: {action}, </span>
+                <span>Captors: [{captors.join(', ')}], </span>
+                <span>Note: {note}</span>
+              </div>
+            ))}
+            <br />
+            <button onClick={onExecute}>EXECUTE</button>
+  
+            {mode === 'PREDICT' && (
+              <>
+                <h2>Prédictions</h2>
+                <BarChart data={predictions} labels={labels} />
+                <button onClick={stopExecutionAndReset}>Arrêter et Revenir à l'Entraînement</button>
+              </>
+            )}
+            <button onClick={resetModelAndTrainer}>Réinitialiser le Modèle et l'Entraîneur</button>
+          </div>
         </>
       ) : (
         <>
           <div className="card">
             <button onClick={onClickGetRobots}>getRobots</button>
           </div>
-
+  
           {robots.map((robot, index) => (
             <div key={index} className="card">
-              <button onClick={() => onSelectRobot(robot)}>
-                <p>{robot}</p>
-              </button>
+              <button onClick={() => onSelectRobot(robot)}><p>{robot}</p></button>
             </div>
           ))}
         </>
       )}
     </>
   );
+  
 });
 
 export default App;
