@@ -384,91 +384,114 @@ const App = observer(() => {
   return (
     <>
       <h1>ThymioAI</h1>
-      
-      {controledRobot !== '' ? (
-        <>
-          <button onClick={() => onAction('STOP')}>STOP</button>
-          <button onClick={() => onAction('FORWARD')}>FORWARD</button>
-          <button onClick={() => onAction('BACKWARD')}>BACKWARD</button>
-          <button onClick={() => onAction('LEFT')}>LEFT</button>
-          <button onClick={() => onAction('RIGHT')}>RIGHT</button>
-          <br />
-          
-          <button onClick={startRecording} disabled={isRecording}>
-            <label htmlFor="recordDuration">Durée d'enregistrement: {recordDuration / 1000} secondes</label>
-            <input
-              id="recordDuration"
-              type="range"
-              min="1000"
-              max="10000"
-              step="1000"
-              value={recordDuration}
-              onChange={(e) => setRecordDuration(Number(e.target.value))}
-            />
-          </button>
-          <br />
-          <div className='max-frequency-display'>
-            {maxDetectedFreq !== null && <p>Fréquence Max: {maxDetectedFreq.toFixed(2)} Hz</p>}
-          </div>
-          <div className='note-display'>
-            {noteRecording && <p>Note: {noteRecording}</p>}
-          </div>
-          {audioUrl && <button onClick={() => new Audio(audioUrl).play()}>Playback</button>}
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
   
-          <br />
-          <button onClick={toggleContinuousRecording}>
-            {isContinuousRecording ? 'Arrêter l\'enregistrement continu' : 'Démarrer l\'enregistrement continu'}
-          </button>
-  
-          <div className='note-display'>
-            {maxFreq !== null && <p>Fréquence Max: {maxFreq.toFixed(2)} Hz</p>}
-          </div>
-          <div className='note-display'>
-            {note && <p>Note: {note}</p>}
-          </div>
-          
-          <canvas ref={chartRef} width="400" height="400"></canvas>
-          <pre>{JSON.stringify(user.captors.state, null)}</pre>
-  
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', width: '100%' }}>
-            {trainer.map(({ action, captors, note }, index) => (
-              <div key={index} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '5px' }}>
-                <span>Action: {action}, </span>
-                <span>Captors: [{captors.join(', ')}], </span>
-                <span>Note: {note}</span>
+        {/* Première colonne */}
+        <div style={{ flex: 1, marginRight: '20px' }}>
+          {controledRobot !== '' ? (
+            <>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                <button onClick={() => onAction('STOP')}>STOP</button>
+                <button onClick={() => onAction('FORWARD')}>FORWARD</button>
+                <button onClick={() => onAction('BACKWARD')}>BACKWARD</button>
+                <button onClick={() => onAction('LEFT')}>LEFT</button>
+                <button onClick={() => onAction('RIGHT')}>RIGHT</button>
               </div>
-            ))}
-            <br />
-            <button onClick={onExecute}>EXECUTE</button>
+              <br />
   
-            {mode === 'PREDICT' && (
-              <>
-                <h2>Prédictions</h2>
-                <BarChart data={predictions} labels={labels} />
-                <button onClick={stopExecutionAndReset}>Arrêter et Revenir à l'Entraînement</button>
-              </>
-            )}
-            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)}>
-              {isWinnerTakesAll ? "Passer à la sélection proportionnelle" : "Passer au Winner-Takes-All"}
-            </button>
-            <button onClick={resetModelAndTrainer}>Réinitialiser le Modèle et l'Entraîneur</button>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="card">
-            <button onClick={onClickGetRobots}>getRobots</button>
-          </div>
+              <button onClick={startRecording} disabled={isRecording}>
+                <label htmlFor="recordDuration">Durée d'enregistrement: {recordDuration / 1000} secondes</label>
+                <input
+                  id="recordDuration"
+                  type="range"
+                  min="1000"
+                  max="10000"
+                  step="1000"
+                  value={recordDuration}
+                  onChange={(e) => setRecordDuration(Number(e.target.value))}
+                />
+              </button>
+              <br />
+              {audioUrl && <button onClick={() => new Audio(audioUrl).play()}>Playback</button>}
+              <button onClick={toggleContinuousRecording}>
+                {isContinuousRecording ? 'Arrêter l\'enregistrement continu' : 'Démarrer l\'enregistrement continu'}
+              </button>
   
-          {robots.map((robot, index) => (
-            <div key={index} className="card">
-              <button onClick={() => onSelectRobot(robot)}><p>{robot}</p></button>
-            </div>
-          ))}
-        </>
-      )}
+              {/* Bloc déplacé de fréquences et notes */}
+              <div className='max-frequency-display'>
+                {maxDetectedFreq !== null && <p>Fréquence Max: {maxDetectedFreq.toFixed(2)} Hz</p>}
+              </div>
+              <div className='note-display'>
+                {noteRecording && <p>Note: {noteRecording}</p>}
+              </div>
+              <div className='max-frequency-display'>
+                {maxFreq !== null && <p>Fréquence Max: {maxFreq.toFixed(2)} Hz</p>}
+              </div>
+              <div className='note-display'>
+                {note && <p>Note: {note}</p>}
+              </div>
+              <canvas ref={chartRef} style={{ width: '100%', height: '400px' }}></canvas>
+            </>
+          ) : (
+            <>
+              <div className="card">
+                <button onClick={onClickGetRobots}>getRobots</button>
+              </div>
+              {robots.map((robot, index) => (
+                <div key={index} className="card">
+                  <button onClick={() => onSelectRobot(robot)}>{robot}</button>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+  
+        {/* Deuxième colonne */}
+        <div style={{ flex: 1, marginLeft: '20px' }}>
+          {controledRobot !== '' && (
+            <>
+              {/* Bloc déplacé en haut de la deuxième colonne */}
+              {trainer.map(({ action, captors, note }, index) => (
+                <div key={index} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '5px' }}>
+                  <span>Action: {action}, </span>
+                  <span>Captors: [{captors.join(', ')}], </span>
+                  <span>Note: {note}</span>
+                </div>
+              ))}
+              <br />
+              <button onClick={onExecute}>EXECUTE</button>
+  
+              <pre style={{ whiteSpace: 'nowrap', overflowX: 'auto' }}>{JSON.stringify(user.captors.state, null, 2)}</pre>
+              
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', width: '100%' }}>
+                {mode === 'PREDICT' && (
+                  <>
+                    <h2>Prédictions</h2>
+                    <BarChart data={predictions} labels={labels} />
+                    <button onClick={stopExecutionAndReset}>Arrêter et Revenir à l'Entraînement</button>
+                  </>
+                )}
+                <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)}>
+                  {isWinnerTakesAll ? "Passer à la sélection proportionnelle" : "Passer au Winner-Takes-All"}
+                </button>
+                <button onClick={resetModelAndTrainer}>Réinitialiser le Modèle et l'Entraîneur</button>
+              </div>
+            </>
+          )}
+        </div>
+  
+      </div>
     </>
   );
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
 });
 
