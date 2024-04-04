@@ -57,10 +57,14 @@ const App = observer(() => {
   const [trainer, setTrainer] = useState<{ uuid: string; action: string; captors: number[];note?: string }[]>([]);
   const [mode, setMode] = useState<'TRAIN' | 'PREDICT'>('TRAIN');
 
-//For bar chart
+  const [isWinnerTakesAll, setIsWinnerTakesAll] = useState(true); //Toggle winner-take-all/probabilistic decision
+
+//For bar chart$
+
   const [predictions, setPredictions] = React.useState([0.2, 0.3, 0.1, 0.15, 0.25]); 
   const labels = ["STOP", "FORWARD", "BACKWARD", "LEFT", "RIGHT"]; 
 
+  
 
   useEffect(() => {
     if (chartRef.current && !chart) {
@@ -360,21 +364,21 @@ const App = observer(() => {
   
   useEffect(() => {
     if (mode === 'PREDICT') {
-      const data = user.captors.state[controledRobot].map(captor => captor.toString());
-      user.predict(controledRobot, data, note);
-    }
-  }, [mode, user.captors.state, controledRobot]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (mode === 'PREDICT') {
+      const interval = setInterval(() => {
         const data = user.captors.state[controledRobot].map(captor => captor.toString());
-        user.predict(controledRobot, data, note);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  });
+        user.predict(controledRobot, data, note, isWinnerTakesAll)
+          .then(predictions => {
+            setPredictions(predictions);
+          })
+          .catch(error => {
+            console.error('Error during prediction:', error);
+          });
+      }, 1000);
+  
+      return () => clearInterval(interval);
+    }
+  }, [mode, controledRobot, note, user, isWinnerTakesAll]); // Ajoutez isWinnerTakesAll comme dépendance
+  
 
 
   return (
@@ -444,6 +448,9 @@ const App = observer(() => {
                 <button onClick={stopExecutionAndReset}>Arrêter et Revenir à l'Entraînement</button>
               </>
             )}
+            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)}>
+              {isWinnerTakesAll ? "Passer à la sélection proportionnelle" : "Passer au Winner-Takes-All"}
+            </button>
             <button onClick={resetModelAndTrainer}>Réinitialiser le Modèle et l'Entraîneur</button>
           </div>
         </>

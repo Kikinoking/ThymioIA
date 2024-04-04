@@ -84,32 +84,45 @@ export class ThymioIA implements IThymioIA {
       });
     };  
 
-    predict = (uuid: string, captors: number[], currentNote: string ) => {
-      if (!this.model) {
-        console.error('Model not initialized');
-        return;
-      }
+    predict = (uuid: string, captors: number[], currentNote: string) => {
+      return new Promise((resolve, reject) => {
+        if (!this.model) {
+          console.error('Model not initialized');
+          reject('Model not initialized');
+          return;
+        }
     
-      const noteValue = noteToNumberMapping[currentNote] || 0;  // Gérer le cas null.
-      const captorsNumeric = captors.map(c => parseFloat(c));
-      
-      const inputTensor = tf.tensor2d([captorsNumeric.concat(noteValue)]);
-      console.log('Input tensor:', captorsNumeric.concat(noteValue));
-      const prediction = this.model.predict(inputTensor) as tf.Tensor<tf.Rank>;
+        const noteValue = noteToNumberMapping[currentNote] || 0; // Gérer le cas null
+        const captorsNumeric = captors.map(c => parseFloat(c));
+        const inputTensor = tf.tensor2d([captorsNumeric.concat(noteValue)]);
+        const prediction = this.model.predict(inputTensor) as tf.Tensor<tf.Rank>;
     
-  
-    prediction.array().then((array: any) => {
-      console.log('Raw prediction:', array[0]);
-      const predictedIndex = array[0].indexOf(Math.max(...array[0]));
-      console.log('Predicted index:', predictedIndex);
-      const predictedAction = Object.keys(this.actionMapping).find(key => this.actionMapping[key] === predictedIndex);
-      if (!predictedAction) {
-        console.error(`No action found for predicted index: ${predictedIndex}`);
-        return;}
-      console.log('Prediction:', predictedAction);
-      this.emitMotorEvent(uuid, predictedAction as string);
-    });
-  };
+        prediction.array().then(array => {
+          const predictions = array[0];
+          console.log('Raw prediction:', predictions);
+          
+          // Maintenir la logique existante
+          const predictedIndex = predictions.indexOf(Math.max(...predictions));
+          console.log('Predicted index:', predictedIndex);
+          const predictedAction = Object.keys(this.actionMapping).find(key => this.actionMapping[key] === predictedIndex);
+          console.log('Prediction:', predictedAction);
+    
+          if (predictedAction) {
+            this.emitMotorEvent(uuid, predictedAction as string);
+          } else {
+            console.error(`No action found for predicted index: ${predictedIndex}`);
+            reject(`No action found for predicted index: ${predictedIndex}`);
+            return;
+          }
+    
+          // Résoudre la promesse avec les prédictions
+          resolve(predictions);
+        }).catch(error => {
+          console.error('Error in prediction:', error);
+          reject(error);
+        });
+      });
+    };
 
   getRobotsUuids = async () => {
     return this.tdmController.getRobotsUuids();
