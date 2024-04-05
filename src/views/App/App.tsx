@@ -6,6 +6,7 @@ import { observer } from 'mobx-react';
 import { noteToNumberMapping } from '../../noteMapping';
 import React from 'react';
 import BarChart from './BarChart';
+import ThymioSVG from '../ThymioSVG';
 
 
 Chart.register(...registerables);
@@ -456,12 +457,15 @@ const App = observer(() => {
                   <span>Action: {action}, </span>
                   <span>Captors: [{captors.join(', ')}], </span>
                   <span>Note: {note}</span>
+                  
                 </div>
               ))}
               <br />
               <button onClick={onExecute}>EXECUTE</button>
   
               <pre style={{ whiteSpace: 'nowrap', overflowX: 'auto' }}>{JSON.stringify(user.captors.state, null, 2)}</pre>
+              {user.captors.state[controledRobot] && <ThymioSVG captors={user.captors.state[controledRobot]} />}
+
               
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', width: '100%' }}>
                 {mode === 'PREDICT' && (
@@ -475,6 +479,7 @@ const App = observer(() => {
                   {isWinnerTakesAll ? "Passer à la sélection proportionnelle" : "Passer au Winner-Takes-All"}
                 </button>
                 <button onClick={resetModelAndTrainer}>Réinitialiser le Modèle et l'Entraîneur</button>
+                
               </div>
             </>
           )}
