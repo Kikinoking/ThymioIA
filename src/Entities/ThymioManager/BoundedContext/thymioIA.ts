@@ -6,6 +6,26 @@ import * as tf from '@tensorflow/tfjs';
 import { noteToNumberMapping } from '../../../noteMapping';
 import BarChart from '../../BarChart';
 
+
+
+function selectActionBasedOnProbabilities(predictions) {
+  //Array of intervals based on probabilities
+  const cumulativeProbabilities = predictions.reduce((acc, prob, i) => {
+    if (i === 0) {
+      acc.push(prob);
+    } else {
+      acc.push(prob + acc[i - 1]);
+    }
+    return acc;
+  }, []);
+  //Pick random number
+  const randomNumber = Math.random();
+  //Check in which interval the number falls in
+
+  const selectedIndex = cumulativeProbabilities.findIndex(cumulativeProb => randomNumber <= cumulativeProb);
+  console.log("cumulprobs: ", cumulativeProbabilities)
+  return selectedIndex;
+}
 @BoundedContext({ key: 'ThymioIA', predicate: [] })
 export class ThymioIA implements IThymioIA {
   private tdmController: TdmController;
@@ -84,7 +104,7 @@ export class ThymioIA implements IThymioIA {
       });
     };  
 
-    predict = (uuid: string, captors: number[], currentNote: string) => {
+    predict = (uuid: string, captors: number[], currentNote: string, useWinnerTakesAll = true) => {
       return new Promise((resolve, reject) => {
         if (!this.model) {
           console.error('Model not initialized');
@@ -100,9 +120,12 @@ export class ThymioIA implements IThymioIA {
         prediction.array().then(array => {
           const predictions = array[0];
           console.log('Raw prediction:', predictions);
-          
-          // Maintenir la logique existante
-          const predictedIndex = predictions.indexOf(Math.max(...predictions));
+          let predictedIndex;
+          if (useWinnerTakesAll) {
+            predictedIndex = predictions.indexOf(Math.max(...predictions));
+          } else { predictedIndex = selectActionBasedOnProbabilities(predictions)
+
+          }
           console.log('Predicted index:', predictedIndex);
           const predictedAction = Object.keys(this.actionMapping).find(key => this.actionMapping[key] === predictedIndex);
           console.log('Prediction:', predictedAction);
