@@ -80,29 +80,56 @@ const App = observer(() => {
           datasets: [{
             label: 'Amplitude (dB)',
             data: [],
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.15
+            borderColor: 'rgb(247, 17, 56)',
+            tension: 0.25
           }]
         },
         options: {
           scales: {
             x: {
+              type: 'linear', // Assurez-vous que l'axe X est de type linéaire
+              position: 'bottom', // Positionne l'axe en bas
+              min: 200, // Début des graduations à 200 Hz
+              max: 2000,
               title: {
                 display: true,
-                text: 'Fréquence (Hz)',
+                text: 'Frequency (Hz)',
+                color: '#dfe8e8',
                 font: {
-                  size: 16
-                }
-              }
+                  family: 'Roboto',
+                  size: 20,
+                  
+                },
+                
+              },
+              ticks: {
+                stepSize: 200,
+                color: '#dfe8e8', // Couleur des ticks/étiquettes sur l'axe X
+              },
+              grid: {
+                display : true,
+                color: 'rgba(79, 77, 77, 0.2)', // Couleur des lignes de grille pour l'axe X
+              },
             },
             y: {
               title: {
                 display: true,
                 text: 'Amplitude (dB)',
+                color: '#dfe8e8',
                 font: {
-                  size: 16
+                  family: 'Roboto',
+                  size: 20,
+                  
+                
                 }
-              }
+                
+              },ticks: {
+                color: '#dfe8e8', // Couleur des ticks/étiquettes sur l'axe X
+              },
+              grid: {
+                display : true,
+                color: 'rgba(79, 77, 77, 0.2)', // Couleur des lignes de grille pour l'axe X
+              },
             }
           },
           plugins: {
@@ -110,8 +137,11 @@ const App = observer(() => {
             legend: {
               display: true,
               labels: {
+          
+                  color: '#dfe8e8', // Couleur du texte des légendes
                 font: {
-                  size: 14
+                  family: 'Roboto',
+                  size: 20
                 }
               }
             }
@@ -388,10 +418,9 @@ const App = observer(() => {
 
   return (
     <>
-      <h1>AI Tools : ThymioAI</h1>
+      <h1>{controledRobot === '' ? 'AI Tools : ThymioAI' : (activeTab === 'Testing' ? 'Testing mode' : 'Training mode')}</h1>
       
       {controledRobot === '' ? (
-        // Afficher la sélection de robots si aucun n'est contrôlé
         <div style={{ flex: 1, marginRight: '20px' }}>
           <div className="card">
             <button onClick={onClickGetRobots}>getRobots</button>
@@ -403,21 +432,16 @@ const App = observer(() => {
           ))}
         </div>
       ) : (
-        
-        // Afficher les onglets en fonction de l'état de controledRobot
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between',  }}>
-        
-        {/* Boutons d'onglets en haut */}
-        <div style={{ marginBottom: '20px' }}>
-          <button onClick={() => switchTab('Training')}>Training</button>
-          <button onClick={() => switchTab('Testing')}>Testing</button>
-        </div>
-          {activeTab === 'Training' ? (
-            // Première colonne (Training)
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <button onClick={() => switchTab('Training')}>Training</button>
+            <button onClick={() => switchTab('Testing')}>Testing</button>
+          </div>
+  
+          {activeTab === 'Training' && (
             <div style={{ flex: 1, marginRight: '20px' }}>
-              {/* Contenu de la première colonne */}
               <br />
-              <div style={{ display: 'flex',justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
                 <button onClick={() => onAction('STOP')}>STOP</button>
                 <button onClick={() => onAction('FORWARD')}>FORWARD</button>
                 <button onClick={() => onAction('BACKWARD')}>BACKWARD</button>
@@ -426,7 +450,7 @@ const App = observer(() => {
               </div>
               <br />
               <button onClick={startRecording} disabled={isRecording}>
-                <label htmlFor="recordDuration">Record duration: {recordDuration / 1000} seconds</label>
+                Record duration: {recordDuration / 1000} seconds
                 <input
                   id="recordDuration"
                   type="range"
@@ -439,73 +463,80 @@ const App = observer(() => {
               </button>
               <br />
               {audioUrl && <button onClick={() => new Audio(audioUrl).play()}>Playback</button>}
-              
               {maxDetectedFreq !== null && (
                 <div className='max-frequency-display' style={{ maxWidth: '300px', margin: '0 auto' }}>
                   <p>Max frequency: {maxDetectedFreq.toFixed(2)} Hz</p>
                 </div>
               )}
-
               {noteRecording !== null && noteRecording !== 0 && (
                 <div className='note-display' style={{ maxWidth: '300px', margin: '0 auto' }}>
                   <p>Tone: {noteRecording}</p>
                 </div>
               )}
-
-              
-              <canvas ref={chartRef} style={{ width: '100%', height: '400px' }}></canvas>
-            </div>
-          ) : (
-            // Deuxième colonne (Testing)
-            <div style={{ flex: 1, marginLeft: '20px' }}>
-              {/* Contenu de la deuxième colonne */}
-              {trainer.map(({ action, captors, note }, index) => (
-                <div key={index} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '5px' }}>
-                  <span>Action: {action}, </span>
-                  <span>Captors: [{captors.join(', ')}], </span>
-                  <span>Note: {note}</span>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+              <canvas ref={chartRef} style={{ width: '40%', height: '200px' }}></canvas>
+              {user.captors.state[controledRobot] && (
+                <div style={{ marginLeft: '20px', flexShrink: 0 }}>
+                  <ThymioSVG captors={user.captors.state[controledRobot]} />
                 </div>
-              ))}
-              <br />
-              <button onClick={onExecute} style={{ marginBottom: '20px' }}>EXECUTE </button>
-              <br />
-              <button onClick={toggleContinuousRecording} style={{ marginBottom: '20px' }}>
-                {maxFreq !== null && (
-                  <div className='max-frequency-display'>
-                    <p>Max frequency: {maxFreq.toFixed(2)} Hz</p>
-                  </div>
-                )}
-
-                {note !== null && note !== 0 && (
-                  <div className='note-display'>
-                    <p>Tone: {note}</p>
-                  </div>
-                )}
-
-                {isContinuousRecording ? 'Stop continuous recording' : 'Start continuous recording'}
-              </button>
-
-              <pre style={{ display: 'none', whiteSpace: 'nowrap', overflowX: 'auto' }}>{JSON.stringify(user.captors.state, null, 2)}</pre>
-              {user.captors.state[controledRobot] && <ThymioSVG captors={user.captors.state[controledRobot]} />}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', width: '100%' }}>
-                {mode === 'PREDICT' && (
-                  <>
-                    <h2>Prédictions</h2>
-                    <BarChart data={predictions} labels={labels} />
-                    <button onClick={stopExecutionAndReset}>Stop Testing</button>
-                  </>
-                )}
-                <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} style={{ marginBottom: '20px' }}>
-                  {isWinnerTakesAll ? "Switch to probabilistic decision" : "Switch to Winner-Takes-All"}
-                </button>
-                <button onClick={resetModelAndTrainer} style={{ marginBottom: '20px' }}>Reinitialise the model</button>
-              </div>
+              )}
+            </div>
             </div>
           )}
+  
+          {activeTab === 'Testing' && (
+          <div style={{ flex: 1, marginLeft: '20px' }}>
+            {/* Disposition côte à côte pour BarChart et ThymioSVG uniquement en mode Testing */}
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{ flexGrow: 1, marginRight: '5px' }}> {/* Assurez-vous que le BarChart prend la majorité de l'espace */}
+                <BarChart data={predictions} labels={labels} />
+              </div>
+
+              {user.captors.state[controledRobot] && (
+                <div style={{ transform: 'scale(0.7)' }}> {/* Ajustez selon vos besoins */}
+                  <ThymioSVG captors={user.captors.state[controledRobot]} />
+                </div>
+              )}
+            </div>
+
+            {trainer.map(({ action, captors, note }, index) => (
+              <div key={index} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '5px' }}>
+                <span>Action: {action}, </span>
+                <span>Captors: [{captors.join(', ')}], </span>
+                <span>Note: {note}</span>
+              </div>
+            ))}
+            <br />
+            <button onClick={onExecute} style={{ marginBottom: '20px' }}>EXECUTE </button>
+            <br />
+            <button onClick={toggleContinuousRecording} style={{ marginBottom: '20px' }}>
+            {isContinuousRecording ? 'Stop continuous recording' : 'Start continuous recording'}
+            {maxFreq !== null && (
+              <div className='max-frequency-display'>
+                <p>Max frequency: {maxFreq.toFixed(2)} Hz</p>
+              </div>
+            )}
+            {note !== null && note !== 0 && (
+              <div className='note-display'>
+                <p>Tone: {note}</p>
+              </div>
+            )}
+            </button>
+            <br />
+
+            <button onClick={stopExecutionAndReset} style={{ marginTop: '20px' }}>Stop Testing</button>
+            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} style={{ margin: '20px' }}>
+              {isWinnerTakesAll ? "Switch to probabilistic decision" : "Switch to Winner-Takes-All"}
+            </button>
+            <button onClick={resetModelAndTrainer} style={{ marginBottom: '20px' }}>Reinitialize the model</button>
+          </div>
+        )}
         </div>
       )}
     </>
   );
+  
+  
   
 
 

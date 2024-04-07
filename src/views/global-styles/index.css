@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Raleway , sans-serif , system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -53,7 +53,7 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #a5ff64;
+  border-color: #6b9d47;
 }
 button:focus,
 button:focus-visible {
@@ -78,6 +78,7 @@ canvas {
   max-width: 100%;
   height: auto;
   display: block; /* Pour éviter tout espace blanc en dessous */
+  background-color: #242424;
 }
 
 .max-frequency-display {

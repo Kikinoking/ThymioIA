@@ -2,11 +2,11 @@ import { Bar } from 'react-chartjs-2';
 
 const BarChart = ({ data, labels }) => {
   const chartData = {
-    labels: labels, // Les étiquettes des états (par exemple, ["STOP", "FORWARD", "BACKWARD", "LEFT", "RIGHT"])
+    labels: labels,
     datasets: [
       {
         label: 'Probabilité de prédiction',
-        data: data, // Les valeurs de prédiction pour chaque état
+        data: data,
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
           'rgba(54, 162, 235, 0.2)',
@@ -26,7 +26,39 @@ const BarChart = ({ data, labels }) => {
     ],
   };
 
-  return <Bar data={chartData} />;
+  const options = {
+    scales: {
+      x: {
+        ticks: {
+          color: '#dfe8e8',
+        },
+        title: {
+          display: true,
+          text: 'Catégories',
+          color: '#dfe8e8',
+        },
+      },
+      y: {
+        ticks: {
+          color: '#dfe8e8',
+        },
+        title: {
+          display: true,
+          text: 'Probabilité',
+          color: '#dfe8e8',
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        labels: {
+          color: '#dfe8e8',
+        },
+      },
+    },
+  };
+
+  return <Bar data={chartData} options={options} />;
 };
 
 export default BarChart;
