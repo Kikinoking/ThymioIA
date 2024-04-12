@@ -7,6 +7,9 @@ import { noteToNumberMapping } from '../../noteMapping';
 import React from 'react';
 import BarChart from './BarChart';
 import ThymioSVG from '../ThymioSVG';
+import Piano from './Piano'
+import MusicalStaff from './MusicalStaff'; // Assurez-vous que le chemin est correct
+
 
 
 Chart.register(...registerables);
@@ -32,6 +35,22 @@ function frequencyToNoteNumber(frequency) {
   return note + octave;
 }
 
+const isSoundAboveThreshold = (analyser, threshold) => {
+  const dataArray = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(dataArray);
+
+  let totalAmplitude = 0;
+  for (let i = 0; i < dataArray.length; i++) {
+    totalAmplitude += dataArray[i];
+  }
+
+  // Calculez le niveau sonore moyen
+  const averageAmplitude = totalAmplitude / dataArray.length;
+
+  // Vérifiez si le niveau sonore moyen est supérieur au seuil
+  console.log("avg_amplitude: ", averageAmplitude)
+  return averageAmplitude > threshold;
+};
 
 
 const App = observer(() => {
@@ -49,6 +68,8 @@ const App = observer(() => {
 
   const [maxDetectedFreq, setMaxDetectedFreq] = useState(null); //USed when recording not continuous
   const [noteRecording, setNoteRecording] = useState(0);
+
+  const [threshold] = useState(90);
 
 
   const [recordDuration, setRecordDuration] = useState(5000);  //Record duration
@@ -179,6 +200,7 @@ const App = observer(() => {
     // Initialisation et stockage de audioContext dans le ref
     audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
     const source = audioContextRef.current.createMediaStreamSource(stream);
+    
     analyserRef.current = audioContextRef.current.createAnalyser();
     source.connect(analyserRef.current);
     
@@ -187,11 +209,16 @@ const App = observer(() => {
   };
 
   useEffect(() => {
+    
     // Vérifiez que audioContext et analyser sont définis avant de démarrer getFrequencies
     if (isContinuousRecording && audioContextRef.current && analyserRef.current) {
-      getFrequencies();
-    }
+      
+       // Vous pouvez ajuster le seuil comme nécessaire
+        getFrequencies();
+      
+    } 
   }, [isContinuousRecording, audioContextRef.current, analyserRef.current]);
+  
   
   const getFrequencies = () => {
     if (!isContinuousRecording || !analyserRef.current || !audioContextRef.current) {
@@ -212,18 +239,18 @@ const App = observer(() => {
 
     const maxFrequency = maxIndex * audioContextRef.current.sampleRate / analyserRef.current.fftSize;
     if (maxFrequency > 0) {
+      if (maxValue > threshold) {
         setMaxFreq(maxFrequency);
         const noteDetected = frequencyToNoteNumber(maxFrequency);
         setNote(noteDetected);
       }
+    }
 
-      if (isContinuousRecording) {
-          requestAnimationFrame(getFrequencies);
+    if (isContinuousRecording) {
+      requestAnimationFrame(getFrequencies);
     }
   };
 
-
-  // Utilisez useEffect pour démarrer l'analyse lorsque isContinuousRecording est true.
   useEffect(() => {
     if (isContinuousRecording && analyserRef.current) {
       getFrequencies();
@@ -471,16 +498,18 @@ const App = observer(() => {
               {noteRecording !== null && noteRecording !== 0 && (
                 <div className='note-display' style={{ maxWidth: '300px', margin: '0 auto' }}>
                   <p>Tone: {noteRecording}</p>
+                  <MusicalStaff noteRecording={noteRecording} />
                 </div>
               )}
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-              <canvas ref={chartRef} style={{ width: '40%', height: '200px' }}></canvas>
-              {user.captors.state[controledRobot] && (
-                <div style={{ marginLeft: '20px', flexShrink: 0 }}>
-                  <ThymioSVG captors={user.captors.state[controledRobot]} />
-                </div>
-              )}
-            </div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                {user.captors.state[controledRobot] && (
+                  <div style={{ marginLeft: '20px', flexShrink: 0 }}>
+                    <ThymioSVG captors={user.captors.state[controledRobot]} />
+                  </div>
+                )}
+                <br />
+                <Piano setNoteRecording={setNoteRecording} />
+              </div>
             </div>
           )}
   
@@ -517,8 +546,9 @@ const App = observer(() => {
               </div>
             )}
             {note !== null && note !== 0 && (
-              <div className='note-display'>
-                <p>Tone: {note}</p>
+              <div className='note-display' style={{ marginBottom: '40px' }}>
+                <p style={{ marginBottom: '20px' }}>Tone: {note}</p>
+                <MusicalStaff noteRecording={note} />
               </div>
             )}
             </button>

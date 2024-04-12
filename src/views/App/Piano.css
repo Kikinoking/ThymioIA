@@ -1,0 +1,60 @@
+.piano {
+    position: relative;
+    width: 100%;
+    height: 200px; /* Ajustez la hauteur selon vos besoins */
+  }
+  
+  .white-keys {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .white-key {
+    position: relative;
+    display: inline-block;
+    width: calc(100% / 15);
+    height: 100%;
+    background-color: white;
+    border: 1px solid black;
+    box-sizing: border-box;
+  }
+  .white-key-label {
+    color: black; /* Couleur du texte */
+    font-size: 12px;
+  }
+  .octave-label {
+    color: black; /* Couleur du texte */
+    font-size: 12px;
+  }
+  
+  .black-keys {
+    position: absolute;
+    top: 0;
+    width: calc(100% / 15 * 0.6); /* Largeur des touches noires, ajustez si nécessaire */
+    height: 60%; /* Hauteur des touches noires, ajustez si nécessaire */
+  }
+  
+  .black-key {
+    position: absolute;
+    width: calc(2000% / 15 * 0.6); /* Largeur des touches noires, ajustez si nécessaire */
+    height: 100%; /* Hauteur des touches noires, ajustez si nécessaire */
+    background-color: black;
+    z-index: 1; /* Les touches noires doivent être au-dessus des touches blanches */
+    cursor: pointer;
+    font-size: 12px;
+    
+  }
+  
+  /* Ajustez les positions left des touches noires pour les aligner avec les touches blanches */
+  .black-key:nth-child(odd) {
+    left: calc(100% / 15 * 0.5);
+  }
+  
+  .black-key:nth-child(even) {
+    left: calc(100% / 15 * 1.5);
+  }
+  
+  .black-key-label {
+    font-size: 10px; /* Taille de la police réduite pour les étiquettes des touches noires */
+  }

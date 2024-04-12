@@ -8,11 +8,11 @@ const BarChart = ({ data, labels }) => {
         label: 'Prediction Probability',
         data: data,
         backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 99, 132, 0.9)',
+          'rgba(54, 162, 235, 0.9)',
+          'rgba(255, 206, 86, 0.9)',
+          'rgba(75, 192, 192, 0.9)',
+          'rgba(153, 102, 255, 0.9)',
         ],
         borderColor: [
           'rgba(255, 99, 132, 1)',
@@ -27,15 +27,21 @@ const BarChart = ({ data, labels }) => {
   };
 
   const options = {
-    maintainAspectRatio: true, // Permet au graphique de remplir le conteneur
+    maintainAspectRatio: true,
     scales: {
       x: {
         ticks: {
-          color: '#dfe8e8',
+          color: '#dfe8e8', // Couleur des étiquettes de l'axe X
           font: {
-            family: 'Roboto', // Utilisez la police Roboto
-            size: 14, // Taille de la police pour les ticks de l'axe X
+            family: 'Roboto',
+            size: 14,
           }
+        },
+        grid: {
+          drawBorder: true, // Dessine la bordure de l'axe
+          borderWidth: 2, // Épaisseur de la bordure de l'axe
+          borderColor: 'rgba(223, 232, 232, 1)', // Couleur de la bordure de l'axe
+          drawOnChartArea: false, // N'affiche pas les grilles dans la zone du graphique
         },
         title: {
           display: true,
@@ -43,17 +49,23 @@ const BarChart = ({ data, labels }) => {
           color: '#dfe8e8',
           font: {
             family: 'Roboto',
-            size: 16, // Taille de la police pour le titre de l'axe X
+            size: 16,
           }
         },
       },
       y: {
         ticks: {
-          color: '#dfe8e8',
+          color: '#dfe8e8', // Couleur des étiquettes de l'axe Y
           font: {
-            family: 'Roboto', // Utilisez la police Roboto
-            size: 14, // Taille de la police pour les ticks de l'axe Y
+            family: 'Roboto',
+            size: 14,
           }
+        },
+        grid: {
+          drawBorder: true, // Dessine la bordure de l'axe
+          borderWidth: 20, // Épaisseur de la bordure de l'axe
+          borderColor: 'rgba(255, 255, 255, 1)', // Couleur de la bordure de l'axe
+          drawOnChartArea: false, // N'affiche pas les grilles dans la zone du graphique
         },
         title: {
           display: true,
@@ -61,7 +73,7 @@ const BarChart = ({ data, labels }) => {
           color: '#dfe8e8',
           font: {
             family: 'Roboto',
-            size: 16, // Taille de la police pour le titre de l'axe Y
+            size: 16,
           }
         },
       },
@@ -72,12 +84,13 @@ const BarChart = ({ data, labels }) => {
           color: '#dfe8e8',
           font: {
             family: 'Roboto',
-            size: 18, // Taille de la police pour la légende
+            size: 18,
           }
         },
       },
     },
   };
+  
 
   return <Bar data={chartData} options={options} />;
 };
