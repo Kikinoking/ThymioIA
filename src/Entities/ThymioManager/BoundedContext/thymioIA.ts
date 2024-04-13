@@ -77,7 +77,7 @@ export class ThymioIA implements IThymioIA {
 
       // Compiler le modèle avec les ajustements adéquats
       model.compile({
-        optimizer: tf.train.adam(0.01),
+        optimizer: tf.train.adam(0.001),
         loss: 'categoricalCrossentropy',
         metrics: ['accuracy']
       });
@@ -118,7 +118,7 @@ export class ThymioIA implements IThymioIA {
     });
 };
 
-    predict = (uuid: string, captors: number[], currentNote: string, useWinnerTakesAll = true,inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') => {
+    predict = (uuid: string, captors: number[], currentNote: number, useWinnerTakesAll = true,inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') => {
       return new Promise((resolve, reject) => {
         if (!this.model) {
           console.error('Model not initialized');
@@ -130,10 +130,12 @@ export class ThymioIA implements IThymioIA {
       
         let inputTensor;
         if (inputMode === 'NOTE_ONLY') {
-          const noteValue = noteToNumberMapping[currentNote] || 0;
+          const noteValue =currentNote || 0;
+          
+          console.log("note used to predict: ", noteValue)
           inputTensor = tf.tensor2d([[noteValue]]);
         } else { // CAPTORS_AND_NOTE
-          const noteValue = noteToNumberMapping[currentNote] || 0;
+          const noteValue = currentNote || 0;
           const captorsNumeric = captors.map(c => parseFloat(c));
           inputTensor = tf.tensor2d([captorsNumeric.concat(noteValue)]);
         }
@@ -246,9 +248,10 @@ export class ThymioIA implements IThymioIA {
       default:
         break;
     }
-
+    /*
     setTimeout(() => {
       this.emitAction(uuid, 'M_motors', [0, 0]);
     }, 600);
+    */
   };
 }

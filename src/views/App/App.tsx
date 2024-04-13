@@ -70,7 +70,7 @@ const App = observer(() => {
   const [maxDetectedFreq, setMaxDetectedFreq] = useState(null); //USed when recording not continuous
   const [noteRecording, setNoteRecording] = useState(0);
 
-  const [threshold, setThreshold] = useState(30);
+  const [threshold, setThreshold] = useState(200);
 
 
 
@@ -228,10 +228,10 @@ const App = observer(() => {
     if (!isContinuousRecording || !analyserRef.current || !audioContextRef.current) {
       return;
     }
-
+  
     const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
     analyserRef.current.getByteFrequencyData(dataArray);
-
+  
     let maxIndex = 0;
     let maxValue = 0;
     for (let i = 0; i < dataArray.length; i++) {
@@ -240,20 +240,20 @@ const App = observer(() => {
         maxIndex = i;
       }
     }
-
+  
     const maxFrequency = maxIndex * audioContextRef.current.sampleRate / analyserRef.current.fftSize;
-    if (maxFrequency > 0) {
-      if (maxValue > threshold) {
-        setMaxFreq(maxFrequency);
-        const noteDetected = frequencyToNoteNumber(maxFrequency);
-        setNote(noteDetected);
-      }
-    }
-
+    console.log("MaxValueFFT : ",maxValue)
+    if (maxFrequency > 0 && maxValue > threshold) { // Ajout de la vérification de la valeur maximale par rapport au seuil
+      setMaxFreq(maxFrequency);
+      const noteDetected = frequencyToNoteNumber(maxFrequency);
+      setNote(noteDetected);
+    } 
+  
     if (isContinuousRecording) {
       requestAnimationFrame(getFrequencies);
     }
   };
+  
 
   useEffect(() => {
     if (isContinuousRecording && analyserRef.current) {
@@ -434,8 +434,10 @@ const App = observer(() => {
             const data = user.captors.state[controledRobot].map(captor => captor.toString());
             if (typeof note === 'string') {
                 const noteNumber = noteToNumberMapping[note] || 0; // Fallback to 0 if note is not found
+                console.log("note: ", note);
+                console.log("notemapped ", noteToNumberMapping[note])
                 console.log("input data du modèle: ", data, " + ", noteNumber);
-                user.predict(controledRobot, data, noteNumber, isWinnerTakesAll, inputMode)
+                user.predict(controledRobot, data, noteToNumberMapping[note], isWinnerTakesAll, inputMode)
                     .then(predictions => {
                         setPredictions(predictions);
                     })
@@ -473,7 +475,7 @@ const App = observer(() => {
             <button onClick={() => switchTab('Testing')}>Testing</button>
           </div>
           <div style={{ marginBottom: '20px' }}>
-        <h2>Current Input Mode: {inputMode === 'NOTE_ONLY' ? 'Note Only' : 'Captors and Note'}</h2>
+          <h2>Current Input Mode: {inputMode === 'NOTE_ONLY' ? 'Note Only' : 'Captors and Note'}</h2>
         <button onClick={() => setInputMode('CAPTORS_AND_NOTE')}>Use Captors and Note</button>
         <button onClick={() => setInputMode('NOTE_ONLY')}>Use Note Only</button>
       </div>
@@ -482,8 +484,8 @@ const App = observer(() => {
       <input
         id="thresholdSlider"
         type="range"
-        min="0"
-        max="100"
+        min="180"
+        max="250"
         step="1"
         value={threshold}
         onChange={(e) => setThreshold(Number(e.target.value))}
