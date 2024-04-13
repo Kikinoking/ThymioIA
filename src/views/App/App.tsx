@@ -31,8 +31,9 @@ function frequencyToNoteNumber(frequency) {
   let octave = Math.floor(h / 12);
   const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   let n = h % 12;
-  let note = noteNames[n];
-  return note + octave;
+  let note = noteNames[n] + octave; // Assurez-vous de concaténer ici directement
+  //console.log(`Converted frequency ${frequency} to note ${note}`);
+  return note;
 }
 
 const isSoundAboveThreshold = (analyser, threshold) => {
@@ -69,7 +70,8 @@ const App = observer(() => {
   const [maxDetectedFreq, setMaxDetectedFreq] = useState(null); //USed when recording not continuous
   const [noteRecording, setNoteRecording] = useState(0);
 
-  const [threshold] = useState(90);
+  const [threshold, setThreshold] = useState(30);
+
 
 
   const [recordDuration, setRecordDuration] = useState(5000);  //Record duration
@@ -80,6 +82,8 @@ const App = observer(() => {
   const [mode, setMode] = useState<'TRAIN' | 'PREDICT'>('TRAIN');
 
   const [isWinnerTakesAll, setIsWinnerTakesAll] = useState(true); //Toggle winner-take-all/probabilistic decision
+
+  const [inputMode, setInputMode] = useState('CAPTORS_AND_NOTE'); // 'CAPTORS_AND_NOTE' ou 'NOTE_ONLY'
 
 //For bar chart$
 
@@ -396,7 +400,7 @@ const App = observer(() => {
     }));
   
       console.log("Verifying input sizes:", data.map(d => d.input.length));
-      await user.trainModel(data);
+      await user.trainModel(data, inputMode);;
       setMode('PREDICT');
     }
   };
@@ -426,20 +430,24 @@ const App = observer(() => {
   
   useEffect(() => {
     if (mode === 'PREDICT') {
-      const interval = setInterval(() => {
-        const data = user.captors.state[controledRobot].map(captor => captor.toString());
-        user.predict(controledRobot, data, note, isWinnerTakesAll)
-          .then(predictions => {
-            setPredictions(predictions);
-          })
-          .catch(error => {
-            console.error('Error during prediction:', error);
-          });
-      }, 1000);
-  
-      return () => clearInterval(interval);
+        const interval = setInterval(() => {
+            const data = user.captors.state[controledRobot].map(captor => captor.toString());
+            if (typeof note === 'string') {
+                const noteNumber = noteToNumberMapping[note] || 0; // Fallback to 0 if note is not found
+                console.log("input data du modèle: ", data, " + ", noteNumber);
+                user.predict(controledRobot, data, noteNumber, isWinnerTakesAll, inputMode)
+                    .then(predictions => {
+                        setPredictions(predictions);
+                    })
+                    .catch(error => {
+                        console.error('Error during prediction:', error);
+                    });
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
     }
-  }, [mode, controledRobot, note, user, isWinnerTakesAll]); // Ajoutez isWinnerTakesAll comme dépendance
+}, [mode, controledRobot, note, user, isWinnerTakesAll, inputMode]);
   
 
 
@@ -464,6 +472,23 @@ const App = observer(() => {
             <button onClick={() => switchTab('Training')}>Training</button>
             <button onClick={() => switchTab('Testing')}>Testing</button>
           </div>
+          <div style={{ marginBottom: '20px' }}>
+        <h2>Current Input Mode: {inputMode === 'NOTE_ONLY' ? 'Note Only' : 'Captors and Note'}</h2>
+        <button onClick={() => setInputMode('CAPTORS_AND_NOTE')}>Use Captors and Note</button>
+        <button onClick={() => setInputMode('NOTE_ONLY')}>Use Note Only</button>
+      </div>
+      <div>
+      <label htmlFor="thresholdSlider">Threshold: {threshold} dB</label>
+      <input
+        id="thresholdSlider"
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        value={threshold}
+        onChange={(e) => setThreshold(Number(e.target.value))}
+      />
+      </div>
   
           {activeTab === 'Training' && (
             <div style={{ flex: 1, marginRight: '20px' }}>

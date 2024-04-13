@@ -5,7 +5,7 @@ export type UsersType = 'AllUser' | 'Teacher' | 'Student' | 'Admin' | 'Dev';
 
 export interface Users {
   captors: Observable<{ [uuid: string]: number[] }>;
-  predict: (uuid: string, input: string[]) => void;
+  predict: (uuid: string, input: string[], inote: number, isWinnerTakesAll: boolean, inputMode: string) => void;
   trainModel: (data: DataEntry[]) => Promise<void>;
   getRobotsUuids: () => Promise<string[]>;
   takeControl: (uuid: string, onVariableChange?: (uuid: string, variables: { [name: string]: number }) => void) => void;

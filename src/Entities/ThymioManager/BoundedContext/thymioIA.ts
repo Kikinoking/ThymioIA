@@ -54,67 +54,91 @@ export class ThymioIA implements IThymioIA {
     this.tdmController = tdmController;
   }
 
-  initModel = async () =>
-    new Promise<tf.Sequential>((resolve, reject) => {
-      try {
-        // Inicializar el modelo
-        const model = tf.sequential();
-       
-        // Ajustando la capa de entrada para que coincida con los datos de entrada reales ([9])
-        model.add(tf.layers.dense({ units: 16, inputShape: [10], activation: 'relu' }));
-        // Ajustar la capa de salida para que coincida con el número de acciones posibles (5)
-        model.add(tf.layers.dense({ units: 5, activation: 'softmax' }));
+  initModel = async (inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') =>
+  new Promise<tf.Sequential>((resolve, reject) => {
+    try {
+      const model = tf.sequential();
 
-        // Compilar el modelo con los ajustes adecuados
-        model.compile({
-          optimizer:  tf.train.adam(0.001),
-          // Usar 'categoricalCrossentropy' para un problema de clasificación multiclase
-          loss: 'categoricalCrossentropy',
-          metrics: ['accuracy'],
-        });
+      // Définir la taille de l'entrée basée sur le mode d'entrée sélectionné
+      const inputShape = inputMode === 'NOTE_ONLY' ? [1] : [10]; // 9 capteurs + 1 note ou juste 1 note
 
-        console.log('Model initialized', model);
-        resolve(model);
-      } catch (error) {
-        reject(error);
-      }
-    });
+      // Ajouter la première couche en spécifiant la forme d'entrée
+      model.add(tf.layers.dense({
+        units: 16,
+        inputShape: inputShape,
+        activation: 'relu'
+      }));
 
-    trainModel = async (data: DataEntry[]) => {
-      this.model = await this.initModel();
-    
-      if (!this.model) {
+      // Ajouter la couche de sortie qui reste la même pour les deux modes
+      model.add(tf.layers.dense({
+        units: 5, // 5 actions possibles
+        activation: 'softmax'
+      }));
+
+      // Compiler le modèle avec les ajustements adéquats
+      model.compile({
+        optimizer: tf.train.adam(0.01),
+        loss: 'categoricalCrossentropy',
+        metrics: ['accuracy']
+      });
+
+      console.log('Model initialized', model);
+      resolve(model);
+    } catch (error) {
+      reject(error);
+    }
+  });
+
+  trainModel = async (data: DataEntry[], inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') => {
+    this.model = await this.initModel(inputMode);
+
+    if (!this.model) {
         console.error('Model not initialized');
         return;
-      }
-    
-      data.forEach(item => {
-        console.log(`Length of input: ${item.input.length + 1}`); // +1 pour inclure la note
-      });
-    
-      const xs = tf.tensor2d(data.map(item => {
-        return [...item.input.map(bit => parseFloat(bit))];//, parseFloat(item.note)];
-      }));
-    
-      const actionsAsIndices = data.map(item => this.actionMapping[item.output as keyof typeof this.actionMapping]);
-      const ys = tf.oneHot(tf.tensor1d(actionsAsIndices, 'int32'), Object.keys(this.actionMapping).length);
-    
-      await this.model.fit(xs, ys, {
-        epochs: 50,
-      });
-    };  
+    }
 
-    predict = (uuid: string, captors: number[], currentNote: string, useWinnerTakesAll = true) => {
+    // Préparation des tensors pour l'entrainement
+    const xs = tf.tensor2d(data.map(item => {
+        if (inputMode === 'NOTE_ONLY') {
+            // Utilise uniquement le dernier élément de item.input comme entrée
+            console.log("input: ",item.input[item.input.length - 1] )
+            return [item.input[item.input.length - 1]]; // La dernière entrée est le numéro de la note
+        } else { // CAPTORS_AND_NOTE
+            // Utilise tout item.input qui inclut déjà le numéro de la note
+            return item.input.map(bit => parseFloat(bit));
+        }
+    }));
+
+    console.log("Tensor xs: ", xs.print());
+    const actionsAsIndices = data.map(item => this.actionMapping[item.output as keyof typeof this.actionMapping]);
+    const ys = tf.oneHot(tf.tensor1d(actionsAsIndices, 'int32'), Object.keys(this.actionMapping).length);
+
+    await this.model.fit(xs, ys, {
+        epochs: 50,
+    });
+};
+
+    predict = (uuid: string, captors: number[], currentNote: string, useWinnerTakesAll = true,inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') => {
       return new Promise((resolve, reject) => {
         if (!this.model) {
           console.error('Model not initialized');
           reject('Model not initialized');
           return;
         }
+        
+
+      
+        let inputTensor;
+        if (inputMode === 'NOTE_ONLY') {
+          const noteValue = noteToNumberMapping[currentNote] || 0;
+          inputTensor = tf.tensor2d([[noteValue]]);
+        } else { // CAPTORS_AND_NOTE
+          const noteValue = noteToNumberMapping[currentNote] || 0;
+          const captorsNumeric = captors.map(c => parseFloat(c));
+          inputTensor = tf.tensor2d([captorsNumeric.concat(noteValue)]);
+        }
+
     
-        const noteValue = noteToNumberMapping[currentNote] || 0; // Gérer le cas null
-        const captorsNumeric = captors.map(c => parseFloat(c));
-        const inputTensor = tf.tensor2d([captorsNumeric.concat(noteValue)]);
         const prediction = this.model.predict(inputTensor) as tf.Tensor<tf.Rank>;
     
         prediction.array().then(array => {
