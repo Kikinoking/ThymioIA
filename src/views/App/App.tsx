@@ -85,6 +85,9 @@ const App = observer(() => {
 
   const [inputMode, setInputMode] = useState('CAPTORS_AND_NOTE'); // 'CAPTORS_AND_NOTE' ou 'NOTE_ONLY'
 
+  const [silentMode, setSilentMode] = useState(false); //Toggle visual piano
+  const [showSettings, setShowSettings] = useState(false);
+
 //For bar chart$
 
   const [predictions, setPredictions] = React.useState([0.2, 0.3, 0.1, 0.15, 0.25]); 
@@ -95,6 +98,13 @@ const App = observer(() => {
   const switchTab = (tabName) => {
     setActiveTab(tabName);
   };
+
+  const toggleSettings = () => {
+    console.log("Before toggle:", showSettings);
+    setShowSettings(!showSettings);
+    console.log("After toggle:", showSettings);
+};
+
 
   useEffect(() => {
     if (chartRef.current && !chart) {
@@ -453,8 +463,33 @@ const App = observer(() => {
   
 
 
-  return (
+   return (
     <>
+      
+            <button onClick={toggleSettings} className="settings-button">
+                Settings
+            </button>
+
+            {showSettings && (
+                <div className="settings-panel">
+                    <h2>Current Input Mode: {inputMode === 'NOTE_ONLY' ? 'Note Only' : 'Captors and Note'}</h2>
+                    <button onClick={() => setInputMode('CAPTORS_AND_NOTE')}>Use Captors and Note</button>
+                    <button onClick={() => setInputMode('NOTE_ONLY')}>Use Note Only</button>
+                    <div>
+                        <label htmlFor="thresholdSlider">Threshold: {threshold} dB</label>
+                        <input
+                            id="thresholdSlider"
+                            type="range"
+                            min="180"
+                            max="250"
+                            step="1"
+                            value={threshold}
+                            onChange={(e) => setThreshold(Number(e.target.value))}
+                        />
+                    </div>
+                </div>
+            )}
+
       <h1>{controledRobot === '' ? 'AI Tools : ThymioAI' : (activeTab === 'Testing' ? 'Testing mode' : 'Training mode')}</h1>
       
       {controledRobot === '' ? (
@@ -474,23 +509,6 @@ const App = observer(() => {
             <button onClick={() => switchTab('Training')}>Training</button>
             <button onClick={() => switchTab('Testing')}>Testing</button>
           </div>
-          <div style={{ marginBottom: '20px' }}>
-          <h2>Current Input Mode: {inputMode === 'NOTE_ONLY' ? 'Note Only' : 'Captors and Note'}</h2>
-        <button onClick={() => setInputMode('CAPTORS_AND_NOTE')}>Use Captors and Note</button>
-        <button onClick={() => setInputMode('NOTE_ONLY')}>Use Note Only</button>
-      </div>
-      <div>
-      <label htmlFor="thresholdSlider">Threshold: {threshold} dB</label>
-      <input
-        id="thresholdSlider"
-        type="range"
-        min="180"
-        max="250"
-        step="1"
-        value={threshold}
-        onChange={(e) => setThreshold(Number(e.target.value))}
-      />
-      </div>
   
           {activeTab === 'Training' && (
             <div style={{ flex: 1, marginRight: '20px' }}>
@@ -535,37 +553,37 @@ const App = observer(() => {
                   </div>
                 )}
                 <br />
-                <Piano setNoteRecording={setNoteRecording} />
+                <Piano onNoteChange={setNoteRecording} />
+
               </div>
             </div>
           )}
   
           {activeTab === 'Testing' && (
-          <div style={{ flex: 1, marginLeft: '20px' }}>
-            {/* Disposition côte à côte pour BarChart et ThymioSVG uniquement en mode Testing */}
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ flexGrow: 1, marginRight: '5px' }}> {/* Assurez-vous que le BarChart prend la majorité de l'espace */}
-                <BarChart data={predictions} labels={labels} />
-              </div>
-
-              {user.captors.state[controledRobot] && (
-                <div style={{ transform: 'scale(0.7)' }}> {/* Ajustez selon vos besoins */}
-                  <ThymioSVG captors={user.captors.state[controledRobot]} />
+            <div style={{ flex: 1, marginLeft: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ flexGrow: 1, marginRight: '5px' }}>
+                  <BarChart data={predictions} labels={labels} />
                 </div>
-              )}
-            </div>
 
-            {trainer.map(({ action, captors, note }, index) => (
-              <div key={index} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '5px' }}>
-                <span>Action: {action}, </span>
-                <span>Captors: [{captors.join(', ')}], </span>
-                <span>Note: {note}</span>
+                {user.captors.state[controledRobot] && (
+                  <div style={{ transform: 'scale(0.7)' }}>
+                    <ThymioSVG captors={user.captors.state[controledRobot]} />
+                  </div>
+                )}
               </div>
-            ))}
-            <br />
-            <button onClick={onExecute} style={{ marginBottom: '20px' }}>EXECUTE </button>
-            <br />
-            <button onClick={toggleContinuousRecording} style={{ marginBottom: '20px' }}>
+
+              {trainer.map(({ action, captors, note }, index) => (
+                <div key={index} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '5px' }}>
+                  <span>Action: {action}, </span>
+                  <span>Captors: [{captors.join(', ')}], </span>
+                  <span>Note: {note}</span>
+                </div>
+              ))}
+              <br />
+              <button onClick={onExecute} style={{ marginBottom: '20px' }}>EXECUTE</button>
+              <br />
+              <button onClick={toggleContinuousRecording} style={{ marginBottom: '20px' }}>
             {isContinuousRecording ? 'Stop continuous recording' : 'Start continuous recording'}
             {maxFreq !== null && (
               <div className='max-frequency-display'>
@@ -579,19 +597,22 @@ const App = observer(() => {
               </div>
             )}
             </button>
-            <br />
+              <Piano onNoteChange={setNote} />
 
-            <button onClick={stopExecutionAndReset} style={{ marginTop: '20px' }}>Stop Testing</button>
-            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} style={{ margin: '20px' }}>
-              {isWinnerTakesAll ? "Switch to probabilistic decision" : "Switch to Winner-Takes-All"}
-            </button>
-            <button onClick={resetModelAndTrainer} style={{ marginBottom: '20px' }}>Reinitialize the model</button>
-          </div>
-        )}
+              <br />
+
+              <button onClick={stopExecutionAndReset} style={{ marginTop: '20px' }}>Stop Testing</button>
+              <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} style={{ margin: '20px' }}>
+                {isWinnerTakesAll ? "Switch to probabilistic decision" : "Switch to Winner-Takes-All"}
+              </button>
+              <button onClick={resetModelAndTrainer} style={{ marginBottom: '20px' }}>Reinitialize the model</button>
+            </div>
+          )}
         </div>
       )}
     </>
   );
+
   
   
   

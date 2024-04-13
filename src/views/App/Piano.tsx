@@ -1,48 +1,35 @@
 import React from 'react';
 import './Piano.css'; // Importation du fichier CSS
 
-const getOctave = (index) => {
-    
+const getOctave = (index: number): number => {
     return Math.floor(index / 7) + 4; 
-  };
-  
+};
 
-const Piano = ({ setNoteRecording }) => {
-  const handleClick = (note) => {
-    setNoteRecording(note);
-  };
+interface PianoProps {
+  onNoteChange: (note: string) => void;
+}
 
-
+const Piano: React.FC<PianoProps> = ({ onNoteChange }) => {
+    const handleClick = (note: string) => {
+      onNoteChange(note); // Utilisez la prop onNoteChange
+    };
 
   return (
     <div className="piano">
-      {/* White keys */}
       <div className="white-keys">
         {['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'A', 'B', 'C'].map((note, index) => (
           <div key={index} className="white-key" onClick={() => handleClick(`${note}${getOctave(index)}`)}>
-             <span className="white-key-label">{note}</span>
-             <span className="octave-label">{getOctave(index)}</span>
+            <span className="white-key-label">{note}</span>
+            <span className="octave-label">{getOctave(index)}</span>
           </div>
         ))}
       </div>
-
-      {/* Black keys */}
       <div className="black-keys">
-        <div className="black-key" style={{ left: '27px' }} onClick={() => handleClick('C#4')}>C#</div>
-        <div className="black-key" style={{ left: '65px' }} onClick={() => handleClick('D#4')}>D#</div>
-        
-        <div className="black-key" style={{ left: '137px' }} onClick={() => handleClick('F#4')}>F#</div>
-        <div className="black-key" style={{ left: '173px' }} onClick={() => handleClick('G#4')}>G#</div>
-        <div className="black-key" style={{ left: '210px' }} onClick={() => handleClick('A#4')}>A#</div>
-
-        <div className="black-key" style={{ left: '285px' }} onClick={() => handleClick('C#5')}>C#</div>
-        <div className="black-key" style={{ left: '320px' }} onClick={() => handleClick('D#5')}>D#</div>
-
-        <div className="black-key" style={{ left: '392px' }} onClick={() => handleClick('F#5')}>F#</div>
-        <div className="black-key" style={{ left: '428px' }} onClick={() => handleClick('G#5')}>G#</div>
-        <div className="black-key" style={{ left: '465px' }} onClick={() => handleClick('A#5')}>A#</div>
-
-        
+        {['C#4', 'D#4', 'F#4', 'G#4', 'A#4', 'C#5', 'D#5', 'F#5', 'G#5', 'A#5'].map((note, index) => (
+          <div key={index} className="black-key" onClick={() => handleClick(note)}>
+            {note}
+          </div>
+        ))}
       </div>
     </div>
   );

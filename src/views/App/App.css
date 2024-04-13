@@ -48,3 +48,59 @@
 
 
 
+.settings-button {
+  position: fixed;
+  top: 10px; /* Ajustez cette valeur pour positionner le bouton selon vos besoins */
+  left: 10px; /* Ajustez cette valeur pour positionner le bouton selon vos besoins */
+  z-index: 1050; /* S'assure que le bouton reste au-dessus du volet */
+  cursor: pointer;
+  padding: 8px 12px;
+  background-color: #007bff; /* Couleur de fond du bouton */
+  color: white; /* Couleur du texte du bouton */
+  border: none;
+  border-radius: 4px; /* Arrondi les angles du bouton */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Ombre pour un effet de relief */
+}
+
+.settings-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px; /* Largeur du volet */
+  height: 100%; /* Hauteur totale de la vue */
+  background-color: #f8f8f8; /* Couleur de fond du volet */
+  border-right: 1px solid #ccc; /* Bordure droite pour séparer du reste de la page */
+  box-shadow: 2px 0 5px rgba(0,0,0,0.2); /* Ombre pour un effet de profondeur */
+  transform: translateX(-100%); /* Démarre hors du cadre de la vue */
+  transition: transform 0.3s ease-in-out; /* Animation douce pour ouvrir/fermer */
+  z-index: 1040; /* S'assure que le volet est au-dessus du contenu de la page mais sous le bouton */
+}
+
+.settings-panel.open {
+  transform: translateX(0); /* Déplace le volet dans la vue lorsque ouvert */
+}
+
+.settings-panel h2 {
+  padding: 20px; /* Espacement autour du titre pour plus de clarté */
+}
+
+.settings-panel button {
+  display: block; /* Assure que les boutons prennent toute la largeur */
+  width: 100%; /* Maximise la largeur des boutons pour faciliter le clic */
+  padding: 10px; /* Padding pour confort de clic */
+  margin: 10px 0; /* Marge entre les boutons */
+  background-color: #fff; /* Fond blanc pour les boutons */
+  border: 1px solid #ddd; /* Légère bordure pour définir les boutons */
+  cursor: pointer;
+}
+
+.settings-panel label {
+  display: block; /* Permet au label d'être sur sa propre ligne */
+  margin: 20px 0 10px; /* Espacement autour du label */
+}
+
+.settings-panel input[type="range"] {
+  width: 90%; /* Largeur du slider pour s'adapter au conteneur */
+  margin: auto; /* Centre le slider */
+  display: block; /* Assure que le slider est sur sa propre ligne */
+}

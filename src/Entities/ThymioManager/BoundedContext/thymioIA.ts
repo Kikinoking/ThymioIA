@@ -63,17 +63,10 @@ export class ThymioIA implements IThymioIA {
       const inputShape = inputMode === 'NOTE_ONLY' ? [1] : [10]; // 9 capteurs + 1 note ou juste 1 note
 
       // Ajouter la première couche en spécifiant la forme d'entrée
-      model.add(tf.layers.dense({
-        units: 16,
-        inputShape: inputShape,
-        activation: 'relu'
-      }));
-
-      // Ajouter la couche de sortie qui reste la même pour les deux modes
-      model.add(tf.layers.dense({
-        units: 5, // 5 actions possibles
-        activation: 'softmax'
-      }));
+      model.add(tf.layers.embedding({inputDim: 88, outputDim: 16, inputLength: 1}));
+      model.add(tf.layers.flatten());
+      model.add(tf.layers.dense({units: 64, activation: 'relu'}));
+      model.add(tf.layers.dense({units: 5, activation: 'softmax'}));
 
       // Compiler le modèle avec les ajustements adéquats
       model.compile({
@@ -248,10 +241,10 @@ export class ThymioIA implements IThymioIA {
       default:
         break;
     }
-    /*
+    
     setTimeout(() => {
       this.emitAction(uuid, 'M_motors', [0, 0]);
     }, 600);
-    */
+    
   };
 }
