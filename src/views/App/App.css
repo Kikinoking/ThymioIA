@@ -68,7 +68,7 @@
   left: 0;
   width: 250px; /* Largeur du volet */
   height: 100%; /* Hauteur totale de la vue */
-  background-color: #f8f8f8; /* Couleur de fond du volet */
+  background-color: #4d4545; /* Couleur de fond du volet */
   border-right: 1px solid #ccc; /* Bordure droite pour séparer du reste de la page */
   box-shadow: 2px 0 5px rgba(0,0,0,0.2); /* Ombre pour un effet de profondeur */
   transform: translateX(-100%); /* Démarre hors du cadre de la vue */
@@ -76,9 +76,7 @@
   z-index: 1040; /* S'assure que le volet est au-dessus du contenu de la page mais sous le bouton */
 }
 
-.settings-panel.open {
-  transform: translateX(0); /* Déplace le volet dans la vue lorsque ouvert */
-}
+
 
 .settings-panel h2 {
   padding: 20px; /* Espacement autour du titre pour plus de clarté */
@@ -89,7 +87,7 @@
   width: 100%; /* Maximise la largeur des boutons pour faciliter le clic */
   padding: 10px; /* Padding pour confort de clic */
   margin: 10px 0; /* Marge entre les boutons */
-  background-color: #fff; /* Fond blanc pour les boutons */
+  background-color: #000000; /* Fond blanc pour les boutons */
   border: 1px solid #ddd; /* Légère bordure pour définir les boutons */
   cursor: pointer;
 }
@@ -104,3 +102,29 @@
   margin: auto; /* Centre le slider */
   display: block; /* Assure que le slider est sur sa propre ligne */
 }
+.settings-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100%;
+  background-color: #f8f8f8;
+  border-right: 1px solid #ccc;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+  transform: translateX(-100%);
+  transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+
+  z-index: 1040;
+}
+.settings-panel {
+  transform: translateX(-100%);
+  transition: transform 0.5s ease-in;
+}
+
+
+
+.settings-panel.open {
+  transform: translateX(0);
+  background-color: red; /* Ceci devrait rendre le changement évident */
+}
+

@@ -1,0 +1,74 @@
+.OpenMenuButton {
+    cursor: pointer;
+    position: fixed; /* Maintient le bouton en position fixe */
+    top: 10px; /* Espacement du haut */
+    left: 10px; /* Espacement de gauche */
+    width: 40px; /* Taille du bouton */
+    height: 40px; /* Taille du bouton */
+    background-color: #007bff; /* Couleur de fond */
+    color: white;
+    border: none;
+    border-radius: 50%; /* Rend le bouton circulaire */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    padding: 0; /* Ajustez si nécessaire */
+    display: flex; /* Centre l'image SVG à l'intérieur du bouton */
+    align-items: center;
+    justify-content: center;
+    z-index: 100; /* S'assure qu'il reste au-dessus des autres éléments */
+  }
+  
+  .OpenMenuButton img {
+    width: 70%; /* Ajustez la taille de l'image SVG */
+    height: auto; /* Garde l'aspect ratio de l'image */
+  }
+  
+  
+  .DrawerMenu {
+    position: fixed;
+    z-index: 99;
+    width: 250px; /* Largeur du menu, ajustez selon vos besoins */
+    height: 100vh;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    transition: transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+    grid-template-areas: "MENU";
+  }
+  
+  
+  .DrawerMenu.open {
+    transform: translateX(0);
+  }
+  
+  .Menu {
+    grid-area: MENU;
+    background-color: #333;
+    padding: 24px;
+    color: white;
+    overflow: auto;
+  }
+  
+  .MenuLink, .Menu p {
+    display: block;
+    padding: 16px;
+    color: #fff;
+    text-decoration: none;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 1rem;
+  }
+  
+  .MenuLink:hover {
+    color: #69F0AE;
+  }
+  
+  .MenuOverlay {
+    display: none; /* Désactivez l'affichage de l'overlay */
+  }
+  
+  
+  .MenuOverlay:not(.open) {
+    pointer-events: none;
+  }
+  

@@ -9,7 +9,8 @@ import BarChart from './BarChart';
 import ThymioSVG from '../ThymioSVG';
 import Piano from './Piano'
 import MusicalStaff from './MusicalStaff'; // Assurez-vous que le chemin est correct
-
+import './Menu.css';
+import SettingsIcon from 'D:/EPFL/Robproj/ThymioIA/src/assets/settings.svg'
 
 
 Chart.register(...registerables);
@@ -36,22 +37,7 @@ function frequencyToNoteNumber(frequency) {
   return note;
 }
 
-const isSoundAboveThreshold = (analyser, threshold) => {
-  const dataArray = new Uint8Array(analyser.frequencyBinCount);
-  analyser.getByteFrequencyData(dataArray);
 
-  let totalAmplitude = 0;
-  for (let i = 0; i < dataArray.length; i++) {
-    totalAmplitude += dataArray[i];
-  }
-
-  // Calculez le niveau sonore moyen
-  const averageAmplitude = totalAmplitude / dataArray.length;
-
-  // Vérifiez si le niveau sonore moyen est supérieur au seuil
-  console.log("avg_amplitude: ", averageAmplitude)
-  return averageAmplitude > threshold;
-};
 
 
 const App = observer(() => {
@@ -88,6 +74,10 @@ const App = observer(() => {
   const [silentMode, setSilentMode] = useState(false); //Toggle visual piano
   const [showSettings, setShowSettings] = useState(false);
 
+  const settingsButtonRef = useRef(null); // Référence pour le bouton Settings
+
+  const menuRef = useRef(null); // Référence pour le menu
+
 //For bar chart$
 
   const [predictions, setPredictions] = React.useState([0.2, 0.3, 0.1, 0.15, 0.25]); 
@@ -100,10 +90,30 @@ const App = observer(() => {
   };
 
   const toggleSettings = () => {
-    console.log("Before toggle:", showSettings);
-    setShowSettings(!showSettings);
-    console.log("After toggle:", showSettings);
-};
+    setShowSettings(prev => !prev);
+  };
+
+  const toggleSilentMode = () => {
+    setSilentMode(prev => !prev); // Bascule le mode Silent
+  };
+
+  // Gérer les clics à l'extérieur du menu pour fermer
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target) && 
+          !settingsButtonRef.current.contains(event.target)) {
+        setShowSettings(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []); // N'incluez pas showSettings ici pour éviter de réattacher l'écouteur inutilement
+
+
+
 
 
   useEffect(() => {
@@ -466,17 +476,28 @@ const App = observer(() => {
    return (
     <>
       
-            <button onClick={toggleSettings} className="settings-button">
-                Settings
+      <button 
+                ref={settingsButtonRef}
+                onClick={toggleSettings}
+                className="OpenMenuButton"
+                aria-label="Toggle settings"
+            >
+                <img src={SettingsIcon} alt= {showSettings ? 'CLOSE SETTINGS' : 'OPEN SETTINGS'}/>
+                
             </button>
 
-            {showSettings && (
-                <div className="settings-panel">
-                    <h2>Current Input Mode: {inputMode === 'NOTE_ONLY' ? 'Note Only' : 'Captors and Note'}</h2>
-                    <button onClick={() => setInputMode('CAPTORS_AND_NOTE')}>Use Captors and Note</button>
-                    <button onClick={() => setInputMode('NOTE_ONLY')}>Use Note Only</button>
-                    <div>
-                        <label htmlFor="thresholdSlider">Threshold: {threshold} dB</label>
+            <aside ref={menuRef} className={`DrawerMenu ${showSettings ? 'open' : ''}`} role="menu">
+                <nav className="Menu">
+                    <h2>Settings Panel</h2>
+                    <p>Current Input Mode: {inputMode === 'NOTE_ONLY' ? 'Note Only' : 'Captors and Note'}</p>
+                    <button onClick={() => setInputMode('CAPTORS_AND_NOTE')} className="MenuLink">
+                        Use Captors and Note
+                    </button>
+                    <button onClick={() => setInputMode('NOTE_ONLY')} className="MenuLink">
+                        Use Note Only
+                    </button>
+                    <div className="MenuLink">
+                        <label htmlFor="thresholdSlider">Threshold: {threshold} </label>
                         <input
                             id="thresholdSlider"
                             type="range"
@@ -487,8 +508,12 @@ const App = observer(() => {
                             onChange={(e) => setThreshold(Number(e.target.value))}
                         />
                     </div>
-                </div>
-            )}
+                    <button onClick={toggleSilentMode} className="MenuLink">
+                      {silentMode ? 'Disable Silent Mode' : 'Enable Silent Mode'}
+                    </button>
+                </nav>
+                <div className="MenuOverlay" onClick={() => setShowSettings(false)} />
+            </aside>
 
       <h1>{controledRobot === '' ? 'AI Tools : ThymioAI' : (activeTab === 'Testing' ? 'Testing mode' : 'Training mode')}</h1>
       
@@ -553,7 +578,11 @@ const App = observer(() => {
                   </div>
                 )}
                 <br />
-                <Piano onNoteChange={setNoteRecording} />
+                {silentMode &&(
+               <>
+              <Piano onNoteChange={setNoteRecording} />
+              
+              </>)}
 
               </div>
             </div>
@@ -597,7 +626,11 @@ const App = observer(() => {
               </div>
             )}
             </button>
+            {silentMode &&(
+               <>
               <Piano onNoteChange={setNote} />
+              
+              </>)}
 
               <br />
 
