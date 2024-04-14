@@ -54,6 +54,15 @@ export class ThymioIA implements IThymioIA {
     this.tdmController = tdmController;
   }
 
+  reinitializeModel = async (inputMode) => {
+    if (this.model) {
+      this.model.dispose(); // Dispose the current model if it exists
+    }
+    this.model = await this.initModel(inputMode); // Initialize the new model with the specified mode
+    console.log(`Model reinitialized with input mode: ${inputMode}`);
+  };
+  
+
   initModel = async (inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') =>
   new Promise<tf.Sequential>((resolve, reject) => {
     try {
@@ -63,7 +72,7 @@ export class ThymioIA implements IThymioIA {
       const inputShape = inputMode === 'NOTE_ONLY' ? [1] : [10]; // 9 capteurs + 1 note ou juste 1 note
 
       // Ajouter la première couche en spécifiant la forme d'entrée
-      model.add(tf.layers.embedding({inputDim: 88, outputDim: 16, inputLength: 1}));
+      model.add(tf.layers.embedding({inputDim: 88, outputDim: 16, inputLength: inputShape}));
       model.add(tf.layers.flatten());
       model.add(tf.layers.dense({units: 64, activation: 'relu'}));
       model.add(tf.layers.dense({units: 5, activation: 'softmax'}));
@@ -130,8 +139,8 @@ export class ThymioIA implements IThymioIA {
         } else { // CAPTORS_AND_NOTE
           const noteValue = currentNote || 0;
           const captorsNumeric = captors.map(c => parseFloat(c));
-          inputTensor = tf.tensor2d([captorsNumeric.concat(noteValue)]);
-        }
+          inputTensor = tf.tensor2d([captorsNumeric.concat(noteValue)], [1, captorsNumeric.length + 1]); // [1, 10]
+    }
 
     
         const prediction = this.model.predict(inputTensor) as tf.Tensor<tf.Rank>;
@@ -241,10 +250,10 @@ export class ThymioIA implements IThymioIA {
       default:
         break;
     }
-    
+    /*
     setTimeout(() => {
       this.emitAction(uuid, 'M_motors', [0, 0]);
-    }, 600);
+    }, 600);*/
     
   };
 }

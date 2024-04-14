@@ -86,6 +86,10 @@ const App = observer(() => {
   const [activeTab, setActiveTab] = useState('Training');
   
   const switchTab = (tabName) => {
+    // Appeler stopExecutionAndReset si on change vers l'onglet 'Training'
+    if (tabName === 'Training') {
+      stopExecutionAndReset();
+    }
     setActiveTab(tabName);
   };
 
@@ -232,6 +236,12 @@ const App = observer(() => {
     setIsContinuousRecording(true);
   };
 
+  const handleModeChange = async (newMode) => {
+    setInputMode(newMode); // Update state to new mode
+    await user.reinitializeModel(newMode); // Reinitialize the model on the backend
+    console.log("Model reinitialized for mode:", newMode);
+  };
+
   useEffect(() => {
     
     // Vérifiez que audioContext et analyser sont définis avant de démarrer getFrequencies
@@ -262,7 +272,7 @@ const App = observer(() => {
     }
   
     const maxFrequency = maxIndex * audioContextRef.current.sampleRate / analyserRef.current.fftSize;
-    console.log("MaxValueFFT : ",maxValue)
+   
     if (maxFrequency > 0 && maxValue > threshold) { // Ajout de la vérification de la valeur maximale par rapport au seuil
       setMaxFreq(maxFrequency);
       const noteDetected = frequencyToNoteNumber(maxFrequency);
@@ -404,6 +414,10 @@ const App = observer(() => {
     setTrainer(trainer => [...trainer, newEntry]);
     //setTrainer([...trainer, { uuid: controledRobot, action, captors: user.captors.state[controledRobot] }]);
     await user.emitMotorEvent(controledRobot, action);
+
+    setTimeout(async () => {
+      await user.emitMotorEvent(controledRobot, 'STOP');
+    }, 600);
     //const currentNote = note;
 
  
@@ -490,11 +504,11 @@ const App = observer(() => {
                 <nav className="Menu">
                     <h2>Settings Panel</h2>
                     <p>Current Input Mode: {inputMode === 'NOTE_ONLY' ? 'Note Only' : 'Captors and Note'}</p>
-                    <button onClick={() => setInputMode('CAPTORS_AND_NOTE')} className="MenuLink">
-                        Use Captors and Note
+                    <button onClick={() => handleModeChange('CAPTORS_AND_NOTE')} className="MenuLink">
+                      Use Captors and Note
                     </button>
-                    <button onClick={() => setInputMode('NOTE_ONLY')} className="MenuLink">
-                        Use Note Only
+                    <button onClick={() => handleModeChange('NOTE_ONLY')} className="MenuLink">
+                      Use Note Only
                     </button>
                     <div className="MenuLink">
                         <label htmlFor="thresholdSlider">Threshold: {threshold} </label>
