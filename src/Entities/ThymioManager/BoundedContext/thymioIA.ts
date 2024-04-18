@@ -36,7 +36,7 @@ export class ThymioIA implements IThymioIA {
     initialValue: {},
   });
 
-  model: tf.Sequential | null = null;
+ 
 
   actionMapping: Record<string, number> = {
     STOP: 0,
@@ -74,7 +74,7 @@ export class ThymioIA implements IThymioIA {
       const inputShape = inputMode === 'NOTE_ONLY' ? [1] : [10]; // 9 capteurs + 1 note ou juste 1 note
 
       // Ajouter la première couche en spécifiant la forme d'entrée
-      model.add(tf.layers.embedding({inputDim: 38, outputDim: 8, inputLength: inputShape}));
+      model.add(tf.layers.embedding({inputDim: 38, outputDim: 12, inputLength: inputShape}));
       model.add(tf.layers.flatten());
       model.add(tf.layers.dense({units: 8, activation: 'relu'}));
       model.add(tf.layers.dense({units: 5, activation: 'softmax'}));
