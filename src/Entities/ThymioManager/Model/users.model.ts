@@ -4,6 +4,7 @@ import { DataEntry } from './thymioIA.model';
 export type UsersType = 'AllUser' | 'Teacher' | 'Student' | 'Admin' | 'Dev';
 
 export interface Users {
+  
   captors: Observable<{ [uuid: string]: number[] }>;
   predict: (uuid: string, input: string[], inote: number, isWinnerTakesAll: boolean, inputMode: string) => void;
   trainModel: (data: DataEntry[]) => Promise<void>;
@@ -11,4 +12,5 @@ export interface Users {
   takeControl: (uuid: string, onVariableChange?: (uuid: string, variables: { [name: string]: number }) => void) => void;
   emitAction: (uuid: string, action: string, args: number[]) => Promise<void>;
   emitMotorEvent: (uuid: string, action: string) => Promise<void>;
+  reinitializeModel: (inputMode: string)=> Promise<void>;
 }

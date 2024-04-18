@@ -11,6 +11,7 @@ import Piano from './Piano'
 import MusicalStaff from './MusicalStaff'; // Assurez-vous que le chemin est correct
 import './Menu.css';
 import SettingsIcon from 'D:/EPFL/Robproj/ThymioIA/src/assets/settings.svg'
+import * as tfvis from '@tensorflow/tfjs-vis';
 
 
 Chart.register(...registerables);
@@ -116,6 +117,9 @@ const App = observer(() => {
     };
   }, []); // N'incluez pas showSettings ici pour éviter de réattacher l'écouteur inutilement
 
+  
+  
+  
 
 
 
@@ -238,8 +242,10 @@ const App = observer(() => {
 
   const handleModeChange = async (newMode) => {
     setInputMode(newMode); // Update state to new mode
-    await user.reinitializeModel(newMode); // Reinitialize the model on the backend
-    console.log("Model reinitialized for mode:", newMode);
+    if(user){
+      await user.reinitializeModel(newMode); // Reinitialize the model on the backend
+      console.log("Model reinitialized for mode:", newMode);
+      }
   };
 
   useEffect(() => {
@@ -543,7 +549,12 @@ const App = observer(() => {
           ))}
         </div>
       ) : (
+
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          
+          
+            
+
           <div style={{ marginBottom: '20px' }}>
             <button onClick={() => switchTab('Training')}>Training</button>
             <button onClick={() => switchTab('Testing')}>Testing</button>

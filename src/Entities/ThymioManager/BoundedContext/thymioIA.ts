@@ -5,6 +5,7 @@ import type IThymioIA from '../Model/thymioIA.model';
 import * as tf from '@tensorflow/tfjs';
 import { noteToNumberMapping } from '../../../noteMapping';
 import BarChart from '../../BarChart';
+import * as tfvis from '@tensorflow/tfjs-vis';
 
 
 
@@ -29,6 +30,7 @@ function selectActionBasedOnProbabilities(predictions) {
 @BoundedContext({ key: 'ThymioIA', predicate: [] })
 export class ThymioIA implements IThymioIA {
   private tdmController: TdmController;
+  public model: tf.Sequential | null = null;
   captors: Observable<{ [uuid: string]: number[] }> = createObservable({
     key: 'Thymios',
     initialValue: {},
@@ -54,7 +56,7 @@ export class ThymioIA implements IThymioIA {
     this.tdmController = tdmController;
   }
 
-  reinitializeModel = async (inputMode) => {
+  reinitializeModel = async (inputMode: string) => {
     if (this.model) {
       this.model.dispose(); // Dispose the current model if it exists
     }

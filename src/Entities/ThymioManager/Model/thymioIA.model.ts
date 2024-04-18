@@ -6,6 +6,7 @@ export interface DataEntry {
 }
 
 interface IThymioIA {
+  
   captors: Observable<{ [uuid: string]: number[] }>;
   getRobotsUuids: () => Promise<string[]>;
   takeControl: (uuid: string, onVariableChange?: (uuid: string, variables: { [name: string]: number }) => void) => void;
@@ -13,6 +14,7 @@ interface IThymioIA {
   trainModel: (data: DataEntry[]) => Promise<void>;
   emitAction: (uuid: string, action: string, args: number[]) => Promise<void>;
   emitMotorEvent: (uuid: string, action: string) => Promise<void>;
+  reinitializeModel: (inputMode: string)=> Promise<void>;
 }
 
 export default IThymioIA;
