@@ -74,9 +74,9 @@ export class ThymioIA implements IThymioIA {
       const inputShape = inputMode === 'NOTE_ONLY' ? [1] : [10]; // 9 capteurs + 1 note ou juste 1 note
 
       // Ajouter la première couche en spécifiant la forme d'entrée
-      model.add(tf.layers.embedding({inputDim: 88, outputDim: 16, inputLength: inputShape}));
+      model.add(tf.layers.embedding({inputDim: 38, outputDim: 8, inputLength: inputShape}));
       model.add(tf.layers.flatten());
-      model.add(tf.layers.dense({units: 64, activation: 'relu'}));
+      model.add(tf.layers.dense({units: 8, activation: 'relu'}));
       model.add(tf.layers.dense({units: 5, activation: 'softmax'}));
 
       // Compiler le modèle avec les ajustements adéquats
@@ -119,9 +119,26 @@ export class ThymioIA implements IThymioIA {
 
     await this.model.fit(xs, ys, {
         epochs: 50,
-    });
+    }).then(() => {
+      this.displayModelWeights(); // Afficher les poids après l'entraînement
+  });;
 };
 
+displayModelWeights() {
+  if (!this.model) {
+    console.error('No model to display weights for');
+    return;
+  }
+
+  this.model.layers.forEach((layer, index) => {
+    console.log(`Weights of layer ${index}:`);
+    layer.getWeights().forEach((tensor, tensorIndex) => {
+      console.log(`Tensor ${tensorIndex}:`);
+      tensor.print(); // Afficher les valeurs du tensor
+      console.log(`Number of elements in Tensor ${tensorIndex}:`, tensor.size); // Afficher le nombre d'éléments dans le tensor
+    });
+  });
+}
     predict = (uuid: string, captors: number[], currentNote: number, useWinnerTakesAll = true,inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') => {
       return new Promise((resolve, reject) => {
         if (!this.model) {
