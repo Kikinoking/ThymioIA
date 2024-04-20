@@ -5,18 +5,23 @@ import { thymioManagerFactory } from '../../Entities/ThymioManager';
 import { observer } from 'mobx-react';
 import { noteToNumberMapping } from '../../noteMapping';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import '../../i18n';
 import BarChart from './BarChart';
 import ThymioSVG from '../ThymioSVG';
 import Piano from './Piano'
 import MusicalStaff from './MusicalStaff'; // Assurez-vous que le chemin est correct
 import './Menu.css';
-import SettingsIcon from 'D:/EPFL/Robproj/ThymioIA/src/assets/settings.svg'
+import SettingsIcon from '../../assets/settings.svg'
 import * as tfvis from '@tensorflow/tfjs-vis';
 import stopGif from '../../assets/actionsicons/Stopgif.gif'
 import forwardGif from '../../assets/actionsicons/animForwardV2.gif';
 import backwardGif from '../../assets/actionsicons/animBackward.gif';
 import leftGif from '../../assets/actionsicons/AnimLeft.gif';
 import rightGif from '../../assets/actionsicons/AnimRight.gif';
+
+
+
 
 Chart.register(...registerables);
 
@@ -83,10 +88,16 @@ const App = observer(() => {
 
   const menuRef = useRef(null); // Référence pour le menu
 
+  const { t, i18n } = useTranslation();
+
 //For bar chart$
 
   const [predictions, setPredictions] = React.useState([0.2, 0.3, 0.1, 0.15, 0.25]); 
-  const labels = ["STOP", "FORWARD", "BACKWARD", "LEFT", "RIGHT"]; 
+  const labels = [ t('action_stop'),
+  t('action_forward'),
+  t('action_backward'),
+  t('action_left'),
+  t('action_right')]; 
 
   const [activeTab, setActiveTab] = useState('Training');
   
@@ -133,6 +144,11 @@ const App = observer(() => {
     }
   };
   
+
+
+  const Component = () => {
+    const { t } = useTranslation();}
+
 
   const switchTab = (tabName) => {
     // Appeler stopExecutionAndReset si on change vers l'onglet 'Training'
@@ -558,20 +574,20 @@ const renderCurrentState = () => {
   switch (currentState) {
     case STATES.Title:
       return (
-        <><h1 style={{ fontSize: '44px' }}>AI Tools : ThymioAI </h1>
+        <><h1 style={{ fontSize: '44px' }}>{t('ai_tools_title')}</h1>
         <div style={{ flex: 1, marginRight: '20px', fontSize:  '12pt'}}>
           <div className="instructions-container">
-            <h4>Instructions</h4>
+          <h4>{t('instructions_title')}</h4>
             <ol>
-              <li>Launch ThymioSuite.</li>
-              <li>Connect the robot using the cable or the dongle.</li>
-              <li>Turn the robot ON.</li>
-              <li>Click on the button To search for robots.</li>
-              <li>Select your robot in the list.</li>
+                <li>{t('instruction_step1')}</li>
+                <li>{t('instruction_step2')}</li>
+                <li>{t('instruction_step3')}</li>
+                <li>{t('instruction_step4')}</li>
+                <li>{t('instruction_step5')}</li>
             </ol>
           </div>
           <div className="card">
-            <button onClick={onClickGetRobots} className="getRobots-button">getRobots</button>
+            <button onClick={onClickGetRobots} className="getRobots-button">{t('get_robots')}</button>
 
           </div>
           {robots.map((robot, index) => (
@@ -584,32 +600,32 @@ const renderCurrentState = () => {
       );
     case STATES.ConsigneTraining:
       return (<> <div className="instructions-container">
-      <h4>Instructions</h4>
+      <h4>{t('instructions')}</h4>
       <ol>
-        <li>You will now train the robot</li>
-        <li>Record a Sound with the microphone, or play it on the piano</li>
-        <li>Select an action that you will map to that sound + sensor input</li>
-        <li>Repeat until you have trained every action you wanted</li>C
-        <li>First, choose if you want to train the robot using the sensors + microphone or only the microphone.</li>
+      <li>{t('train_instruction_1')}</li>
+      <li>{t('train_instruction_2')}</li>
+      <li>{t('train_instruction_3')}</li>
+      <li>{t('train_instruction_4')}</li>
+      <li>{t('train_instruction_5')}</li>
       </ol>
     </div>
       <button onClick={() => handleModeChange('CAPTORS_AND_NOTE')}>
-        Use Captors and Note
+      {t('use_captors_and_note')}
       </button><button onClick={() => handleModeChange('NOTE_ONLY')}>
-          Use Note Only
+      {t('use_note_only')}
         </button></>)
     case STATES.PlayNote:
       return (
         <>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <button onClick={startRecording} disabled={isRecording}>
-              Start Recording
+            {t('start_recording')}
             </button>
             <Piano onNoteChange={setNoteRecording} style={{ marginTop: '20px', width: '100%' }} />
           </div>
           <br />
           {audioUrl && (
-            <button onClick={() => new Audio(audioUrl).play()}>Playback</button>
+            <button onClick={() => new Audio(audioUrl).play()}>{t('playback')}</button>
           )}
           
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid white', padding: '20px' }}>
@@ -622,7 +638,7 @@ const renderCurrentState = () => {
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
             {noteRecording !== 0 && (
               <div className='Note' style={{ margin: '0 auto' }}>
-                <p>Note: {noteRecording}</p>
+                <p>{t('note')} {noteRecording}</p>
               </div>
             )}
           </div>
@@ -630,7 +646,7 @@ const renderCurrentState = () => {
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <button onClick={handleTransition}>Go to Map Action</button>
+            <button onClick={handleTransition}>{t('go_to_map_action')}</button>
           </div>
         </>
       );
@@ -646,27 +662,27 @@ const renderCurrentState = () => {
 
   return (
     <div style={{ flex: 1, marginRight: '20px' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Choose an action</h2> {/* Titre ajouté ici */}
+      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>{t('choose_action')}</h2> 
       <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <button onClick={() => handleAction('STOP')}>
           <img src={stopGif} alt="Stop" style={{ display: 'block', margin: 'auto' ,width: '150px', height: '150px'}}/>
-          STOP
+          {t('stop')}
         </button>
         <button onClick={() => handleAction('FORWARD')}>
           <img src={forwardGif} alt="Forward" style={{ display: 'block', margin: 'auto', width: '150px', height: '150px' }}/>
-          FORWARD
+          {t('forward')}
         </button>
         <button onClick={() => handleAction('BACKWARD')}>
           <img src={backwardGif} alt="Backward" style={{ display: 'block', margin: 'auto', width: '150px', height: '150px'}}/>
-          BACKWARD
+          {t('backward')}
         </button>
         <button onClick={() => handleAction('LEFT')}>
           <img src={leftGif} alt="Left" style={{ display: 'block', margin: 'auto', width: '150px', height: '150px' }}/>
-          LEFT
+          {t('left')}
         </button>
         <button onClick={() => handleAction('RIGHT')}>
           <img src={rightGif} alt="Right" style={{ display: 'block', margin: 'auto', width: '150px', height: '150px'}}/>
-          RIGHT
+          {t('right')}
         </button>
       </div>
       <br />
@@ -687,15 +703,15 @@ const renderCurrentState = () => {
           <table className="trainer-table">
             <thead>
               <tr>
-                <th>Action</th>
-                <th>Captors</th>
-                <th>Note</th>
+                <th>{t('Action')}</th>
+                <th>{t('captors_values')}</th>
+                <th>{t('note_display')}</th>
               </tr>
             </thead>
             <tbody>
               {trainer.map(({ action, captors, note }, index) => (
                 <tr key={index}>
-                  <td>{action}</td>
+                  <td>{t(`action_${action.toLowerCase()}`)}</td>
                   <td>{captors.join(', ')}</td>
                   <td>{note}</td>
                 </tr>
@@ -706,13 +722,13 @@ const renderCurrentState = () => {
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
         <button onClick={() => setCurrentState(STATES.PlayNote)} style={{ margin: '0 10px' }}>
-          Map more actions
+        {t('map_more_actions')}
         </button>
         <button onClick={() => { console.log("Save model"); }} style={{ margin: '0 10px' }}>
-          Save model
+        {t('save_model')}
         </button>
         <button onClick={() => setCurrentState(STATES.ConsigneTesting)} style={{ margin: '0 10px' }}>
-          Test the model
+        {t('test_the_model')}
         </button>
       </div>
     </div>
@@ -726,7 +742,7 @@ const renderCurrentState = () => {
         style={{ width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
         onClick={() => setCurrentState(STATES.Testing)}
       >
-        <p>Cliquez n'importe où pour commencer le test.</p>
+        <p>{t('click_anywhere_to_start_test')}</p>
       </div>
     );
     case STATES.Testing:
@@ -736,16 +752,16 @@ const renderCurrentState = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
             <div style={{ flex: 1 }}>
               <button onClick={toggleContinuousRecording}>
-                {isContinuousRecording ? 'Stop continuous recording' : 'Start continuous recording'}
+                {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
               </button>
               {maxFreq !== null && (
                 <div className='max-frequency-display'>
-                  <p>Max frequency: {maxFreq.toFixed(2)} Hz</p>
+                  <p>{t('max_frequency')}: {maxFreq.toFixed(2)} Hz</p>
                 </div>
               )}
               {note !== null  && (
                 <div className='note-display' style={{ marginBottom: '40px' }}>
-                  <p style={{ marginBottom: '20px' }}>Tone: {note}</p>
+                  <p style={{ marginBottom: '20px' }}>{t('tone')}: {note}</p>
                   <MusicalStaff noteRecording={note} />
                 </div>
               )}
@@ -763,13 +779,13 @@ const renderCurrentState = () => {
           {/* Deuxième ligne : Boutons Load, Execute et Visualize */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
             <button onClick={() => console.log('Load other model')} style={{ marginRight: '20px' }}>
-              Load other model
+            {t('load_other_model')}
             </button>
             <button onClick={onExecute} style={{ marginRight: '20px' , width :'300px', height : 'auto'}}>
-              EXECUTE
+            {t('execute')}
             </button>
             <button onClick={() => console.log('Visualize Neural Network')}>
-              Visualize Neural Network
+            {t('visualize_neural_network')}
             </button>
           </div>
     
@@ -779,13 +795,13 @@ const renderCurrentState = () => {
           {/* Quatrième ligne : Contrôle du test et réinitialisation */}
           <div style={{ marginTop: '20px' }}>
             <button onClick={stopExecutionAndReset} style={{ marginRight: '20px' }}>
-              Stop Testing
+            {t('stop_testing')}
             </button>
             <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} style={{ marginRight: '20px' }}>
-              {isWinnerTakesAll ? "Switch to probabilistic decision" : "Switch to Winner-Takes-All"}
+            {isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}
             </button>
             <button onClick={() => { resetModelAndTrainer(); setCurrentState(STATES.ConsigneTraining);}}>
-              Reinitialize the model
+            {t('reinitialize_the_model')}
             </button>
           </div>
         </div>
@@ -814,11 +830,11 @@ return (
 </button>
 <aside ref={menuRef} className={`DrawerMenu ${showSettings ? 'open' : ''}`} role="menu">
   <nav className="Menu">
-    <h2>Settings Panel</h2>
-    <p>Current Input Mode: {inputMode === 'NOTE_ONLY' ? 'Note Only' : 'Captors and Note'}</p>
+    <h2>{t('settings_panel')}</h2>
+    <p>{t('current_input_mode')}: {inputMode === 'NOTE_ONLY' ? t('note_only') : t('captors_and_note')}</p>
     <div>
       <label htmlFor="recordDuration">
-        Record Duration (s): <span>{recordDuration / 1000}</span>
+      {t('record_duration')} (s): <span>{recordDuration / 1000}</span>
       </label>
       <input
         id="recordDuration"
@@ -831,7 +847,7 @@ return (
       />
     </div>
     <div className="MenuLink">
-      <label htmlFor="thresholdSlider">Threshold: {threshold}</label>
+      <label htmlFor="thresholdSlider">{t('threshold')}: {threshold}</label>
       <input
         id="thresholdSlider"
         type="range"
@@ -843,17 +859,17 @@ return (
       />
     </div>
     <button onClick={toggleSilentMode} className="MenuLink">
-      {silentMode ? 'Disable Silent Mode' : 'Enable Silent Mode'}
+    {silentMode ? t('disable_silent_mode') : t('enable_silent_mode')}
     </button>
     <button onClick={() => resetModelAndTrainer()} className="MenuLink">
-      Reset Model
+    {t('reset_model')}
     </button>
     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
-      <button onClick={() => console.log('Set Language: Français')} className="MenuLink">
-        Français
+    <button onClick={() => i18n.changeLanguage('fr')} className="MenuLink" title="Français">
+      <span className="fi fi-fr"></span>
       </button>
-      <button onClick={() => console.log('Set Language: English')} className="MenuLink">
-        English
+      <button onClick={() => i18n.changeLanguage('en')} className="MenuLink" title="English">
+      <span className="fi fi-us"></span>
       </button>
     </div>
   </nav>

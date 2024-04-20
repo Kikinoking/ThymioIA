@@ -1,11 +1,12 @@
 import { Bar } from 'react-chartjs-2';
-
+import { useTranslation } from 'react-i18next';
 const BarChart = ({ data, labels }) => {
+  const { t } = useTranslation();
   const chartData = {
     labels: labels,
     datasets: [
       {
-        label: 'Prediction Probability',
+        label: t('bar_chart.prediction_probability'),
         data: data,
         backgroundColor: [
           'rgba(255, 99, 132, 0.9)',
@@ -45,7 +46,7 @@ const BarChart = ({ data, labels }) => {
         },
         title: {
           display: true,
-          text: 'Actions',
+          text: t('bar_chart.actions'),
           color: '#dfe8e8',
           font: {
             family: 'Roboto',
@@ -69,7 +70,7 @@ const BarChart = ({ data, labels }) => {
         },
         title: {
           display: true,
-          text: 'Probability',
+          text: t('bar_chart.probability'),
           color: '#dfe8e8',
           font: {
             family: 'Roboto',

@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -220,4 +221,12 @@
   background-color: #5a5a5a;
 }
 
+/*Flag Size*/
+.fi {
+  width: 36px;  
+  height: 24px; /* adjust height for a 4:3 aspect ratio */
+  background-size: cover;
+  display: inline-block;
+  line-height: 1;
+}
 
