@@ -34,7 +34,7 @@
 }
 
 .card {
-  padding: 2em;
+  padding: 0.5em;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -127,4 +127,97 @@
   transform: translateX(0);
   background-color: red; /* Ceci devrait rendre le changement évident */
 }
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* Style souligné pour indiquer qu'il s'agit d'un tooltip */
+}
+
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Positionnement */
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+
+  /* Effets */
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+.getRobots-button {
+  padding: 10px 10px;
+  background-color: #4CAF50; /* Couleur de fond verte */
+  color: white; /* Texte blanc */
+  border: none; /* Pas de bordure */
+  border-radius: 5px; /* Bords arrondis */
+  cursor: pointer; /* Curseur en forme de pointeur */
+  transition: background-color 0.3s; /* Transition douce pour le hover */
+}
+
+.getRobots-button:hover {
+  background-color: #45a049; /* Couleur plus foncée au survol */
+}
+
+.instructions-container {
+  border: 2px solid #db2525; 
+  border-radius: 8px; /* Coins arrondis */
+  padding: 10px 10px 10px 10px; /* Réduit le padding supérieur */
+  margin: 5px; /* Marge extérieure */
+  background-color: #f9f9f9; /* Fond légèrement gris */
+  width: 600px; /* Largeur fixe */
+  box-shadow: 0 4px 8px rgba(163, 160, 160, 0.1); /* Ombre discrète */
+}
+
+.instructions-container h4 {
+  color: #333; /* Titre en couleur plus sombre */
+  margin-top: 5px; /* Réduit l'espace au-dessus du titre */
+  margin-bottom: 5px; /* Espace réduit après le titre */
+  font-size: 30px; /* Taille de la police */
+}
+
+.instructions-container ol {
+  padding-left: 20px; /* Alignement des numéros à l'intérieur du bloc */
+  font-size: 30px; /* Taille de la police pour les listes */
+  margin-top: 5px; /* Réduit l'espace au-dessus de la liste */
+  
+}
+
+.instructions-container li {
+  margin-bottom: 8px; /* Espace entre les lignes */
+  color: #000000;
+  font-size: 26px; /* Taille de la police pour les éléments de liste */
+  text-align: left;
+}
+.trainer-table {
+  width: 100%;
+  background-color: #5a5a5a;
+  border-collapse: collapse;
+}
+
+.trainer-table th,
+.trainer-table td {
+  border: 5px solid darkblue;
+  padding: 8px;
+  text-align: center;
+}
+
+.trainer-table tbody tr:nth-child(odd) {
+  background-color: #5a5a5a;
+}
+
 

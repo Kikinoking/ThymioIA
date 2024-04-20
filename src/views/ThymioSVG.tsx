@@ -1,6 +1,4 @@
-// ThymioSVG.tsx
 import React, { useEffect, useState } from 'react';
-import SVG from 'react-inlinesvg';
 import thymioSvg from '../assets/ThymioSVG.svg';  // Assurez-vous que ce chemin est correct
 
 type ThymioSVGProps = {
@@ -10,15 +8,20 @@ type ThymioSVGProps = {
 const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors }) => {
   const [svgContent, setSvgContent] = useState('');
 
-  // Preprocess SVG content based on captors
   useEffect(() => {
     fetch(thymioSvg)
       .then(response => response.text())
       .then(data => {
         const parser = new DOMParser();
         const svgDoc = parser.parseFromString(data, "image/svg+xml");
-        
-        // Ici, nous supposons que les ID des éléments dans le SVG sont 'Layer 0', 'Layer 1', etc.
+
+        // Ajustez la taille du SVG ici
+        const svgElement = svgDoc.querySelector('svg');
+        if (svgElement) {
+          svgElement.setAttribute('style', 'width: 100%; height: auto;');
+        }
+
+        // Manipulation des calques en fonction des capteurs
         captors.forEach((status, index) => {
           const layer = svgDoc.getElementById(`Layer ${index}`);
           if (layer) {
@@ -34,7 +37,7 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors }) => {
 
         setSvgContent(new XMLSerializer().serializeToString(svgDoc.documentElement));
       });
-  }, [captors]);  // Ce useEffect réagira chaque fois que les capteurs changent
+  }, [captors]);
 
   return (
     <div dangerouslySetInnerHTML={{ __html: svgContent }} />
