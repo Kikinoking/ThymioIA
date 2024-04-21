@@ -30,7 +30,7 @@
     "click_anywhere_to_test": "Cliquez n'importe où pour commencer le test.",
     "stop_continuous_recording": "Arrêter l'enregistrement continu",
     "start_continuous_recording": "Commencer l'enregistrement continu",
-    "max_frequency": "Fréquence maximale : {maxFrequency} Hz",
+    "max_frequency": "Fréquence maximale: ",
     "tone": "Note: ",
     "load_other_model": "Charger un autre modèle",
     "execute": "EXÉCUTER",
@@ -70,6 +70,12 @@
   "action_forward": "Avancer",
   "action_backward": "Reculer",
   "action_left": "Gauche",
-  "action_right": "Droite"
+  "action_right": "Droite",
+  "testing_instructions_title": "Vous allez maintenant tester le modèle.",
+  "testing_instruction_step1": "Écoutez attentivement la réponse du robot.",
+  "testing_instruction_step2": "Évaluez la pertinence des actions du robot.",
+
+
+  "tooltip_get_robots": "Cliquez Sur ce bouton pour trouver les robots connectés."
   }
   

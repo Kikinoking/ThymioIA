@@ -30,7 +30,7 @@
     "click_anywhere_to_test": "Click anywhere to start testing.",
     "stop_continuous_recording": "Stop continuous recording",
     "start_continuous_recording": "Start continuous recording",
-    "max_frequency": "Max frequency: {maxFrequency} Hz",
+    "max_frequency": "Max frequency: Hz",
     "tone": "Note: ",
     "load_other_model": "Load other model",
     "execute": "EXECUTE",
@@ -71,8 +71,12 @@
   "action_forward": "Forward",
   "action_backward": "Backward",
   "action_left": "Left",
-  "action_right": "Right"
-      
+  "action_right": "Right",
+  "testing_instructions_title": "You will now test the model.",
+  "testing_instruction_step1": "Listen carefully to the robot's response.",
+  "testing_instruction_step2": "Evaluate the appropriateness of the robot's actions.",
+
+  "tooltip_get_robots": "Click on this button to find connected robots"
       
   }
   

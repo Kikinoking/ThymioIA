@@ -229,4 +229,17 @@
   display: inline-block;
   line-height: 1;
 }
+.TutorialButton {
+  position: fixed;
+  top: 10px; 
+  right: 10px; 
+  z-index: 1001;
+  cursor: pointer; 
+}
 
+
+.TutorialButton img {
+  width: auto; 
+  height: 40px; 
+  display: block; 
+}

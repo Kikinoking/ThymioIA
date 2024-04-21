@@ -19,6 +19,9 @@ import forwardGif from '../../assets/actionsicons/animForwardV2.gif';
 import backwardGif from '../../assets/actionsicons/animBackward.gif';
 import leftGif from '../../assets/actionsicons/AnimLeft.gif';
 import rightGif from '../../assets/actionsicons/AnimRight.gif';
+import HelpIcon from '../../assets/help.svg';
+
+import Joyride, { CallBackProps, STATUS } from 'react-joyride';
 
 
 
@@ -88,7 +91,13 @@ const App = observer(() => {
 
   const menuRef = useRef(null); // Référence pour le menu
 
+  const [isTutorialActive, setIsTutorialActive] = useState(false); //For Tutorial
+
   const { t, i18n } = useTranslation();
+
+  const toggleTutorial = () => {
+    setIsTutorialActive(!isTutorialActive);
+  };
 
 //For bar chart$
 
@@ -102,6 +111,10 @@ const App = observer(() => {
   const [activeTab, setActiveTab] = useState('Training');
   
   const [currentState, setCurrentState] = useState('Title');
+
+  const [run, setRun] = useState(false);//Used for tutorial
+  const [steps, setSteps] = useState([]);//USed for tutorial
+
   const STATES = {
     Title: 'Title',
     ConsigneTraining: 'ConsigneTraining',
@@ -157,6 +170,32 @@ const App = observer(() => {
     }
     setActiveTab(tabName);
   };
+
+  const handleJoyrideCallback = (data) => {
+    const { status } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setRun(false);
+    }
+  };
+  const startTour = () => {
+    setRun(true);
+  };
+
+  useEffect(() => {
+    switch (currentState) {
+      case 'Title':
+        setSteps([
+          
+          {
+            target: '.getRobots-button',
+            content: t('tooltip_get_robots'),
+            placement: 'bottom'
+          }
+        ]);
+        break;
+      // Ajoutez d'autres cases pour différents états avec leurs étapes spécifiques
+    }
+  }, [currentState, t]); 
 
   const toggleSettings = () => {
     setShowSettings(prev => !prev);
@@ -737,14 +776,21 @@ const renderCurrentState = () => {
   
 
   case STATES.ConsigneTesting:
-    return (
-      <div 
-        style={{ width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
-        onClick={() => setCurrentState(STATES.Testing)}
-      >
-        <p>{t('click_anywhere_to_start_test')}</p>
+  return (
+    <div 
+      style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
+      onClick={() => setCurrentState(STATES.Testing)}
+    >
+      <div className="instructions-container">
+        <h4>{t('testing_instructions_title')}</h4>
+        <ol>
+          <li>{t('testing_instruction_step1')}</li>
+          <li>{t('testing_instruction_step2')}</li>
+        </ol>
       </div>
-    );
+    </div>
+  );
+
     case STATES.Testing:
       return (
         <div>
@@ -821,62 +867,101 @@ return (
       {renderCurrentState()}
     </div>
     <button
-  ref={settingsButtonRef}
-  onClick={toggleSettings}
-  className="OpenMenuButton"
-  aria-label="Toggle settings"
->
-  <img src={SettingsIcon} alt={showSettings ? 'CLOSE SETTINGS' : 'OPEN SETTINGS'} />
-</button>
-<aside ref={menuRef} className={`DrawerMenu ${showSettings ? 'open' : ''}`} role="menu">
-  <nav className="Menu">
-    <h2>{t('settings_panel')}</h2>
-    <p>{t('current_input_mode')}: {inputMode === 'NOTE_ONLY' ? t('note_only') : t('captors_and_note')}</p>
-    <div>
-      <label htmlFor="recordDuration">
-      {t('record_duration')} (s): <span>{recordDuration / 1000}</span>
-      </label>
-      <input
-        id="recordDuration"
-        type="range"
-        min="1"
-        max="10"
-        step="1"
-        value={recordDuration / 1000} // Convertir en secondes pour l'affichage
-        onChange={(e) => setRecordDuration(Number(e.target.value) * 1000)} // Convertir retour en millisecondes pour la gestion interne
-      />
-    </div>
-    <div className="MenuLink">
-      <label htmlFor="thresholdSlider">{t('threshold')}: {threshold}</label>
-      <input
-        id="thresholdSlider"
-        type="range"
-        min="180"
-        max="250"
-        step="1"
-        value={threshold}
-        onChange={(e) => setThreshold(Number(e.target.value))}
-      />
-    </div>
-    <button onClick={toggleSilentMode} className="MenuLink">
-    {silentMode ? t('disable_silent_mode') : t('enable_silent_mode')}
+      ref={settingsButtonRef}
+      onClick={toggleSettings}
+      className="OpenMenuButton"
+      aria-label={t('toggle_settings')}
+    >
+      <img src={SettingsIcon} alt={showSettings ? t('close_settings') : t('open_settings')} />
     </button>
-    <button onClick={() => resetModelAndTrainer()} className="MenuLink">
-    {t('reset_model')}
+    <button
+      className="TutorialButton"
+      onClick={() => startTour()}
+      style={{ position: 'fixed', top: 10, right: 60, background: 'none',
+      border: 'none',cursor: 'pointer',
+      padding: 0, }} 
+      aria-label={t('start_tour')}
+    >
+      <img src={HelpIcon} alt={t('start_tour')} />
     </button>
-    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
-    <button onClick={() => i18n.changeLanguage('fr')} className="MenuLink" title="Français">
-      <span className="fi fi-fr"></span>
-      </button>
-      <button onClick={() => i18n.changeLanguage('en')} className="MenuLink" title="English">
-      <span className="fi fi-us"></span>
-      </button>
-    </div>
-  </nav>
-  <div className="MenuOverlay" onClick={() => setShowSettings(false)} />
-</aside>
+    <Joyride
+        run={run}
+        steps={steps}
+        continuous={true}
+        showSkipButton={true}
+        spotlightClicks={false}
+        
+        showProgress={true}
+        styles={{
+          options: {
+            zIndex: 10000,
+            primaryColor: '#4CAF50', // change la couleur principale
+            textColor: '#fff', // change la couleur du texte
+            backgroundColor: '#333', // change la couleur de fond des tooltips
+            arrowColor: '#333', // change la couleur des flèches
+          },
+          buttonNext: {
+            color: '#fff',
+            backgroundColor: '#4CAF50', // couleur du bouton suivant
+          },
+          buttonBack: {
+            color: '#fff',
+            backgroundColor: '#aaa', // couleur du bouton précédent
+          },
+        
+        }}
+        callback={handleJoyrideCallback}
+      />
+    <aside ref={menuRef} className={`DrawerMenu ${showSettings ? 'open' : ''}`} role="menu">
+      <nav className="Menu">
+        <h2>{t('settings_panel')}</h2>
+        <p>{t('current_input_mode')}: {inputMode === 'NOTE_ONLY' ? t('note_only') : t('captors_and_note')}</p>
+        <div>
+          <label htmlFor="recordDuration">
+            {t('record_duration')} (s): <span>{recordDuration / 1000}</span>
+          </label>
+          <input
+            id="recordDuration"
+            type="range"
+            min="1"
+            max="10"
+            step="1"
+            value={recordDuration / 1000}
+            onChange={(e) => setRecordDuration(Number(e.target.value) * 1000)}
+          />
+        </div>
+        <div className="MenuLink">
+          <label htmlFor="thresholdSlider">{t('threshold')}: {threshold}</label>
+          <input
+            id="thresholdSlider"
+            type="range"
+            min="180"
+            max="250"
+            step="1"
+            value={threshold}
+            onChange={(e) => setThreshold(Number(e.target.value))}
+          />
+        </div>
+        <button onClick={toggleSilentMode} className="MenuLink">
+          {silentMode ? t('disable_silent_mode') : t('enable_silent_mode')}
+        </button>
+        <button onClick={() => resetModelAndTrainer()} className="MenuLink">
+          {t('reset_model')}
+        </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
+          <button onClick={() => i18n.changeLanguage('fr')} className="MenuLink" title="Français">
+            <span className="fi fi-fr"></span>
+          </button>
+          <button onClick={() => i18n.changeLanguage('en')} className="MenuLink" title="English">
+            <span className="fi fi-us"></span>
+          </button>
+        </div>
+      </nav>
+      <div className="MenuOverlay" onClick={() => setShowSettings(false)} />
+    </aside>
   </>
 );
+
 });
 
 export default App;
