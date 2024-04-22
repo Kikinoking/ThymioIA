@@ -113,7 +113,7 @@ const App = observer(() => {
   const [currentState, setCurrentState] = useState('Title');
 
   const [run, setRun] = useState(false);//Used for tutorial
-  const [steps, setSteps] = useState([]);//USed for tutorial
+  const [steps, setSteps] = useState<Step[]>([]);
 
   const STATES = {
     Title: 'Title',
@@ -124,6 +124,14 @@ const App = observer(() => {
     ConsigneTesting: 'ConsigneTesting',
     Testing: 'Testing',
     CurrentModelTest: 'CurrentModelTest'
+  };
+
+  const locale = {
+    back: t('joyride.back'),
+    close: t('joyride.close'),
+    last: t('joyride.last'),
+    next: t('joyride.next'),
+    skip: t('joyride.skip')
   };
 
   const nextState = () => {
@@ -178,7 +186,10 @@ const App = observer(() => {
     }
   };
   const startTour = () => {
-    setRun(true);
+    requestAnimationFrame(() => {
+      setRun(true);
+    });
+    
   };
 
   useEffect(() => {
@@ -189,11 +200,167 @@ const App = observer(() => {
           {
             target: '.getRobots-button',
             content: t('tooltip_get_robots'),
-            placement: 'bottom'
+            placement: 'left',
+            disableBeacon: true
           }
         ]);
         break;
-      // Ajoutez d'autres cases pour différents états avec leurs étapes spécifiques
+      case 'ConsigneTraining':
+      setSteps([
+        {
+          target: '.use-captors-and-note-button', // Assurez-vous que le bouton a cette classe
+          content: t('tooltip_use_captors_and_note'),
+          placement: 'left',
+          disableBeacon: true
+        },
+        {
+          target: '.use-note-only-button', // Assurez-vous que le bouton a cette classe
+          content: t('tooltip_use_note_only'),
+          placement: 'right'
+        }
+      ]);
+      break;
+      case 'PlayNote':
+      setSteps([
+        {
+          target: '.start-recording-button', 
+          content: t('tooltip_start_recording'),
+          placement: 'top',
+          disableBeacon: true
+        },
+        {
+          target: '.piano', 
+          content: t('piano-component-train'),
+          placement: 'left'
+        },
+        {
+          target: '.thymio-svg-component', 
+          content: t('tooltip_thymio_svg'),
+          placement: 'left'
+        },
+        {
+          target: '.musical-staff-component', 
+          content: t('tooltip_musical_staff'),
+          placement: 'right'
+        },
+        {
+          target: '.go-to-map-action-button', 
+          content: t('tooltip_go_to_map_action'),
+          placement: 'bottom'
+        }
+      ]);
+      break;
+      case 'MapAction':
+      setSteps([
+        {
+          target: '.actions-container', // Assurez-vous que le conteneur des boutons a cette classe
+          content: t('tooltip_map_actions'),
+          placement: 'top',
+          disableBeacon: true,
+          styles: {
+            options: {
+              zIndex: 10000
+            }
+          }
+        }
+      ]);
+      break;
+      case 'CurrentModelTrain': 
+        setSteps([
+          {
+            target: '.thymio-container',
+            content: t('tooltip_thymio_svg'),
+            placement: 'top',
+            disableBeacon: true
+          },
+          {
+            target: 'th',
+            content: t('tooltip_action_column'),
+            placement: 'top',
+          },
+          {
+            target: 'th + th',
+            content: t('tooltip_captors_column'),
+            placement: 'top',
+          },
+          {
+            target: 'th + th + th',
+            content: t('tooltip_note_column'),
+            placement: 'top',
+          },
+          {
+            target: '.map-more-actions-button',
+            content: t('tooltip_map_more_actions'),
+            placement: 'bottom',
+          },
+          {
+            target: '.save-model-button',
+            content: t('tooltip_save_model'),
+            placement: 'bottom',
+          },
+          {
+            target: '.test-model-button',
+            content: t('tooltip_test_model'),
+            placement: 'bottom',
+          }
+        ]);
+        break;
+        case 'Testing':
+        setSteps([
+          {
+            target: '.execute-btn',
+            content: t('tooltip_execute'),
+            placement: 'top',
+            disableBeacon: true
+          },
+          {
+            target: '.toggle-recording-btn',
+            content: t('tooltip_toggle_recording_musical_staff'),
+            placement: 'right',
+          },
+          {
+            target: '.piano',
+            content: t('tooltip_piano'),
+            placement: 'left',
+          },
+          {
+            target: '.thymio-svg',
+            content: t('tooltip_thymio_svg'),
+            placement: 'top',
+          },
+          {
+            target: '.bar-chart-container',
+            content: t('tooltip_bar_chart'),
+            placement: 'bottom',
+          },
+          {
+            target: '.load-model-btn',
+            content: t('tooltip_load_model'),
+            placement: 'left',
+          },
+          {
+            target: '.visualize-nn-btn',
+            content: t('tooltip_visualize_nn'),
+            placement: 'right',
+          },
+          {
+            target: '.stop-testing-btn',
+            content: t('tooltip_stop_testing'),
+            placement: 'left',
+          },
+          {
+            target: '.switch-decision-btn',
+            content: t('tooltip_switch_decision'),
+            placement: 'top',
+          },
+          {
+            target: '.reset-training-btn',
+            content: t('tooltip_reset_training'),
+            placement: 'right',
+          }
+        ]);
+      
+      
     }
   }, [currentState, t]); 
 
@@ -218,7 +385,7 @@ const App = observer(() => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []); // N'incluez pas showSettings ici pour éviter de réattacher l'écouteur inutilement
+  }, []); 
 
   
   
@@ -639,7 +806,7 @@ const renderCurrentState = () => {
       );
     case STATES.ConsigneTraining:
       return (<> <div className="instructions-container">
-      <h4>{t('instructions')}</h4>
+      <h4>{t('instructions_title')}</h4>
       <ol>
       <li>{t('train_instruction_1')}</li>
       <li>{t('train_instruction_2')}</li>
@@ -648,19 +815,21 @@ const renderCurrentState = () => {
       <li>{t('train_instruction_5')}</li>
       </ol>
     </div>
-      <button onClick={() => handleModeChange('CAPTORS_AND_NOTE')}>
-      {t('use_captors_and_note')}
-      </button><button onClick={() => handleModeChange('NOTE_ONLY')}>
-      {t('use_note_only')}
-        </button></>)
+      <button className="use-captors-and-note-button" onClick={() => handleModeChange('CAPTORS_AND_NOTE')}>
+        {t('use_captors_and_note')}
+      </button>
+      <button className="use-note-only-button" onClick={() => handleModeChange('NOTE_ONLY')}>
+        {t('use_note_only')}
+      </button></>)
+
     case STATES.PlayNote:
       return (
         <>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <button onClick={startRecording} disabled={isRecording}>
+            <button className="start-recording-button" onClick={startRecording} disabled={isRecording}>
             {t('start_recording')}
             </button>
-            <Piano onNoteChange={setNoteRecording} style={{ marginTop: '20px', width: '100%' }} />
+            <Piano className="piano" onNoteChange={setNoteRecording} style={{ marginTop: '20px', width: '100%' }} />
           </div>
           <br />
           {audioUrl && (
@@ -669,11 +838,11 @@ const renderCurrentState = () => {
           
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid white', padding: '20px' }}>
             {user.captors.state[controledRobot] && (
-              <div style={{ width: '30%', margin: '0 10px' }}>
+              <div  className="thymio-svg-component" style={{ width: '30%', margin: '0 10px' }}>
                 <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '7%', height: 'auto' }} />
               </div>
             )}
-            <div style={{ width: '50%' }}>
+            <div className="musical-staff-component" style={{ width: '50%' }}>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
             {noteRecording !== 0 && (
               <div className='Note' style={{ margin: '0 auto' }}>
@@ -685,7 +854,7 @@ const renderCurrentState = () => {
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <button onClick={handleTransition}>{t('go_to_map_action')}</button>
+            <button className="go-to-map-action-button" onClick={handleTransition}>{t('go_to_map_action')}</button>
           </div>
         </>
       );
@@ -700,7 +869,7 @@ const renderCurrentState = () => {
   };
 
   return (
-    <div style={{ flex: 1, marginRight: '20px' }}>
+    <div className="actions-container" style={{ flex: 1, marginRight: '20px' }}>
       <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>{t('choose_action')}</h2> 
       <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <button onClick={() => handleAction('STOP')}>
@@ -733,12 +902,12 @@ const renderCurrentState = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
       <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="thymio-container">
           <div style={{ width: '30%', margin: '0 10px' }}>
             <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '100%', height: 'auto' }} />
           </div>
         </div>
-        <div style={{ flex: 2, overflowX: 'auto' }}>
+        <div style={{ flex: 2, overflowX: 'auto' }} className="trainer-table-container">
           <table className="trainer-table">
             <thead>
               <tr>
@@ -760,13 +929,13 @@ const renderCurrentState = () => {
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
-        <button onClick={() => setCurrentState(STATES.PlayNote)} style={{ margin: '0 10px' }}>
+        <button onClick={() => setCurrentState(STATES.PlayNote)} style={{ margin: '0 10px' }} className="map-more-actions-button">
         {t('map_more_actions')}
         </button>
-        <button onClick={() => { console.log("Save model"); }} style={{ margin: '0 10px' }}>
+        <button onClick={() => { console.log("Save model"); }} style={{ margin: '0 10px' }} className="save-model-button">
         {t('save_model')}
         </button>
-        <button onClick={() => setCurrentState(STATES.ConsigneTesting)} style={{ margin: '0 10px' }}>
+        <button onClick={() => setCurrentState(STATES.ConsigneTesting)} style={{ margin: '0 10px' }} className="test-model-button">
         {t('test_the_model')}
         </button>
       </div>
@@ -797,7 +966,7 @@ const renderCurrentState = () => {
           {/* Première ligne : Contrôle d'enregistrement, affichages, ThymioSVG, et BarChart */}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
             <div style={{ flex: 1 }}>
-              <button onClick={toggleContinuousRecording}>
+              <button onClick={toggleContinuousRecording} className="toggle-recording-btn">
                 {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
               </button>
               {maxFreq !== null && (
@@ -814,39 +983,39 @@ const renderCurrentState = () => {
             </div>
             {user.captors.state[controledRobot] && (
               <div style={{ flex: 1, transform: 'scale(0.6)' }}>
-                <ThymioSVG captors={user.captors.state[controledRobot]} />
+                <ThymioSVG captors={user.captors.state[controledRobot]} className="thymio-svg" />
               </div>
             )}
-            <div style={{ flex: 0.75, height: '350px', minHeight: '350px' }}> 
+            <div style={{ flex: 0.75, height: '350px', minHeight: '350px' }}className="bar-chart-container"> 
           <BarChart data={predictions} labels={labels} />
         </div>
           </div>
     
           {/* Deuxième ligne : Boutons Load, Execute et Visualize */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-            <button onClick={() => console.log('Load other model')} style={{ marginRight: '20px' }}>
+            <button onClick={() => console.log('Load other model')} style={{ marginRight: '20px' }}className="load-model-btn">
             {t('load_other_model')}
             </button>
-            <button onClick={onExecute} style={{ marginRight: '20px' , width :'300px', height : 'auto'}}>
+            <button onClick={onExecute} style={{ marginRight: '20px' , width :'300px', height : 'auto'}}className="execute-btn">
             {t('execute')}
             </button>
-            <button onClick={() => console.log('Visualize Neural Network')}>
+            <button onClick={() => console.log('Visualize Neural Network')} className="visualize-nn-btn">
             {t('visualize_neural_network')}
             </button>
           </div>
     
           {/* Troisième ligne : Piano */}
-          <Piano onNoteChange={setNote} />
+          <Piano onNoteChange={setNote} className="piano" />
     
           {/* Quatrième ligne : Contrôle du test et réinitialisation */}
           <div style={{ marginTop: '20px' }}>
-            <button onClick={stopExecutionAndReset} style={{ marginRight: '20px' }}>
+            <button onClick={stopExecutionAndReset} style={{ marginRight: '20px' }} className="stop-testing-btn">
             {t('stop_testing')}
             </button>
-            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} style={{ marginRight: '20px' }}>
+            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} style={{ marginRight: '20px' }} className="switch-decision-btn">
             {isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}
             </button>
-            <button onClick={() => { resetModelAndTrainer(); setCurrentState(STATES.ConsigneTraining);}}>
+            <button onClick={() => { resetModelAndTrainer(); setCurrentState(STATES.ConsigneTraining);}} className="reset-training-btn">
             {t('reinitialize_the_model')}
             </button>
           </div>
@@ -889,25 +1058,31 @@ return (
         steps={steps}
         continuous={true}
         showSkipButton={true}
-        spotlightClicks={false}
-        
-        showProgress={true}
+        spotlightClicks={true}
+        disableOverlayClose ={true}
+        showProgress={false}
+        locale={locale}
         styles={{
           options: {
             zIndex: 10000,
-            primaryColor: '#4CAF50', // change la couleur principale
+            primaryColor: '#d41313', // change la couleur principale
             textColor: '#fff', // change la couleur du texte
             backgroundColor: '#333', // change la couleur de fond des tooltips
-            arrowColor: '#333', // change la couleur des flèches
+            arrowColor: '#ab1120', // change la couleur des flèches
           },
           buttonNext: {
             color: '#fff',
-            backgroundColor: '#4CAF50', // couleur du bouton suivant
+            backgroundColor: '##aaa', // couleur du bouton suivant
           },
           buttonBack: {
             color: '#fff',
             backgroundColor: '#aaa', // couleur du bouton précédent
           },
+          buttonSkip:{
+            color: '#fff',
+            backgroundColor: '#aaa',
+
+          }
         
         }}
         callback={handleJoyrideCallback}

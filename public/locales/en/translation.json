@@ -76,7 +76,40 @@
   "testing_instruction_step1": "Listen carefully to the robot's response.",
   "testing_instruction_step2": "Evaluate the appropriateness of the robot's actions.",
 
-  "tooltip_get_robots": "Click on this button to find connected robots"
+  "tooltip_get_robots": "Click on this button to find connected robots",
+
+  "tooltip_use_captors_and_note": "This mode uses the 9 proximity sensors and the microphone.",
+  "tooltip_use_note_only": "This mode uses only the microphone.",
+  "tooltip_start_recording": "Click here to record a sound (allow the microphone access to your computer).",
+  "tooltip_piano": "If you don't have an instrument, or can't make noise, use the piano to record a note.",
+  "piano-component-train": "If you don't have an instrument, or can't make noise, use the piano to record a note.",
+  "tooltip_thymio_svg": "This diagram turns red the sensors of Thymio that detect something.",
+  "tooltip_musical_staff": "After recording a sound or playing a note on the piano, it will appear here.",
+  "tooltip_go_to_map_action": "After recording the note and activating the sensors you want, click here to proceed.",
+  "tooltip_map_actions": "Click on the action for which you want to assign the previously recorded note (and sensor combination).",
+  "tooltip_action_column": "Here you can see which action has been selected,",
+  "tooltip_captors_column": "For this specific state of the sensors,",
+  "tooltip_note_column": "And when Thymio hears this note.",
+  "tooltip_map_more_actions": "Click here if you want to teach Thymio more actions.",
+  "tooltip_save_model": "Click here to save the model, so you can use it later.",
+  "tooltip_test_model": "Click here if you are done training.",
+  "tooltip_execute": "Click this button to test your model. Thymio will start listening and react according to the heard note.",
+  "tooltip_toggle_recording_musical_staff": "This button turns on/off Thymio's listening.",
+  "tooltip_bar_chart": "This graph shows which actions are most likely for Thymio to undertake, based on the current state of its sensors and the note it is currently hearing.",
+  "tooltip_load_model": "Click here to load an existing model.",
+  "tooltip_visualize_nn": "Click here to visualize the neural network.",
+  "tooltip_stop_testing": "Click here to stop the execution, Thymio will stop.",
+  "tooltip_switch_decision": "This button toggles between two modes: Winner takes all = the most probable action is always chosen, or probabilistic decision = actions are chosen proportionally to their probability.",
+  "tooltip_reset_training": "Click here to start over.",
+
+  "joyride": {
+    "next": "Next",
+    "back": "Back",
+    "skip": "Skip",
+    "last": "Last"
+  }
+
+  
       
   }
   

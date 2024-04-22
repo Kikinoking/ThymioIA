@@ -76,6 +76,37 @@
   "testing_instruction_step2": "Évaluez la pertinence des actions du robot.",
 
 
-  "tooltip_get_robots": "Cliquez Sur ce bouton pour trouver les robots connectés."
+  "tooltip_get_robots": "Cliquez Sur ce bouton pour trouver les robots connectés.",
+
+  "tooltip_use_captors_and_note": "Ce mode utilise les 9 capteurs de proximité et le microphone",
+  "tooltip_use_note_only": "Ce mode utilise uniquement le micro",
+  "tooltip_start_recording": "Cliquez ici pour enregistrer un son (donnez l'autorisation du microphone à l'ordinateur)",
+  "tooltip_piano": "Si vous n'avez pas d'instrument, ou que vous ne pouvez pas faire de bruit, utilisez le piano pour enregistrer une note.",
+  "piano-component-train": "Si vous n'avez pas d'instrument, ou que vous ne pouvez pas faire de bruit, utilisez le piano pour enregistrer une note.",
+  "tooltip_thymio_svg": "Ce schéma met en rouge les capteurs de Thymio qui détectent quelque chose.",
+  "tooltip_musical_staff": "Après avoir joué enregistré un son ou joué une note avec le piano, elle apparaîtra ici.",
+  "tooltip_go_to_map_action": "Après avoir enregistré la note et activé les capteurs que vous voulez, cliquez ici pour la suite.",
+  "tooltip_map_actions": "Cliquez l'action pour laquelle vous voulez assigner la note (et la combinaison des capteurs) précédemment enregistré(es).",
+  "tooltip_action_column": "Ici vous pouvez voir quelle action a été sélectionnée,",
+  "tooltip_captors_column": "Pour cet état spécifique des capteurs,",
+  "tooltip_note_column": "Et lorsque le thymio entend cette note.",
+  "tooltip_map_more_actions": "Cliquez ici si vous voulez apprendre au Thymio plus d'actions.",
+  "tooltip_save_model": "Cliquez ici pour enregistrer le modèle, afin de le réutiliser ultérieurement.",
+  "tooltip_test_model": "Cliquez ici si vous avez fini l'entraînement.",
+  "tooltip_execute" : "Cliquez sur ce bouton pour tester votre modèle. Thymio va se mettre à écouter et réagir en fonction de la note entendue.",
+  "tooltip_toggle_recording_musical_staff": "Ce bouton active/désactive l'écoute du thymio.",
+  "tooltip_bar_chart": "Ce graphe montre quelles sont les actions les plus probables que Thymio va entreprendre, en fonction de l'état actuel de ses capteurs et de la note qu'il entend actuellement.",
+  "tooltip_load_model": "Cliquez ici pour charger un modèle existant.",
+  "tooltip_visualize_nn": "Cliquez ici pour visualiser le réseau de neurones.",
+  "tooltip_stop_testing": "Cliquez ici pour arrêter l'exécution, le thymio s'arrête.",
+  "tooltip_switch_decision": "Ce bouton permet de basculer entre deux modes: Le gagnant emporte tout = l'action la plus probable est toujours celle qui est choisie, ou bien décision probabiliste = les actions sont choisies proportionnellement à leur probabilité.",
+  "tooltip_reset_training": "Cliquez ici pour recommencer à zéro.",
+
+  "joyride": {
+    "next": "Suivant",
+    "back": "Précédent",
+    "skip": "Passer",
+    "last": "Fin"
+  }
   }
   
