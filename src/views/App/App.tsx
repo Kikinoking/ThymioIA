@@ -13,14 +13,14 @@ import Piano from './Piano'
 import MusicalStaff from './MusicalStaff'; // Assurez-vous que le chemin est correct
 import './Menu.css';
 import SettingsIcon from '../../assets/settings.svg'
-import * as tfvis from '@tensorflow/tfjs-vis';
+import * as tf from '@tensorflow/tfjs';
 import stopGif from '../../assets/actionsicons/Stopgif.gif'
 import forwardGif from '../../assets/actionsicons/animForwardV2.gif';
 import backwardGif from '../../assets/actionsicons/animBackward.gif';
 import leftGif from '../../assets/actionsicons/AnimLeft.gif';
 import rightGif from '../../assets/actionsicons/AnimRight.gif';
 import HelpIcon from '../../assets/help.svg';
-
+import NeuralNetworkVisualization from '../../Entities/ThymioManager/Model/NeuralNetworkVisualization';
 import Joyride, { CallBackProps, STATUS } from 'react-joyride';
 
 
@@ -114,6 +114,19 @@ const App = observer(() => {
 
   const [run, setRun] = useState(false);//Used for tutorial
   const [steps, setSteps] = useState<Step[]>([]);
+
+  const [model, setModel] = useState<tf.Sequential | null>(null);
+  const [loading, setLoading] = useState(false);
+
+// Fonction pour charger le modèle
+const loadModel = async () => {
+    if (!loading && !model) {
+        setLoading(true);
+        const loadedModel = await user.getModel();
+        setModel(loadedModel);
+        setLoading(false);
+    }
+};
 
   const STATES = {
     Title: 'Title',
@@ -999,7 +1012,7 @@ const renderCurrentState = () => {
             <button onClick={onExecute} style={{ marginRight: '20px' , width :'300px', height : 'auto'}}className="execute-btn">
             {t('execute')}
             </button>
-            <button onClick={() => console.log('Visualize Neural Network')} className="visualize-nn-btn">
+            <button onClick={() => setCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn">
             {t('visualize_neural_network')}
             </button>
           </div>
@@ -1024,7 +1037,23 @@ const renderCurrentState = () => {
     
 
     case STATES.CurrentModelTest:
-      return <div>Testing Model...</div>;
+      
+
+    // Appeler loadModel lorsqu'on entre dans cet état
+    if (!model && !loading) {
+        loadModel();
+    }
+      return (
+        <div>
+          <h2>Testing Model...</h2>
+          {model ? (
+            <NeuralNetworkVisualization model={model} />
+          ) : (
+            <p>Loading model...</p>
+          )}
+        </div>
+      );
+      
     default:
       return null;
   }

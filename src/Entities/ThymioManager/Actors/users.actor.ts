@@ -15,6 +15,7 @@ export class AllUser implements Users {
   emitAction;
   emitMotorEvent;
   reinitializeModel;
+  getModel: () => Promise<tf.Sequential | null>;
 
   constructor({ activity, hosts }: { activity: Activity; hosts: string[] }) {
     const thymioIA = Container.factoryFromInjectable<IThymioIA>('BOUNDED_CONTEXT', 'ThymioIA', [], { activity, hosts });
@@ -30,6 +31,7 @@ export class AllUser implements Users {
     this.emitAction = thymioIA.emitAction;
     this.emitMotorEvent = thymioIA.emitMotorEvent;
     this.reinitializeModel = thymioIA.reinitializeModel;
+    this.getModel = thymioIA.getModel;
     
   }
 }

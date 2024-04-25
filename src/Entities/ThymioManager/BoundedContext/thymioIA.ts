@@ -56,6 +56,12 @@ export class ThymioIA implements IThymioIA {
     this.tdmController = tdmController;
   }
 
+  getModel = (): Promise<tf.Sequential | null> => {
+    return new Promise((resolve) => {
+      resolve(this.model);
+    });
+  };
+
   reinitializeModel = async (inputMode: string) => {
     if (this.model) {
       this.model.dispose(); // Dispose the current model if it exists

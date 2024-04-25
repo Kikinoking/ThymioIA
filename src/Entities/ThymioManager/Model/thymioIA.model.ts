@@ -1,5 +1,5 @@
 import { Observable } from '../../../helpers';
-
+import * as tf from '@tensorflow/tfjs';
 export interface DataEntry {
   input: string[];
   output: string;
@@ -15,6 +15,7 @@ interface IThymioIA {
   emitAction: (uuid: string, action: string, args: number[]) => Promise<void>;
   emitMotorEvent: (uuid: string, action: string) => Promise<void>;
   reinitializeModel: (inputMode: string)=> Promise<void>;
+  getModel: () => Promise<tf.Sequential | null>;
 }
 
 export default IThymioIA;

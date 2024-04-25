@@ -105,8 +105,13 @@
   "joyride": {
     "next": "Suivant",
     "back": "Précédent",
+    "close": "Fermer",
     "skip": "Passer",
     "last": "Fin"
-  }
+  },
+  "toggle_settings": "Afficher les paramètres",
+  "open_settings": "Ouvrir les paramètres",
+  "close_settings": "Fermer les paramètres",
+  "start_tour": "Commencer le tour"
   }
   
