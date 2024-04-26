@@ -11,38 +11,58 @@
     transition: background-color 0.3s; /* Color transition */
     cursor: pointer;
     position: relative; /* Needed for shaping */
-    clip-path: polygon(0% 0%,             
-    70% 0%,
+    clip-path: polygon(0% 0%,
+                  
+    80% 0%,
    100% 50%,
-    70% 100%,
+    80% 100%,
     0% 100%,
-     30% 50%); /* Double-chevron */
+     20% 50%); /* Double-chevron */
     border-radius: 0; /* Ensure corners are not rounded */
-    
+    height: 60px;
+    width: 130px;
   }
+  .state-item:not(:first-child) {
+    margin-left: -20px; /* Vous pouvez ajuster la valeur selon vos besoins */
+}
+  .state-item span {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1.2; /* Espacement entre les lignes */
+    max-width: 100%; /* Ajuster la largeur du texte */
+}
   
   /* Ensure the first and last items match the overall style */
   .navigation-bar > .state-item:first-child {
     flex:0;
     clip-path: polygon(0% 0%,
                   
-    70% 0%,
+    80% 0%,
    100% 50%,
-    70% 100%,
+    80% 100%,
     0% 100%,
-     30% 50%);
+     20% 50%);
   }
   
   .navigation-bar > .state-item:last-child {
     flex: 0;
     clip-path: polygon(0% 0%,
                   
-    70% 0%,
+    0% 0%,
+                  
+    80% 0%,
    100% 50%,
-    70% 100%,
+    80% 100%,
     0% 100%,
-     30% 50%);
+     20% 50%);
   }
+  .navigation-bar {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%; /* Assurez-vous que la barre de navigation occupe toute la largeur de l'écran */
+}
   
   .separator {
     display: none; /* Remove if you no longer want the separator */
@@ -52,24 +72,36 @@
   
   /* Pseudo-elements for creating angled sides */
   .state-item::before,
-  .state-item::after {
+.state-item::after {
     content: '';
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 10px; /* Control the angle of the sides */
-    background: inherit; /* Inherit the background color of the button */
-  }
-  
-  .state-item::before {
-    left: -10px; /* Align to the left side */
-     /* Skew pseudo-element to create angle */
-  }
-  
-  .state-item::after {
-    right: -10px; /* Align to the right side */
-     /* Skew pseudo-element to create angle */
-  }
+    width: 10px;
+    background: inherit;
+}
+
+.state-item::before {
+    left: -10px;
+}
+
+.state-item::after {
+    right: -10px;
+}
+.state-item {
+  /* Vos styles existants */
+  position: relative; /* Position relative pour que les éléments internes soient positionnés par rapport à ce bouton */
+}
+
+.button-text {
+  position: absolute; /* Position absolue pour positionner le texte à l'intérieur du bouton */
+  top: 50%; /* Aligner le haut du texte au milieu du bouton */
+  left: 50%; /* Aligner le côté gauche du texte au milieu du bouton */
+  transform: translate(-50%, -50%); /* Déplacer le texte de moitié de sa propre taille vers le haut et vers la gauche pour le centrer */
+  white-space: normal; /* Permettre au texte de passer à la ligne si nécessaire */
+  text-align: center; /* Centrer le texte horizontalement */
+}
+
   
   /* Color classes */
   .green {

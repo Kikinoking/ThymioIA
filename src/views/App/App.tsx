@@ -95,6 +95,8 @@ const App = observer(() => {
 
   const settingsButtonRef = useRef(null); // Référence pour le bouton Settings
 
+  const [showPopup, setShowPopup] = useState(false); //utilisé pour le popup recording
+
   const menuRef = useRef(null); // Référence pour le menu
 
   const [isTutorialActive, setIsTutorialActive] = useState(false); //For Tutorial
@@ -125,6 +127,20 @@ const App = observer(() => {
 
   const [model, setModel] = useState<tf.Sequential | null>(null);
   const [loading, setLoading] = useState(false);
+
+
+  const [visitedStates, setVisitedStates] = useState({'Title': true });
+
+  const handleSetCurrentState = (newState) => {
+    console.log("Updating state from", currentState, "to", newState); // Debugging current state update
+    setCurrentState(newState);
+    setVisitedStates(prev => {
+      const updatedVisitedStates = { ...prev, [newState]: true };
+      console.log("Visited States: ", updatedVisitedStates); // Debugging visited states
+      return updatedVisitedStates;
+    });
+  };
+  
 
 // Fonction pour charger le modèle
 const loadModel = async () => {
@@ -158,31 +174,31 @@ const loadModel = async () => {
   const nextState = () => {
     switch (currentState) {
       case STATES.Title:
-        setCurrentState(STATES.ConsigneTraining);
+        handleSetCurrentState(STATES.ConsigneTraining);
         break;
       case STATES.ConsigneTraining:
-        setCurrentState(STATES.PlayNote);
+        handleSetCurrentState(STATES.PlayNote);
         break;
       case STATES.PlayNote:
-        setCurrentState(STATES.MapAction);
+        handleSetCurrentState(STATES.MapAction);
         break;
       case STATES.MapAction:
-        setCurrentState(STATES.CurrentModelTrain);
+        handleSetCurrentState(STATES.CurrentModelTrain);
         break;
       case STATES.CurrentModelTrain:
-        setCurrentState(STATES.ConsigneTesting);
+        handleSetCurrentState(STATES.ConsigneTesting);
         break;
       case STATES.ConsigneTesting:
-        setCurrentState(STATES.Testing);
+        handleSetCurrentState(STATES.Testing);
         break;
       case STATES.Testing:
-        setCurrentState(STATES.CurrentModelTest);
+        handleSetCurrentState(STATES.CurrentModelTest);
         break;
       case STATES.CurrentModelTest:
-        setCurrentState(STATES.Title); // Loop back to the start or decide to end.
+        handleSetCurrentState(STATES.Title); // Loop back to the start or decide to end.
         break;
       default:
-        setCurrentState(STATES.Title);
+        handleSetCurrentState(STATES.Title);
     }
   };
   
@@ -537,7 +553,7 @@ const loadModel = async () => {
       await user.reinitializeModel(newMode); // Reinitialize the model on the backend
       console.log("Model reinitialized for mode:", newMode);
       }
-    setCurrentState(STATES.PlayNote);
+    handleSetCurrentState(STATES.PlayNote);
   };
 
   useEffect(() => {
@@ -637,6 +653,7 @@ const loadModel = async () => {
 
   mediaRecorder.onstop = async () => {
     setIsRecording(false);
+    setShowPopup(false); 
     const audioBlob = new Blob(audioChunks, { 'type': 'audio/wav; codecs=opus' });
     if (audioUrl) {
       URL.revokeObjectURL(audioUrl);
@@ -757,7 +774,13 @@ const loadModel = async () => {
   
     // Réinitialiser d'autres états si nécessaire
     // setRobots([]), setControledRobot(''), etc.
-    setCurrentState(STATES.ConsigneTraining);
+    handleSetCurrentState(STATES.ConsigneTraining);
+    const updatedVisitedStates = {
+      Title: true,
+      // Mettez le deuxième état ici
+      ConsigneTraining: false
+  };
+  setVisitedStates(updatedVisitedStates);
   };
   
   
@@ -791,7 +814,7 @@ useEffect(() => {
 
 const handleTransition = () => {
   if (noteRecording !== null && noteRecording !== 0) {
-    setCurrentState(STATES.MapAction);
+    handleSetCurrentState(STATES.MapAction);
   } else {
     alert("No valid note recorded!");
   }
@@ -843,42 +866,60 @@ const renderCurrentState = () => {
         {t('use_note_only')}
       </button></>)
 
-    case STATES.PlayNote:
-      return (
-        <>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <button className="start-recording-button" onClick={startRecording} disabled={isRecording}>
-            {t('start_recording')}
-            </button>
-            <Piano onNoteChange={setNoteRecording} silentMode={silentMode} className="piano" style={{ marginTop: '20px', width: '100%' }} />
+case STATES.PlayNote:
+  return (
+    <>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <button className="start-recording-button" onClick={() => {
+            startRecording();
+            setShowPopup(true); // Active le popup lors du début de l'enregistrement
+          }} disabled={isRecording}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* SVG path ici, exemple d'une icône de microphone */}
+            <path fillRule="evenodd" clipRule="evenodd" d="M12 2C13.1046 2 14 2.89543 14 4V11C14 12.1046 13.1046 13 12 13C10.8954 13 10 12.1046 10 11V4C10 2.89543 10.8954 2 12 2Z" fill="currentColor"/>
+            <path fillRule="evenodd" clipRule="evenodd" d="M18 11V4C18 1.79086 16.2091 0 14 0C11.7909 0 10 1.79086 10 4V11C10 13.2091 11.7909 15 14 15V18H10V20H18V18H14V15C16.2091 15 18 13.2091 18 11Z" fill="currentColor"/>
+          </svg>
+          {t('start_recording')}
+        </button>
+        <Piano onNoteChange={setNoteRecording} silentMode={silentMode} className="piano" style={{ marginTop: '20px', width: '100%' }} />
+      </div>
+      <br />
+      {audioUrl && (
+        <button onClick={() => new Audio(audioUrl).play()}>{t('playback')}</button>
+      )}
+      
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid white', padding: '20px' }}>
+        {user.captors.state[controledRobot] && (
+          <div  className="thymio-svg-component" style={{ width: '30%', margin: '0 10px' }}>
+            <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '7%', height: 'auto' }} />
           </div>
-          <br />
-          {audioUrl && (
-            <button onClick={() => new Audio(audioUrl).play()}>{t('playback')}</button>
-          )}
-          
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid white', padding: '20px' }}>
-            {user.captors.state[controledRobot] && (
-              <div  className="thymio-svg-component" style={{ width: '30%', margin: '0 10px' }}>
-                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '7%', height: 'auto' }} />
-              </div>
-            )}
-            <div className="musical-staff-component" style={{ width: '50%' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
-            {noteRecording !== 0 && (
-              <div className='Note' style={{ margin: '0 auto' }}>
-                <p>{t('note')} {noteRecording}</p>
-              </div>
-            )}
+        )}
+        <div className="musical-staff-component" style={{ width: '50%' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
+        {noteRecording !== 0 && (
+          <div className='Note' style={{ margin: '0 auto' }}>
+            <p>{t('note')} {noteRecording}</p>
           </div>
-              <MusicalStaff noteRecording={noteRecording} />
-            </div>
+        )}
+      </div>
+          <MusicalStaff noteRecording={noteRecording} />
+        </div>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <button className="go-to-map-action-button" onClick={handleTransition}>{t('go_to_map_action')}</button>
+      </div>
+      {showPopup && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }} className="popup-overlay">
+          <div style={{ display: 'flex' }}>
+            {Array.from({ length: 10 }).map((_, index) => (
+              <div key={index} className="wave-bar"></div>
+            ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <button className="go-to-map-action-button" onClick={handleTransition}>{t('go_to_map_action')}</button>
-          </div>
-        </>
-      );
+          <p style={{ color: 'white', marginTop: '20px' }}>{t('Recording')}</p>
+        </div>
+      )}
+    </>
+  );
     
     
     
@@ -913,11 +954,11 @@ const renderCurrentState = () => {
   const handleAction = (action) => {
     console.log(action + " action triggered");
     onAction(action);
-    setCurrentState(STATES.CurrentModelTrain);
+    handleSetCurrentState(STATES.CurrentModelTrain);
   };
 
   return (
-    <div className="actions-container" style={{ flex: 1, marginRight: '20px' }}>
+    <><div className="actions-container" style={{ flex: 1, marginRight: '20px' }}>
       <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>{t('choose_action')}</h2>
       <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
         {Object.keys(gifSources).map(action => (
@@ -926,29 +967,67 @@ const renderCurrentState = () => {
             onClick={() => handleAction(action)}
             onMouseEnter={(e) => handleMouseEnter(e.currentTarget, action)}
             onMouseLeave={(e) => handleMouseLeave(e.currentTarget, action)}
-            style={{ 
-              border: '2px solid #ccc', // Ajoute une bordure subtile
-              borderRadius: '5px', // Bords arrondis pour un look moderne
-              background: 'none', // Fond transparent
-              padding: '10px', // Espacement interne pour ne pas écraser l'image
-              cursor: 'pointer', // Indique que le bouton est cliquable
-              display: 'flex', // Assure un centrage correct de l'image
-              flexDirection: 'column', // Orientations des éléments (image + texte)
-              alignItems: 'center', // Centre horizontalement les éléments dans le bouton
+            style={{
+              border: '2px solid #ccc',
+              borderRadius: '5px',
+              background: 'none',
+              padding: '10px',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
               justifyContent: 'center', // Centre verticalement les éléments dans le bouton
             }}
           >
             <img
               src={staticSources[action]}
               alt={action}
-              style={{ width: '150px', height: '150px' }}
-            />
+              style={{ width: '150px', height: '150px' }} />
             {t(action.toLowerCase())}
           </button>
         ))}
       </div>
       <br />
-    </div>
+    </div><div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+          <div style={{ flex: 1 }} className="thymio-container">
+            <div style={{ width: '30%', margin: '0 10px' }}>
+              <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '100%', height: 'auto' }} />
+            </div>
+          </div>
+          <div style={{ flex: 2, overflowX: 'auto' }} className="trainer-table-container">
+            <table className="trainer-table">
+              <thead>
+                <tr>
+                  <th>{t('Action')}</th>
+                  <th>{t('captors_values')}</th>
+                  <th>{t('note_display')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {trainer.map(({ action, captors, note }, index) => (
+                  <tr key={index}>
+                    <td>{t(`action_${action.toLowerCase()}`)}</td>
+                    <td><ThymioSVG captors={captors} style={{ width: '10%', height: 'auto' }} /></td>
+                    <td>{note}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
+          <button onClick={() => handleSetCurrentState(STATES.PlayNote)} style={{ margin: '0 10px' }} className="map-more-actions-button">
+            {t('map_more_actions')}
+          </button>
+          <button onClick={() => { console.log("Save model"); } } style={{ margin: '0 10px' }} className="save-model-button">
+            {t('save_model')}
+          </button>
+          <button onClick={() => handleSetCurrentState(STATES.ConsigneTesting)} style={{ margin: '0 10px' }} className="test-model-button">
+            {t('test_the_model')}
+          </button>
+        </div>
+      </div></>
   );
   
 
@@ -985,13 +1064,13 @@ const renderCurrentState = () => {
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
-        <button onClick={() => setCurrentState(STATES.PlayNote)} style={{ margin: '0 10px' }} className="map-more-actions-button">
+        <button onClick={() =>  handleSetCurrentState(STATES.PlayNote)} style={{ margin: '0 10px' }} className="map-more-actions-button">
         {t('map_more_actions')}
         </button>
         <button onClick={() => { console.log("Save model"); }} style={{ margin: '0 10px' }} className="save-model-button">
         {t('save_model')}
         </button>
-        <button onClick={() => setCurrentState(STATES.ConsigneTesting)} style={{ margin: '0 10px' }} className="test-model-button">
+        <button onClick={() =>  handleSetCurrentState(STATES.ConsigneTesting)} style={{ margin: '0 10px' }} className="test-model-button">
         {t('test_the_model')}
         </button>
       </div>
@@ -1004,7 +1083,7 @@ const renderCurrentState = () => {
   return (
     <div 
       style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
-      onClick={() => setCurrentState(STATES.Testing)}
+      onClick={() =>  handleSetCurrentState(STATES.Testing)}
     >
       <div className="instructions-container">
         <h4>{t('testing_instructions_title')}</h4>
@@ -1055,7 +1134,7 @@ const renderCurrentState = () => {
             <button onClick={onExecute} style={{ marginRight: '20px' , width :'300px', height : 'auto'}}className="execute-btn">
             {t('execute')}
             </button>
-            <button onClick={() => setCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn">
+            <button onClick={() =>  handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn">
             {t('visualize_neural_network')}
             </button>
           </div>
@@ -1072,7 +1151,7 @@ const renderCurrentState = () => {
             <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} style={{ marginRight: '20px' }} className="switch-decision-btn">
             {isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}
             </button>
-            <button onClick={() => { resetModelAndTrainer(); setCurrentState(STATES.ConsigneTraining);}} className="reset-training-btn">
+            <button onClick={() => { resetModelAndTrainer();  handleSetCurrentState(STATES.ConsigneTraining);}} className="reset-training-btn">
             {t('reinitialize_the_model')}
             </button>
           </div>
@@ -1096,7 +1175,7 @@ const renderCurrentState = () => {
             <p>Loading model...</p>
           )}
           <button
-        onClick={() => setCurrentState(STATES.Testing)}
+        onClick={() =>  handleSetCurrentState(STATES.Testing)}
         style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}
       >
         {t('return_to_testing')}
@@ -1111,8 +1190,8 @@ const renderCurrentState = () => {
 
 return (
   <>
-    <NavigationBar states={STATES_ARRAY} currentState={currentState} setCurrentState={setCurrentState} />
-    <div className="App">
+    <NavigationBar states={STATES_ARRAY} currentState={currentState} setCurrentState={setCurrentState} visitedStates={visitedStates} />
+    <div className="App" style={{ marginTop: '40px' }}>
       {renderCurrentState()}
     </div>
     <button

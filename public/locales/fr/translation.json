@@ -122,6 +122,7 @@
   "state_CurrentModelTrain": "Entrainement du Modèle Actuel",
   "state_ConsigneTesting": "Instructions de Test",
   "state_Testing": "Test",
-  "state_CurrentModelTest": "Test du Modèle Actuel"
+  "state_CurrentModelTest": "Test du Modèle Actuel",
+  "Recording": "Enregistrement en cours..."
   }
   

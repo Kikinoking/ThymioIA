@@ -117,7 +117,8 @@
   "state_CurrentModelTrain": "Current Model Training",
   "state_ConsigneTesting": "Testing Guidelines",
   "state_Testing": "Testing",
-  "state_CurrentModelTest": "Current Model Test"
+  "state_CurrentModelTest": "Current Model Test",
+  "Recording": "Recording in progress..."
 
   
       
