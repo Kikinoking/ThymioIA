@@ -27,6 +27,7 @@ import leftStatic from '../../assets/actionsicons/LeftStatic.png';
 import rightStatic from '../../assets/actionsicons/RightStatic.png';
 import NeuralNetworkVisualization from '../../Entities/ThymioManager/Model/NeuralNetworkVisualization';
 import Joyride, { CallBackProps, STATUS } from 'react-joyride';
+import NavigationBar from './NavigationBar';
 
 
 
@@ -145,7 +146,7 @@ const loadModel = async () => {
     Testing: 'Testing',
     CurrentModelTest: 'CurrentModelTest'
   };
-
+  const STATES_ARRAY = Object.keys(STATES).map(key => STATES[key]);
   const locale = {
     back: t('joyride.back'),
     close: t('joyride.close'),
@@ -1110,6 +1111,7 @@ const renderCurrentState = () => {
 
 return (
   <>
+    <NavigationBar states={STATES_ARRAY} currentState={currentState} setCurrentState={setCurrentState} />
     <div className="App">
       {renderCurrentState()}
     </div>
@@ -1122,46 +1124,43 @@ return (
       <img src={SettingsIcon} alt={showSettings ? t('close_settings') : t('open_settings')} />
     </button>
     <button
-  className="TutorialButton"
-  onClick={() => startTour()}
-  aria-label={t('start_tour')}
->
-</button>
-
+      className="TutorialButton"
+      onClick={() => startTour()}
+      aria-label={t('start_tour')}
+    >
+    </button>
     <Joyride
-        run={run}
-        steps={steps}
-        continuous={true}
-        showSkipButton={true}
-        spotlightClicks={true}
-        disableOverlayClose ={true}
-        showProgress={false}
-        locale={locale}
-        styles={{
-          options: {
-            zIndex: 10000,
-            primaryColor: '#d41313', // change la couleur principale
-            textColor: '#fff', // change la couleur du texte
-            backgroundColor: '#333', // change la couleur de fond des tooltips
-            arrowColor: '#ab1120', // change la couleur des flèches
-          },
-          buttonNext: {
-            color: '#fff',
-            backgroundColor: '##aaa', // couleur du bouton suivant
-          },
-          buttonBack: {
-            color: '#fff',
-            backgroundColor: '#aaa', // couleur du bouton précédent
-          },
-          buttonSkip:{
-            color: '#fff',
-            backgroundColor: '#aaa',
-
-          }
-        
-        }}
-        callback={handleJoyrideCallback}
-      />
+      run={run}
+      steps={steps}
+      continuous={true}
+      showSkipButton={true}
+      spotlightClicks={true}
+      disableOverlayClose={true}
+      showProgress={false}
+      locale={locale}
+      styles={{
+        options: {
+          zIndex: 10000,
+          primaryColor: '#d41313',
+          textColor: '#fff',
+          backgroundColor: '#333',
+          arrowColor: '#ab1120',
+        },
+        buttonNext: {
+          color: '#fff',
+          backgroundColor: '##aaa',
+        },
+        buttonBack: {
+          color: '#fff',
+          backgroundColor: '#aaa',
+        },
+        buttonSkip: {
+          color: '#fff',
+          backgroundColor: '#aaa',
+        }
+      }}
+      callback={handleJoyrideCallback}
+    />
     <aside ref={menuRef} className={`DrawerMenu ${showSettings ? 'open' : ''}`} role="menu">
       <nav className="Menu">
         <h2>{t('settings_panel')}</h2>

@@ -113,6 +113,15 @@
   "open_settings": "Ouvrir les paramètres",
   "close_settings": "Fermer les paramètres",
   "start_tour": "Commencer le tour",
-  "return_to_testing": "Retourner à l'étape de test"
+  "return_to_testing": "Retourner à l'étape de test",
+  "note": "note",
+  "state_Title": "Titre",
+  "state_ConsigneTraining": "Instructions de Formation",
+  "state_PlayNote": "Jouer une Note",
+  "state_MapAction": "Actions de Cartographie",
+  "state_CurrentModelTrain": "Entrainement du Modèle Actuel",
+  "state_ConsigneTesting": "Instructions de Test",
+  "state_Testing": "Test",
+  "state_CurrentModelTest": "Test du Modèle Actuel"
   }
   

@@ -109,7 +109,15 @@
     "last": "Last"
 
   },
-  "return_to_testing": "Return to testing"
+  "return_to_testing": "Return to testing",
+  "state_Title": "Title",
+  "state_ConsigneTraining": "Training Guidelines",
+  "state_PlayNote": "Play Note",
+  "state_MapAction": "Map Actions",
+  "state_CurrentModelTrain": "Current Model Training",
+  "state_ConsigneTesting": "Testing Guidelines",
+  "state_Testing": "Testing",
+  "state_CurrentModelTest": "Current Model Test"
 
   
       

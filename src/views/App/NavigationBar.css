@@ -1,0 +1,86 @@
+.state-item {
+    flex-grow: 0;
+    flex:0;
+    text-align: center;
+    color: white; /* Text color */
+    padding: 20px 20px; /* Padding */
+    border: 20pt;
+    border-color: rgb(236, 236, 236); 
+    border-width: 10px;/* No border */
+     /* No focus outline */
+    transition: background-color 0.3s; /* Color transition */
+    cursor: pointer;
+    position: relative; /* Needed for shaping */
+    clip-path: polygon(0% 0%,             
+    70% 0%,
+   100% 50%,
+    70% 100%,
+    0% 100%,
+     30% 50%); /* Double-chevron */
+    border-radius: 0; /* Ensure corners are not rounded */
+    
+  }
+  
+  /* Ensure the first and last items match the overall style */
+  .navigation-bar > .state-item:first-child {
+    flex:0;
+    clip-path: polygon(0% 0%,
+                  
+    70% 0%,
+   100% 50%,
+    70% 100%,
+    0% 100%,
+     30% 50%);
+  }
+  
+  .navigation-bar > .state-item:last-child {
+    flex: 0;
+    clip-path: polygon(0% 0%,
+                  
+    70% 0%,
+   100% 50%,
+    70% 100%,
+    0% 100%,
+     30% 50%);
+  }
+  
+  .separator {
+    display: none; /* Remove if you no longer want the separator */
+  }
+  
+  
+  
+  /* Pseudo-elements for creating angled sides */
+  .state-item::before,
+  .state-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 10px; /* Control the angle of the sides */
+    background: inherit; /* Inherit the background color of the button */
+  }
+  
+  .state-item::before {
+    left: -10px; /* Align to the left side */
+     /* Skew pseudo-element to create angle */
+  }
+  
+  .state-item::after {
+    right: -10px; /* Align to the right side */
+     /* Skew pseudo-element to create angle */
+  }
+  
+  /* Color classes */
+  .green {
+    background-color: green;
+  }
+  
+  .orange {
+    background-color: orange;
+  }
+  
+  .red {
+    background-color: red;
+  }
+  
