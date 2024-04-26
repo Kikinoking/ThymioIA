@@ -20,6 +20,11 @@ import backwardGif from '../../assets/actionsicons/animBackward.gif';
 import leftGif from '../../assets/actionsicons/AnimLeft.gif';
 import rightGif from '../../assets/actionsicons/AnimRight.gif';
 import HelpIcon from '../../assets/help.svg';
+import stopStatic from '../../assets/actionsicons/STOPStatic.png';
+import forwardStatic from '../../assets/actionsicons/ForwardStatic.png';
+import backwardStatic from '../../assets/actionsicons/BackStatic.png';
+import leftStatic from '../../assets/actionsicons/LeftStatic.png';
+import rightStatic from '../../assets/actionsicons/RightStatic.png';
 import NeuralNetworkVisualization from '../../Entities/ThymioManager/Model/NeuralNetworkVisualization';
 import Joyride, { CallBackProps, STATUS } from 'react-joyride';
 
@@ -875,40 +880,75 @@ const renderCurrentState = () => {
     
     
       case STATES.MapAction:
+  // Objets pour gérer les sources d'images
+  const gifSources = {
+    STOP: stopGif,
+    FORWARD: forwardGif,
+    BACKWARD: backwardGif,
+    LEFT: leftGif,
+    RIGHT: rightGif
+  };
+
+  const staticSources = {
+    STOP: stopStatic,
+    FORWARD: forwardStatic,
+    BACKWARD: backwardStatic,
+    LEFT: leftStatic,
+    RIGHT: rightStatic
+  };
+
+  const handleMouseEnter = (button, action) => {
+    const img = button.getElementsByTagName('img')[0];
+    img.src = gifSources[action];
+  };
+
+  const handleMouseLeave = (button, action) => {
+    const img = button.getElementsByTagName('img')[0];
+    img.src = staticSources[action];
+  };
+
   const handleAction = (action) => {
-    console.log(action + " action triggered"); // Affiche l'action déclenchée
-    onAction(action); // Exécute l'action spécifique
-    setCurrentState(STATES.CurrentModelTrain); // Change l'état après l'exécution de l'action
+    console.log(action + " action triggered");
+    onAction(action);
+    setCurrentState(STATES.CurrentModelTrain);
   };
 
   return (
     <div className="actions-container" style={{ flex: 1, marginRight: '20px' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>{t('choose_action')}</h2> 
+      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>{t('choose_action')}</h2>
       <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
-        <button onClick={() => handleAction('STOP')}>
-          <img src={stopGif} alt="Stop" style={{ display: 'block', margin: 'auto' ,width: '150px', height: '150px'}}/>
-          {t('stop')}
-        </button>
-        <button onClick={() => handleAction('FORWARD')}>
-          <img src={forwardGif} alt="Forward" style={{ display: 'block', margin: 'auto', width: '150px', height: '150px' }}/>
-          {t('forward')}
-        </button>
-        <button onClick={() => handleAction('BACKWARD')}>
-          <img src={backwardGif} alt="Backward" style={{ display: 'block', margin: 'auto', width: '150px', height: '150px'}}/>
-          {t('backward')}
-        </button>
-        <button onClick={() => handleAction('LEFT')}>
-          <img src={leftGif} alt="Left" style={{ display: 'block', margin: 'auto', width: '150px', height: '150px' }}/>
-          {t('left')}
-        </button>
-        <button onClick={() => handleAction('RIGHT')}>
-          <img src={rightGif} alt="Right" style={{ display: 'block', margin: 'auto', width: '150px', height: '150px'}}/>
-          {t('right')}
-        </button>
+        {Object.keys(gifSources).map(action => (
+          <button
+            key={action}
+            onClick={() => handleAction(action)}
+            onMouseEnter={(e) => handleMouseEnter(e.currentTarget, action)}
+            onMouseLeave={(e) => handleMouseLeave(e.currentTarget, action)}
+            style={{ 
+              border: '2px solid #ccc', // Ajoute une bordure subtile
+              borderRadius: '5px', // Bords arrondis pour un look moderne
+              background: 'none', // Fond transparent
+              padding: '10px', // Espacement interne pour ne pas écraser l'image
+              cursor: 'pointer', // Indique que le bouton est cliquable
+              display: 'flex', // Assure un centrage correct de l'image
+              flexDirection: 'column', // Orientations des éléments (image + texte)
+              alignItems: 'center', // Centre horizontalement les éléments dans le bouton
+              justifyContent: 'center', // Centre verticalement les éléments dans le bouton
+            }}
+          >
+            <img
+              src={staticSources[action]}
+              alt={action}
+              style={{ width: '150px', height: '150px' }}
+            />
+            {t(action.toLowerCase())}
+          </button>
+        ))}
       </div>
       <br />
     </div>
   );
+  
+
 
 
   case STATES.CurrentModelTrain:
@@ -1047,7 +1087,7 @@ const renderCurrentState = () => {
         <div>
           <h2>Testing Model...</h2>
           {model ? (
-            <NeuralNetworkVisualization model={model} />
+            <NeuralNetworkVisualization model={model} inputMode = {inputMode} />
           ) : (
             <p>Loading model...</p>
           )}
