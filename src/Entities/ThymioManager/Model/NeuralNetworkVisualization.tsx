@@ -9,6 +9,12 @@
     const outputLayerSize = 5; // Taille prédéfinie de la couche de sortie pour cet exemple
     const inputLayerSize = inputMode === 'NOTE_ONLY' ? 1 : 10; // Taille de la couche d'entrée basée sur le mode
 
+    const getBiasColor = (bias) => {
+      // Normalize bias for visualization purposes
+      const normalizedBias = Math.tanh(bias);
+      return getColorFromWeight(normalizedBias);
+    };
+
     useEffect(() => {
       if (model) {
         // Récupérer et filtrer les couches à partir de la deuxième couche dense (après l'embedding)
@@ -30,7 +36,8 @@
       if (weight === undefined) {
         return 'rgba(255, 255, 255, 0.5)';
       }
-      return `rgb(${Math.floor(255 * Math.max(0, weight))}, ${Math.floor(255 * Math.max(0, -weight))}, 0)`;
+      return `rgb(${Math.min(255, Math.floor(255 * Math.max(0, weight) + 50))}, ${Math.min(255, Math.floor(255 * Math.max(0, -weight) + 50))}, 0)`;
+
     };
 
     return (
@@ -97,6 +104,7 @@
                   <g key={neuronIdx}>
                     {lines}
                     <circle cx={x} cy={y} r={10} fill="purple" />
+                    <circle cx={x} cy={y} r={5} fill={getBiasColor(layer.biases[neuronIdx])} />
                   </g>
                 );
               })}
@@ -106,7 +114,8 @@
 
         {/* Ajout de la couche de sortie */}
         <g>
-          {layers.length > 0 && layers[layers.length - 1].weights.map((neuronWeights, neuronIndex) => {
+        {layers.length > 0 && layers[layers.length - 1] && layers[layers.length - 1].weights &&
+    layers[layers.length - 1].weights.map((neuronWeights, neuronIndex) => {
             const y1 = (neuronIndex + 1) * svgHeight / (layers[layers.length - 1].weights.length + 1);
             return neuronWeights.map((weight, outputIdx) => {
               const y2 = (outputIdx + 1) * svgHeight / (outputLayerSize + 1);
@@ -125,14 +134,18 @@
               );
             });
           })}
-          {new Array(outputLayerSize).fill(0).map((_, index) => {
-            const y = (index + 1) * svgHeight / (outputLayerSize + 1);
-            const x = svgWidth - layerSpacing; // Position X ajustée pour la couche de sortie
-            return (
-              <circle key={`output-neuron-${index}`} cx={x} cy={y} r={10} fill="red" />
-            );
-          })}
+          {layers.length > 0 && layers[layers.length - 1] && layers[layers.length - 1].biases &&
+    new Array(outputLayerSize).fill(0).map((_, index) => {
+      const y = (index + 1) * svgHeight / (outputLayerSize + 1);
+      const x = svgWidth - layerSpacing; // Position X ajustée pour la couche de sortie
+      return (
+        <g key={`output-neuron-${index}`}>
+          <circle cx={x} cy={y} r={10} fill="red" />
+          <circle cx={x} cy={y} r={5} fill={getBiasColor(layers[layers.length - 1].biases[index])} />
         </g>
+      );
+    })}
+</g>
       </svg>
     );
   };

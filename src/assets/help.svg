@@ -1,7 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<svg width="800px" height="800px" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="48" height="48" fill="white" fill-opacity="0.01"/>
-<path d="M24 44C29.5228 44 34.5228 41.7614 38.1421 38.1421C41.7614 34.5228 44 29.5228 44 24C44 18.4772 41.7614 13.4772 38.1421 9.85786C34.5228 6.23858 29.5228 4 24 4C18.4772 4 13.4772 6.23858 9.85786 9.85786C6.23858 13.4772 4 18.4772 4 24C4 29.5228 6.23858 34.5228 9.85786 38.1421C13.4772 41.7614 18.4772 44 24 44Z" fill="#2F88FF" stroke="#000000" stroke-width="4" stroke-linejoin="round"/>
-<path d="M24 28.6249V24.6249C27.3137 24.6249 30 21.9386 30 18.6249C30 15.3112 27.3137 12.6249 24 12.6249C20.6863 12.6249 18 15.3112 18 18.6249" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M24 37.6249C25.3807 37.6249 26.5 36.5056 26.5 35.1249C26.5 33.7442 25.3807 32.6249 24 32.6249C22.6193 32.6249 21.5 33.7442 21.5 35.1249C21.5 36.5056 22.6193 37.6249 24 37.6249Z" fill="white"/>
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!--Generator: Xara Designer (www.xara.com), SVG filter version: 6.5.0.22-->
+<svg fill="none" fill-rule="evenodd" stroke="black" stroke-width="0.501" stroke-linejoin="bevel" stroke-miterlimit="10" font-family="Times New Roman" font-size="16" style="font-variant-ligatures:none" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" overflow="visible" width="550.004pt" height="550.004pt" viewBox="24.998 -575.002 550.004 550.004">
+ <defs>
+	</defs>
+ <g id="Layer 1" transform="scale(1 -1)">
+  <path d="M 300,50 C 369.035,50 431.535,77.982 476.776,123.223 C 522.017,168.465 550,230.965 550,300 C 550,369.035 522.017,431.535 476.776,476.776 C 431.535,522.017 369.035,550 300,550 C 230.965,550 168.465,522.017 123.223,476.776 C 77.982,431.535 50,369.035 50,300 C 50,230.965 77.982,168.465 123.223,123.223 C 168.465,77.982 230.965,50 300,50 Z" fill="#2f88ff" stroke="#000000" stroke-width="50" fill-rule="nonzero" stroke-linejoin="miter" marker-start="none" marker-end="none"/>
+  <path d="M 300,242.188 L 300,292.188 C 341.421,292.188 375,325.767 375,367.188 C 375,408.61 341.421,442.188 300,442.188 C 258.578,442.188 225,408.61 225,367.188" fill="none" stroke="#ffffff" stroke-width="50" fill-rule="nonzero" stroke-linejoin="miter" stroke-linecap="round"/>
+  <path d="M 300,129.688 C 317.258,129.688 331.25,143.68 331.25,160.938 C 331.25,178.197 317.258,192.188 300,192.188 C 282.741,192.188 268.75,178.197 268.75,160.938 C 268.75,143.68 282.741,129.688 300,129.688 Z" stroke="none" fill="#ffffff" stroke-width="12.5" stroke-linejoin="miter" marker-start="none" marker-end="none"/>
+ </g>
 </svg>

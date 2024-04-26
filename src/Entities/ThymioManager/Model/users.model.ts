@@ -1,5 +1,6 @@
 import { Observable } from '../../../helpers';
 import { DataEntry } from './thymioIA.model';
+import * as tf from '@tensorflow/tfjs';
 
 export type UsersType = 'AllUser' | 'Teacher' | 'Student' | 'Admin' | 'Dev';
 
@@ -13,4 +14,5 @@ export interface Users {
   emitAction: (uuid: string, action: string, args: number[]) => Promise<void>;
   emitMotorEvent: (uuid: string, action: string) => Promise<void>;
   reinitializeModel: (inputMode: string)=> Promise<void>;
+  getModel: () => Promise<tf.Sequential | null>;
 }

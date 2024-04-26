@@ -112,6 +112,7 @@
   "toggle_settings": "Afficher les paramètres",
   "open_settings": "Ouvrir les paramètres",
   "close_settings": "Fermer les paramètres",
-  "start_tour": "Commencer le tour"
+  "start_tour": "Commencer le tour",
+  "return_to_testing": "Retourner à l'étape de test"
   }
   

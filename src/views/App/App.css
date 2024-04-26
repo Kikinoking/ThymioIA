@@ -242,15 +242,15 @@
 }
 .TutorialButton {
   position: fixed;
-  top: 10px; 
-  right: 10px; 
-  z-index: 1001;
-  cursor: pointer; 
+  top: 10px;
+  right: 10px;
+  width: 40px; /* Largeur du SVG */
+  height: 40px; /* Hauteur du SVG */
+  background: url('../../assets/help.svg') no-repeat center center / cover; /* Assurez-vous que le chemin d'accès est correct */
+  border: none;
+  cursor: pointer;
+  padding: 8px 12px;
+  outline: none;
+  background-color: transparent; /* S'assure que le fond est transparent */
 }
 
-
-.TutorialButton img {
-  width: auto; 
-  height: 40px; 
-  display: block; 
-}

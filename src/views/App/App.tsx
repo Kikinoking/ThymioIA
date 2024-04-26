@@ -103,7 +103,9 @@ const App = observer(() => {
   const toggleTutorial = () => {
     setIsTutorialActive(!isTutorialActive);
   };
-
+  const handleNoteChange = (note: string) => {
+    setCurrentNote(note); // Update the note
+  };
 //For bar chart$
 
   const [predictions, setPredictions] = React.useState([0.2, 0.3, 0.1, 0.15, 0.25]); 
@@ -847,7 +849,7 @@ const renderCurrentState = () => {
             <button className="start-recording-button" onClick={startRecording} disabled={isRecording}>
             {t('start_recording')}
             </button>
-            <Piano className="piano" onNoteChange={setNoteRecording} style={{ marginTop: '20px', width: '100%' }} />
+            <Piano onNoteChange={setNoteRecording} silentMode={silentMode} className="piano" style={{ marginTop: '20px', width: '100%' }} />
           </div>
           <br />
           {audioUrl && (
@@ -1058,7 +1060,8 @@ const renderCurrentState = () => {
           </div>
     
           {/* Troisième ligne : Piano */}
-          <Piano onNoteChange={setNote} className="piano" />
+          <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
+
     
           {/* Quatrième ligne : Contrôle du test et réinitialisation */}
           <div style={{ marginTop: '20px' }}>
@@ -1091,6 +1094,12 @@ const renderCurrentState = () => {
           ) : (
             <p>Loading model...</p>
           )}
+          <button
+        onClick={() => setCurrentState(STATES.Testing)}
+        style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}
+      >
+        {t('return_to_testing')}
+      </button>
         </div>
       );
       
@@ -1113,15 +1122,12 @@ return (
       <img src={SettingsIcon} alt={showSettings ? t('close_settings') : t('open_settings')} />
     </button>
     <button
-      className="TutorialButton"
-      onClick={() => startTour()}
-      style={{ position: 'fixed', top: 10, right: 60, background: 'none',
-      border: 'none',cursor: 'pointer',
-      padding: 0, }} 
-      aria-label={t('start_tour')}
-    >
-      <img src={HelpIcon} alt={t('start_tour')} />
-    </button>
+  className="TutorialButton"
+  onClick={() => startTour()}
+  aria-label={t('start_tour')}
+>
+</button>
+
     <Joyride
         run={run}
         steps={steps}
