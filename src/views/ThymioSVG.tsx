@@ -3,9 +3,10 @@ import thymioSvg from '../assets/ThymioSVG.svg';  // Assurez-vous que ce chemin 
 
 type ThymioSVGProps = {
   captors: number[];  // Un tableau représentant l'état des capteurs (0 ou 1)
+  style?: React.CSSProperties;
 };
 
-const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors }) => {
+const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style }) => {
   const [svgContent, setSvgContent] = useState('');
 
   useEffect(() => {
@@ -17,9 +18,9 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors }) => {
 
         // Ajustez la taille du SVG ici
         const svgElement = svgDoc.querySelector('svg');
-        if (svgElement) {
-          svgElement.setAttribute('style', 'width: 100%; height: auto;');
-        }
+        Object.keys(style).forEach(key => {
+          svgElement.style[key] = style[key];
+        });
 
         // Manipulation des calques en fonction des capteurs
         captors.forEach((status, index) => {
@@ -37,7 +38,7 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors }) => {
 
         setSvgContent(new XMLSerializer().serializeToString(svgDoc.documentElement));
       });
-  }, [captors]);
+  }, [captors, style]);
 
   return (
     <div dangerouslySetInnerHTML={{ __html: svgContent }} />

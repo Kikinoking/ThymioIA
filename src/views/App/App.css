@@ -18,6 +18,13 @@
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
+.thymio-svg-component {
+  width: 200px; /* Remplacez par la largeur appropriée */
+  height: 150px; /* Remplacez par la hauteur appropriée */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 @keyframes logo-spin {
   from {

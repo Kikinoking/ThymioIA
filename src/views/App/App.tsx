@@ -870,17 +870,17 @@ case STATES.PlayNote:
   return (
     <>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <button className="start-recording-button" onClick={() => {
-            startRecording();
-            setShowPopup(true); // Active le popup lors du début de l'enregistrement
-          }} disabled={isRecording}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* SVG path ici, exemple d'une icône de microphone */}
-            <path fillRule="evenodd" clipRule="evenodd" d="M12 2C13.1046 2 14 2.89543 14 4V11C14 12.1046 13.1046 13 12 13C10.8954 13 10 12.1046 10 11V4C10 2.89543 10.8954 2 12 2Z" fill="currentColor"/>
-            <path fillRule="evenodd" clipRule="evenodd" d="M18 11V4C18 1.79086 16.2091 0 14 0C11.7909 0 10 1.79086 10 4V11C10 13.2091 11.7909 15 14 15V18H10V20H18V18H14V15C16.2091 15 18 13.2091 18 11Z" fill="currentColor"/>
-          </svg>
-          {t('start_recording')}
-        </button>
+      <button className="start-recording-button" onClick={() => {
+    startRecording();
+    setShowPopup(true);
+  }} disabled={isRecording} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end', width: '250px', height: '50px' }}>
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* SVG path ici */}
+    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C13.1046 2 14 2.89543 14 4V11C14 12.1046 13.1046 13 12 13C10.8954 13 10 12.1046 10 11V4C10 2.89543 10.8954 2 12 2Z" fill="currentColor"/>
+    <path fillRule="evenodd" clipRule="evenodd" d="M18 11V4C18 1.79086 16.2091 0 14 0C11.7909 0 10 1.79086 10 4V11C10 13.2091 11.7909 15 14 15V18H10V20H18V18H14V15C16.2091 15 18 13.2091 18 11Z" fill="currentColor"/>
+  </svg>
+  {t('start_recording')}
+</button>
         <Piano onNoteChange={setNoteRecording} silentMode={silentMode} className="piano" style={{ marginTop: '20px', width: '100%' }} />
       </div>
       <br />
@@ -891,7 +891,7 @@ case STATES.PlayNote:
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid white', padding: '20px' }}>
         {user.captors.state[controledRobot] && (
           <div  className="thymio-svg-component" style={{ width: '30%', margin: '0 10px' }}>
-            <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '7%', height: 'auto' }} />
+            <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '100%', height: 'auto' }} />
           </div>
         )}
         <div className="musical-staff-component" style={{ width: '50%' }}>
@@ -954,7 +954,7 @@ case STATES.PlayNote:
   const handleAction = (action) => {
     console.log(action + " action triggered");
     onAction(action);
-    handleSetCurrentState(STATES.CurrentModelTrain);
+
   };
 
   return (
@@ -1008,7 +1008,7 @@ case STATES.PlayNote:
                 {trainer.map(({ action, captors, note }, index) => (
                   <tr key={index}>
                     <td>{t(`action_${action.toLowerCase()}`)}</td>
-                    <td><ThymioSVG captors={captors} style={{ width: '10%', height: 'auto' }} /></td>
+                    <td><ThymioSVG captors={captors} style={{ width: '100px', height: 'auto' }} /></td>
                     <td>{note}</td>
                   </tr>
                 ))}
@@ -1037,31 +1037,11 @@ case STATES.PlayNote:
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
       <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-        <div style={{ flex: 1 }} className="thymio-container">
-          <div style={{ width: '30%', margin: '0 10px' }}>
-            <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '100%', height: 'auto' }} />
-          </div>
-        </div>
-        <div style={{ flex: 2, overflowX: 'auto' }} className="trainer-table-container">
-          <table className="trainer-table">
-            <thead>
-              <tr>
-                <th>{t('Action')}</th>
-                <th>{t('captors_values')}</th>
-                <th>{t('note_display')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {trainer.map(({ action, captors, note }, index) => (
-                <tr key={index}>
-                  <td>{t(`action_${action.toLowerCase()}`)}</td>
-                  <td>{captors.join(', ')}</td>
-                  <td>{note}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {model ? (
+            <NeuralNetworkVisualization model={model} inputMode = {inputMode} />
+          ) : (
+            <p>Loading model...</p>
+          )}
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
         <button onClick={() =>  handleSetCurrentState(STATES.PlayNote)} style={{ margin: '0 10px' }} className="map-more-actions-button">
