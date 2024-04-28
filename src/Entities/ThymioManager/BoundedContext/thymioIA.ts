@@ -87,7 +87,7 @@ export class ThymioIA implements IThymioIA {
 
       // Compiler le modèle avec les ajustements adéquats
       model.compile({
-        optimizer: tf.train.adam(0.001),
+        optimizer: tf.train.adam(0.01),
         loss: 'categoricalCrossentropy',
         metrics: ['accuracy']
       });

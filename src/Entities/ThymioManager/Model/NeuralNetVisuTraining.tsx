@@ -1,20 +1,77 @@
-    import React, { useState, useEffect } from 'react';
+    import React, { useState, useEffect, useRef } from 'react';
 
     const NeuralNetworkVisualizationTraining = ({ trainingData, inputMode }) => {
         
     const [currentEpoch, setCurrentEpoch] = useState(0);
     const [previousWeights, setPreviousWeights] = useState([]);
     const [currentWeights, setCurrentWeights] = useState([]);
+    const [cumulativeChanges, setCumulativeChanges] = useState([]);
+    const [isAnimating, setIsAnimating] = useState(false);
+    const animationIntervalId = useRef(null);
+    const currentEpochRef = useRef(0); // Using ref to track the current epoch
+    const [cumulativeBiasChanges, setCumulativeBiasChanges] = useState([]);
+    
+
+    useEffect(() => {
+        currentEpochRef.current = currentEpoch; // Update ref whenever state changes
+    }, [currentEpoch]);
+    
     useEffect(() => {
         // Update weights on epoch change
         if (trainingData[currentEpoch]) {
-            const newWeights = trainingData[currentEpoch].map(layer => layer.weights);
+            const newWeights = trainingData[currentEpoch].map(layer => layer.weights|| []);
             if (currentEpoch > 0) { // Update previous weights only if it's not the first epoch
                 setPreviousWeights(currentWeights);
             }
             setCurrentWeights(newWeights);
+            const newCumulativeChanges = newWeights.map((layerWeights, layerIndex) => {
+                return layerWeights.map((neuronWeights, neuronIndex) => {
+                    return neuronWeights.map((weight, weightIndex) => {
+                        const previousWeight = previousWeights[layerIndex]?.[neuronIndex]?.[weightIndex] || 0;
+                        const change = weight - previousWeight;
+                        const oldCumulativeChange = cumulativeChanges[layerIndex]?.[neuronIndex]?.[weightIndex] || 0;
+                        return oldCumulativeChange + Math.tanh(change) * 5;  // Accumuler le changement
+                    });
+                });
+            });
+            setCumulativeChanges(newCumulativeChanges);
         }
     }, [currentEpoch, trainingData]);
+
+    const handleEpochChange = (event) => {
+        setCurrentEpoch(parseInt(event.target.value));
+        stopAnimation();
+    };
+
+    const handleNextEpoch = () => {
+        if (currentEpochRef.current < trainingData.length - 1) {
+            setCurrentEpoch(currentEpochRef.current + 1);
+        } else {
+            stopAnimation(); // Automatically stop animation at the last epoch
+        }
+    };
+
+    const startAnimation = () => {
+        if (!isAnimating) {
+            animationIntervalId.current = setInterval(handleNextEpoch, 100);
+            setIsAnimating(true);
+        }
+    };
+
+    const stopAnimation = () => {
+        clearInterval(animationIntervalId.current);
+        animationIntervalId.current = null;
+        setIsAnimating(false);
+    };
+
+    const toggleAnimation = () => {
+        if (isAnimating) {
+            stopAnimation();
+        } else {
+            startAnimation();
+        }
+    };
+
 
     const svgWidth = 800;
     const svgHeight = 400;
@@ -23,17 +80,29 @@
 
     const getColorFromWeightChange = (currentWeight, previousWeight) => {
         if (!previousWeight) {
-            return 'grey';  // Grey if no previous data for comparison
+            return 'rgba(255, 255, 255, 0.5)'; // Gris clair si aucune donnée précédente n'est disponible
         }
         const change = currentWeight - previousWeight;
+        // Utiliser un facteur de mise à l'échelle plus contrôlé pour éviter les couleurs extrêmes
+        const scaledChange = Math.tanh(change); // Utilisation de la tangente hyperbolique pour adoucir l'effet
+        const intensity = Math.abs(scaledChange) * 255;
+    
         if (change > 0) {
-            return 'rgb(0, 255, 0)';  // Green for increase
+            return `rgb(0, ${Math.floor(intensity)}, 0)`; // Vert pour une augmentation
         } else if (change < 0) {
-            return 'rgb(255, 0, 0)';  // Red for decrease
+            return `rgb(${Math.floor(intensity)}, 0, 0)`; // Rouge pour une diminution
         }
-        return 'grey';  // Grey if no change
+        return 'grey'; // Gris si aucun changement
     };
     
+    const getColorFromCumulativeChange = (cumulativeChange) => {
+        const intensity = Math.min(150, Math.abs(cumulativeChange) * 256); // Utiliser 128 pour ajuster la sensibilité
+        if (cumulativeChange > 0) {
+            return `rgb(0, ${Math.floor(intensity)}, 0)`; // Vert pour augmentation cumulative
+        } else {
+            return `rgb(${Math.floor(intensity)}, 0, 0)`; // Rouge pour diminution cumulative
+        }
+    };
     const getColorFromWeight = (weight) => {
         if (weight === undefined) {
         return 'rgba(255, 255, 255, 0.5)';
@@ -84,9 +153,12 @@
                     const nextNeuronSpacing = svgHeight / (nextLayer.weights.length + 1);
                     lines = lines.concat(neuronWeights.map((weight, linkIdx) => {
                         const y2 = (linkIdx + 1) * nextNeuronSpacing;
+                        const cumulativeChange = cumulativeChanges[layerIndex]?.[neuronIdx]?.[linkIdx] || 0;
                         const previousWeight = previousWeights[layerIndex]?.[neuronIdx]?.[linkIdx] ?? null;
+                        console.log("NewColor = ", getColorFromCumulativeChange(cumulativeChange))
+                        if (cumulativeChange === 0) return null;
                         return (
-                        <line key={`link-${layerIndex}-${neuronIdx}-${linkIdx}`} x1={x} y1={y} x2={nextX} y2={y2} stroke={getColorFromWeightChange(weight, previousWeight)} strokeWidth="2" />
+                        <line key={`link-${layerIndex}-${neuronIdx}-${linkIdx}`} x1={x} y1={y} x2={nextX} y2={y2} stroke={getColorFromCumulativeChange(cumulativeChange)} strokeWidth="2" />
                         );
                     }));
                     }
@@ -110,10 +182,11 @@
                     const x1 = (epochLayers.length-1) * layerSpacing;
                     const x2 = svgWidth - layerSpacing;
                     const y2 = (outputIdx + 1) * svgHeight / (outputLayerSize + 1);
+                    const cumulativeChange = cumulativeChanges[epochLayers.length - 1]?.[neuronIndex]?.[outputIdx] || 0
                     
                     
                     return (
-                    <><line key={`output-line-${neuronIndex}-${outputIdx}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={getColorFromWeight(weight)} strokeWidth="2" />
+                    <><line key={`output-line-${neuronIndex}-${outputIdx}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={getColorFromCumulativeChange(cumulativeChange)} strokeWidth="2" />
                     <circle key={`output-neuron-${outputIdx}`} cx={x2} cy={y2} r={10} fill="red" /></>
                     );
                 });
@@ -122,9 +195,19 @@
             )}
         </svg>
         <div>
-            <button onClick={() => setCurrentEpoch(Math.max(0, currentEpoch - 1))} disabled={currentEpoch === 0}>Previous Epoch</button>
-            <button onClick={() => setCurrentEpoch(Math.min(trainingData.length - 1, currentEpoch + 1))} disabled={currentEpoch === trainingData.length - 1}>Next Epoch</button>
-        </div>
+                <input
+                    type="range"
+                    min="0"
+                    max={trainingData.length - 1}
+                    value={currentEpoch}
+                    onChange={handleEpochChange}
+                    style={{ width: '50%' }}
+                />
+            </div>
+        <div>
+        <button onClick={() => setCurrentEpoch(Math.max(0, currentEpoch - 1))} disabled={currentEpoch === 0}>Previous Epoch</button>
+            <button onClick={handleNextEpoch} disabled={currentEpoch === trainingData.length - 1}>Next Epoch</button>
+            <button onClick={toggleAnimation}>{isAnimating ? 'Stop Animation' : 'Start Animation'}</button>        </div>
         <div style={{ marginTop: '10px' }}>
             <span>Current Epoch: {currentEpoch + 1} / {trainingData.length}</span>
         </div>
