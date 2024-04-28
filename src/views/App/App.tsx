@@ -26,6 +26,7 @@ import backwardStatic from '../../assets/actionsicons/BackStatic.png';
 import leftStatic from '../../assets/actionsicons/LeftStatic.png';
 import rightStatic from '../../assets/actionsicons/RightStatic.png';
 import NeuralNetworkVisualization from '../../Entities/ThymioManager/Model/NeuralNetworkVisualization';
+import NeuralNetworkVisualizationTraining from '../../Entities/ThymioManager/Model/NeuralNetVisuTraining'
 import Joyride, { CallBackProps, STATUS } from 'react-joyride';
 import NavigationBar from './NavigationBar';
 
@@ -101,8 +102,12 @@ const App = observer(() => {
 
   const [isTutorialActive, setIsTutorialActive] = useState(false); //For Tutorial
 
+  const [trainingData, setTrainingData] = useState([]); //For visualisation of the training
+
   const { t, i18n } = useTranslation();
 
+
+  
   const toggleTutorial = () => {
     setIsTutorialActive(!isTutorialActive);
   };
@@ -127,6 +132,9 @@ const App = observer(() => {
 
   const [model, setModel] = useState<tf.Sequential | null>(null);
   const [loading, setLoading] = useState(false);
+
+  
+  const [currentEpoch, setCurrentEpoch] = useState(0);
 
 
   const [visitedStates, setVisitedStates] = useState({'Title': true });
@@ -749,7 +757,8 @@ const loadModel = async () => {
     }));
   
       console.log("Verifying input sizes:", data.map(d => d.input.length));
-      await user.trainModel(data, inputMode);;
+      const traindata = await user.trainModel(data, inputMode);
+      setTrainingData(traindata);
       setMode('PREDICT');
     }
   };
@@ -1036,12 +1045,13 @@ case STATES.PlayNote:
   case STATES.CurrentModelTrain:
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+      <button onClick={() => setCurrentEpoch(prev => Math.max(prev - 1, 0))}>Précédent</button>
+      <button onClick={() => setCurrentEpoch(prev => Math.min(prev + 1, trainingData.length - 1))}>Suivant</button>
       <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-      {model ? (
-            <NeuralNetworkVisualization model={model} inputMode = {inputMode} />
-          ) : (
-            <p>Loading model...</p>
-          )}
+      <button onClick={onExecute} style={{ marginRight: '20px' , width :'300px', height : 'auto'}}className="execute-btn">
+            {t('execute')}
+            </button>
+      <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
         <button onClick={() =>  handleSetCurrentState(STATES.PlayNote)} style={{ margin: '0 10px' }} className="map-more-actions-button">
@@ -1061,18 +1071,33 @@ case STATES.PlayNote:
 
   case STATES.ConsigneTesting:
   return (
-    <div 
-      style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
-      onClick={() =>  handleSetCurrentState(STATES.Testing)}
-    >
-      <div className="instructions-container">
-        <h4>{t('testing_instructions_title')}</h4>
-        <ol>
-          <li>{t('testing_instruction_step1')}</li>
-          <li>{t('testing_instruction_step2')}</li>
-        </ol>
-      </div>
-    </div>
+    <div
+  style={{
+    width: '100vw',
+    height: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'auto'  // Ajout d'un défilement si nécessaire
+  }}
+>
+  <div className="instructions-container">
+    <h4>{t('testing_instructions_title')}</h4>
+    <ol>
+      <li>{t('testing_instruction_step1')}</li>
+      <li>{t('testing_instruction_step2')}</li>
+    </ol>
+  </div>
+  <button onClick={onExecute} style={{ marginRight: '20px', width: '300px', height: 'auto' }} className="execute-btn">
+    {t('execute')}
+  </button>
+  <div style={{ width: '90vw', minHeight: '50vh' }}> {/* Ajuster la taille du conteneur du SVG */}
+    <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
+  </div>
+  <button onClick={() => handleSetCurrentState(STATES.Testing)}> Testing </button>
+</div>
+
   );
 
     case STATES.Testing:
@@ -1098,7 +1123,7 @@ case STATES.PlayNote:
             </div>
             {user.captors.state[controledRobot] && (
               <div style={{ flex: 1, transform: 'scale(0.6)' }}>
-                <ThymioSVG captors={user.captors.state[controledRobot]} className="thymio-svg" />
+                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '100%', height: 'auto' }} className="thymio-svg" />
               </div>
             )}
             <div style={{ flex: 0.75, height: '350px', minHeight: '350px' }}className="bar-chart-container"> 

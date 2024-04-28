@@ -99,14 +99,15 @@ export class ThymioIA implements IThymioIA {
     }
   });
 
-  trainModel = async (data: DataEntry[], inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') => {
+  trainModel = async (data: DataEntry[], inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY' ) => {
+     
     this.model = await this.initModel(inputMode);
 
     if (!this.model) {
         console.error('Model not initialized');
         return;
     }
-
+    const trainingData = []; //training data of each epoch
     // Préparation des tensors pour l'entrainement
     const xs = tf.tensor2d(data.map(item => {
         if (inputMode === 'NOTE_ONLY') {
@@ -119,15 +120,42 @@ export class ThymioIA implements IThymioIA {
         }
     }));
 
-    console.log("Tensor xs: ", xs.print());
+    
     const actionsAsIndices = data.map(item => this.actionMapping[item.output as keyof typeof this.actionMapping]);
     const ys = tf.oneHot(tf.tensor1d(actionsAsIndices, 'int32'), Object.keys(this.actionMapping).length);
-
+    let previousWeights = null;
     await this.model.fit(xs, ys, {
-        epochs: 50,
-    }).then(() => {
-      this.displayModelWeights(); // Afficher les poids après l'entraînement
-  });;
+      epochs: 50,
+      callbacks: {
+        onEpochEnd: (epoch, logs) => {
+          const currentWeights = this.model.layers.map(layer => layer.getWeights()[0] ? layer.getWeights()[0].dataSync() : null);
+          if (previousWeights) {
+            const changes = currentWeights.map((weights, i) => {
+              if (!weights || !previousWeights[i]) return 0;
+              return weights.filter((w, idx) => w !== previousWeights[i][idx]).length;
+            });
+            console.log(`Weights changed from previous epoch in layer:`, changes);
+          }
+          previousWeights = currentWeights;
+        
+            console.log(`Epoch ${epoch}: loss = ${logs.loss}`);
+            this.model.layers.forEach((layer, index) => {
+              console.log(`Layer ${index} weights:`, layer.getWeights()[0] ? layer.getWeights()[0].dataSync(): null);
+            });
+          
+          const epochData = this.model.layers.map(layer => {
+            const weights = layer.getWeights()[0] ? layer.getWeights()[0].arraySync() : null;
+                    const biases = layer.getWeights().length > 1 && layer.getWeights()[1] ? layer.getWeights()[1].arraySync() : null;
+                    return { weights, biases };
+            
+          });
+          trainingData.push(epochData);
+        }
+      }
+    });
+
+  this.displayModelWeights(); // Afficher les poids après l'entraînement
+  return trainingData;
 };
 
 displayModelWeights() {

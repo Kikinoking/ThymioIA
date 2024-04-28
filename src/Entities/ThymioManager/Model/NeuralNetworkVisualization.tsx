@@ -1,153 +1,86 @@
-  import React, { useEffect, useState } from 'react';
-  import * as tf from '@tensorflow/tfjs';
-  import './NeuralNetworkVisualization.css';
+import React, { useState, useEffect } from 'react';
 
-  const NeuralNetworkVisualization = ({ model, inputMode }) => {
-    const [layers, setLayers] = useState([]);
-    const svgWidth = 800; // Largeur du SVG
-    const svgHeight = 400; // Hauteur du SVG
-    const outputLayerSize = 5; // Taille prédéfinie de la couche de sortie pour cet exemple
-    const inputLayerSize = inputMode === 'NOTE_ONLY' ? 1 : 10; // Taille de la couche d'entrée basée sur le mode
+const NeuralNetworkVisualizationTraining = ({ trainingData, inputMode }) => {
+  const [currentEpoch, setCurrentEpoch] = useState(0);
+  const [previousWeights, setPreviousWeights] = useState([]);
 
-    const getBiasColor = (bias) => {
-      // Normalize bias for visualization purposes
-      const normalizedBias = Math.tanh(bias);
-      return getColorFromWeight(normalizedBias);
-    };
+  useEffect(() => {
+    // Update previous weights upon epoch change
+    setPreviousWeights(trainingData[currentEpoch] ? trainingData[currentEpoch].map(layer => layer.weights) : []);
+  }, [currentEpoch, trainingData]);
 
-    useEffect(() => {
-      if (model) {
-        // Récupérer et filtrer les couches à partir de la deuxième couche dense (après l'embedding)
-        const modelLayers = model.layers.slice(2).map(layer => {
-          const weightsTensor = layer.getWeights()[0];
-          const biasesTensor = layer.getWeights()[1];
-          const weights = weightsTensor ? weightsTensor.arraySync() : null;
-          const biases = biasesTensor ? biasesTensor.arraySync() : null;
-          return { type: layer.getClassName(), weights, biases };
-        }).filter(layer => layer.weights && layer.biases);
+  const svgWidth = 800;
+  const svgHeight = 400;
+  const inputLayerSize = inputMode === 'NOTE_ONLY' ? 1 : 10;
+  const outputLayerSize = 5;  // Assuming the output layer size from your model
 
-        setLayers(modelLayers);
-      }
-    }, [model]);
+  const getColorFromWeightChange = (weight, index, layerIndex, neuronIndex) => {
+    const previousWeight = previousWeights[layerIndex] && previousWeights[layerIndex][neuronIndex] ? previousWeights[layerIndex][neuronIndex][index] : null;
+    if (previousWeight !== null && weight !== previousWeight) {
+      return "yellow";  // Highlight changed weights in yellow
+    }
+    return getColorFromWeight(weight);
+  };
 
-    const layerSpacing = svgWidth / (layers.length + 3); // Espacement pour inclure la couche d'entrée et de sortie
+  const getColorFromWeight = (weight) => {
+    const normalizedWeight = Math.tanh(weight);
+    const red = normalizedWeight > 0 ? Math.floor(255 * normalizedWeight) : 0;
+    const blue = normalizedWeight < 0 ? Math.floor(-255 * normalizedWeight) : 0;
+    return `rgb(${red}, 0, ${blue})`;
+  };
 
-    const getColorFromWeight = (weight) => {
-      if (weight === undefined) {
-        return 'rgba(255, 255, 255, 0.5)';
-      }
-      return `rgb(${Math.min(255, Math.floor(255 * Math.max(0, weight) + 50))}, ${Math.min(255, Math.floor(255 * Math.max(0, -weight) + 50))}, 0)`;
+  const epochLayers = trainingData[currentEpoch] || [];
+  const layerSpacing = svgWidth / (epochLayers.length + 3);
 
-    };
-
-    return (
+  return (
+    <>
       <svg width={svgWidth} height={svgHeight} style={{ border: '1px solid black' }}>
-        {/* Ajout de la couche d'entrée */}
         {new Array(inputLayerSize).fill(0).map((_, inputIndex) => {
           const yInput = (inputIndex + 1) * svgHeight / (inputLayerSize + 1);
-          const xInput = layerSpacing; // Position X de la couche d'entrée
+          const xInput = layerSpacing;  // Position X for input neurons
           return (
             <circle key={`input-neuron-${inputIndex}`} cx={xInput} cy={yInput} r={5} fill="blue" />
           );
         })}
-
-        {/* Dessiner les couches existantes et leurs connexions */}
-        {layers.map((layer, layerIndex) => {
-          const x = (layerIndex + 2) * layerSpacing; // Décalage pour la nouvelle couche d'entrée
+        {epochLayers.map((layer, layerIndex) => {
+          const x = (layerIndex + 1) * layerSpacing;
+          if (!layer.weights) return null;
           const neuronSpacing = svgHeight / (layer.weights.length + 1);
-
           return (
             <g key={layerIndex}>
               {layer.weights.map((neuronWeights, neuronIdx) => {
                 const y = (neuronIdx + 1) * neuronSpacing;
                 let lines = [];
-                // Connexions de la couche d'entrée à la première couche dense
                 if (layerIndex === 0) {
+                  // Connect input neurons directly to the first dense layer (12 neurons)
                   lines = new Array(inputLayerSize).fill(0).map((_, idx) => {
                     const yInput = (idx + 1) * svgHeight / (inputLayerSize + 1);
                     return (
-                      <line
-                        key={`input-to-layer-link-${idx}-${neuronIdx}`}
-                        x1={layerSpacing}
-                        y1={yInput}
-                        x2={x}
-                        y2={y}
-                        stroke="blue"
-                        strokeWidth="2"
-                      />
+                      <line key={`input-to-layer-link-${idx}-${neuronIdx}`} x1={xInput} y1={yInput} x2={x} y2={y} stroke={getColorFromWeightChange(neuronWeights[idx], idx, layerIndex, neuronIdx)} strokeWidth="2" />
                     );
                   });
                 }
-
-                // Connexions entre les couches intermédiaires avec coloration basée sur les poids
-                if (layerIndex < layers.length - 1) {
-                  const nextLayer = layers[layerIndex + 1];
-                  const nextX = (layerIndex + 3) * layerSpacing;
-                  const nextNeuronSpacing = svgHeight / (nextLayer.weights.length + 1);
-                  lines = lines.concat(neuronWeights.map((weight, linkIdx) => {
-                    const y2 = (linkIdx + 1) * nextNeuronSpacing;
-                    return (
-                      <line
-                        key={`link-${layerIndex}-${neuronIdx}-${linkIdx}`}
-                        x1={x}
-                        y1={y}
-                        x2={nextX}
-                        y2={y2}
-                        stroke={getColorFromWeight(weight)}
-                        strokeWidth="2"
-                      />
-                    );
-                  }));
-                }
-
                 return (
                   <g key={neuronIdx}>
                     {lines}
                     <circle cx={x} cy={y} r={10} fill="purple" />
-                    <circle cx={x} cy={y} r={5} fill={getBiasColor(layer.biases[neuronIdx])} />
+                    <circle cx={x} cy={y} r={5} fill="blue" />  // Assuming bias does not change
                   </g>
                 );
               })}
             </g>
           );
         })}
-
-        {/* Ajout de la couche de sortie */}
-        <g>
-        {layers.length > 0 && layers[layers.length - 1] && layers[layers.length - 1].weights &&
-    layers[layers.length - 1].weights.map((neuronWeights, neuronIndex) => {
-            const y1 = (neuronIndex + 1) * svgHeight / (layers[layers.length - 1].weights.length + 1);
-            return neuronWeights.map((weight, outputIdx) => {
-              const y2 = (outputIdx + 1) * svgHeight / (outputLayerSize + 1);
-              const x1 = (layers.length + 1) * layerSpacing; // Ajusté pour l'emplacement correct
-              const x2 = svgWidth - layerSpacing;
-              return (
-                <line
-                  key={`output-line-${neuronIndex}-${outputIdx}`}
-                  x1={x1}
-                  y1={y1}
-                  x2={x2}
-                  y2={y2}
-                  stroke={getColorFromWeight(weight)}
-                  strokeWidth="2"
-                />
-              );
-            });
-          })}
-          {layers.length > 0 && layers[layers.length - 1] && layers[layers.length - 1].biases &&
-    new Array(outputLayerSize).fill(0).map((_, index) => {
-      const y = (index + 1) * svgHeight / (outputLayerSize + 1);
-      const x = svgWidth - layerSpacing; // Position X ajustée pour la couche de sortie
-      return (
-        <g key={`output-neuron-${index}`}>
-          <circle cx={x} cy={y} r={10} fill="red" />
-          <circle cx={x} cy={y} r={5} fill={getBiasColor(layers[layers.length - 1].biases[index])} />
-        </g>
-      );
-    })}
-</g>
       </svg>
-    );
-  };
+      <div>
+        <button onClick={() => setCurrentEpoch(Math.max(0, currentEpoch - 1))} disabled={currentEpoch === 0}>Previous Epoch</button>
+        <button onClick={() => setCurrentEpoch(Math.min(trainingData.length - 1, currentEpoch + 1))} disabled={currentEpoch === trainingData.length - 1}>Next Epoch</button>
+      </div>
+      <div style={{ marginTop: '10px' }}>
+        <span>Current Epoch: {currentEpoch + 1} / {trainingData.length}</span>
+      </div>
+    </>
+  );
+};
 
-  export default NeuralNetworkVisualization;
+export default NeuralNetworkVisualizationTraining;

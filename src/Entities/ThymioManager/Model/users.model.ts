@@ -8,7 +8,7 @@ export interface Users {
   
   captors: Observable<{ [uuid: string]: number[] }>;
   predict: (uuid: string, input: string[], inote: number, isWinnerTakesAll: boolean, inputMode: string) => void;
-  trainModel: (data: DataEntry[]) => Promise<void>;
+  trainModel: (data: DataEntry[], inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') => Promise<any[] | undefined>;
   getRobotsUuids: () => Promise<string[]>;
   takeControl: (uuid: string, onVariableChange?: (uuid: string, variables: { [name: string]: number }) => void) => void;
   emitAction: (uuid: string, action: string, args: number[]) => Promise<void>;

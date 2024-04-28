@@ -1,0 +1,42 @@
+/* Styles généraux pour la visualisation du réseau */
+.network {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center; /* Assurez-vous que les éléments sont centrés verticalement */
+  }
+  
+  /* Style pour les couches du réseau dans le SVG */
+  .layer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Style pour les neurones représentés par des cercles dans le SVG */
+  .neuron {
+    fill: grey; /* Couleur de fond pour les cercles représentant les neurones */
+    stroke: #000; /* Contour des neurones */
+    stroke-width: 2px; /* Épaisseur du contour */
+  }
+  
+  /* Style pour les connexions entre neurones dans le SVG */
+  .link {
+    stroke: blue; /* Couleur des lignes représentant les connexions */
+    stroke-width: 2px; /* Épaisseur des lignes pour les connexions */
+  }
+  
+  /* Style pour les biais s'ils sont représentés distinctement */
+  .bias {
+    fill: red; /* Couleur de fond pour les biais s'ils sont représentés par des formes */
+  }
+  
+  /* Ajoutez des styles supplémentaires pour la mise en évidence ou des détails spécifiques */
+  .active-neuron {
+    fill: lightblue; /* Couleur pour un neurone actif ou sélectionné */
+  }
+  
+  .active-link {
+    stroke: orange; /* Couleur pour une connexion active ou sélectionnée */
+  }
+  
