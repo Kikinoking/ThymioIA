@@ -20,24 +20,53 @@
         // Update weights on epoch change
         if (trainingData[currentEpoch]) {
             const newWeights = trainingData[currentEpoch].map(layer => layer.weights|| []);
+            const newBiases = trainingData[currentEpoch].map(layer => layer.biases || []);
             if (currentEpoch > 0) { // Update previous weights only if it's not the first epoch
                 setPreviousWeights(currentWeights);
             }
             setCurrentWeights(newWeights);
-            const newCumulativeChanges = newWeights.map((layerWeights, layerIndex) => {
-                return layerWeights.map((neuronWeights, neuronIndex) => {
-                    return neuronWeights.map((weight, weightIndex) => {
-                        const previousWeight = previousWeights[layerIndex]?.[neuronIndex]?.[weightIndex] || 0;
-                        const change = weight - previousWeight;
-                        const oldCumulativeChange = cumulativeChanges[layerIndex]?.[neuronIndex]?.[weightIndex] || 0;
-                        return oldCumulativeChange + Math.tanh(change) * 5;  // Accumuler le changement
-                    });
-                });
-            });
-            setCumulativeChanges(newCumulativeChanges);
-        }
-    }, [currentEpoch, trainingData]);
+            updateCumulativeChanges(newWeights, newBiases);}}
+            
+    , [currentEpoch, trainingData]);
+    const updateCumulativeChanges = (newWeights, newBiases) => { 
+        const newCumulativeChanges = newWeights.map((layerWeights, layerIndex) =>
+            layerWeights.map((neuronWeights, neuronIndex) =>
+                neuronWeights.map((weight, weightIndex) => {
+                    const previousWeight = previousWeights[layerIndex]?.[neuronIndex]?.[weightIndex] || 0;
+                    const change = weight - previousWeight;
+                    const oldCumulativeChange = cumulativeChanges[layerIndex]?.[neuronIndex]?.[weightIndex] || 0;
+                    return oldCumulativeChange + Math.tanh(change) * 5;
+                })
+            )
+        );
+        setCumulativeChanges(newCumulativeChanges);
 
+        const newCumulativeBiasChanges = newBiases.map((layerBiases, layerIndex) =>
+            layerBiases.map((bias, neuronIndex) => {
+                const previousBias = cumulativeBiasChanges[layerIndex]?.[neuronIndex] || 0;
+                const biasChange = bias - previousBias;
+                return previousBias + Math.tanh(biasChange) * 5;
+            })
+        );
+        setCumulativeBiasChanges(newCumulativeBiasChanges); // Mise à jour des changements cumulatifs des biais
+    };
+
+    const getColorFromBiasChange = (biasChange) => {
+        const opacity = Math.min(1, Math.abs(biasChange) * 10); // Ajuster le facteur de 10 selon la sensibilité souhaitée
+        return biasChange > 0 
+            ? `rgba(0, 255, 0, ${opacity})`  // Vert pour augmentation
+            : `rgba(255, 0, 0, ${opacity})`; // Rouge pour diminution
+    };
+    const getColorFromBias = (bias) => {
+        // Utilisez la fonction Math.tanh pour adoucir l'échelle d'opacité et limitez-la à 1
+        // Multipliez bias par un facteur pour augmenter la vitesse de saturation de la couleur
+        const opacity = Math.min(1, Math.abs(Math.tanh(bias * 5))); // Multiplication par 5 pour augmenter la sensibilité
+    
+        return bias > 0 
+            ? `rgba(0, 255, 0, ${opacity})` // Green for positive bias
+            : `rgba(255, 0, 0, ${opacity})`; // Red for negative bias
+    };
+    
     const handleEpochChange = (event) => {
         setCurrentEpoch(parseInt(event.target.value));
         stopAnimation();
@@ -122,7 +151,7 @@
             const yInput = (inputIndex + 1) * svgHeight / (inputLayerSize + 1);
             const xInput = layerSpacing;
             return (
-                <circle key={`input-neuron-${inputIndex}`} cx={xInput} cy={yInput} r={5} fill="blue" />
+                <circle key={`input-neuron-${inputIndex}`} cx={xInput} cy={yInput} r={10} fill="blue" />
             );
             })}
             {epochLayers.map((layer, layerIndex) => {
@@ -135,6 +164,8 @@
                 {layer.weights.map((neuronWeights, neuronIdx) => {
                     const y = (neuronIdx + 1) * neuronSpacing;
                     let lines = [];
+                    const bias = layer.biases && layer.biases[neuronIdx] ? layer.biases[neuronIdx] : 0;
+                    const biasColor = getColorFromBias(bias);
                     if (layerIndex === 0) {return null;
                         
                 
@@ -165,8 +196,8 @@
                     return (
                     <g key={neuronIdx}>
                         {lines}
-                        <circle cx={x} cy={y} r={10} fill="purple" />
-                        <circle cx={x} cy={y} r={5} fill="blue" />  // Assuming bias does not change
+                        <circle cx={x} cy={y} r={10} fill="white" />
+                        <circle cx={x} cy={y} r={5} fill={biasColor} />  
                     </g>
                     );
                 })}
@@ -183,11 +214,17 @@
                     const x2 = svgWidth - layerSpacing;
                     const y2 = (outputIdx + 1) * svgHeight / (outputLayerSize + 1);
                     const cumulativeChange = cumulativeChanges[epochLayers.length - 1]?.[neuronIndex]?.[outputIdx] || 0
+                    const bias = epochLayers[epochLayers.length - 1].biases && epochLayers[epochLayers.length - 1].biases[neuronIndex] ? epochLayers[epochLayers.length - 1].biases[neuronIndex] : 0;
+                    const biasColor = getColorFromBias(bias);
+                    
                     
                     
                     return (
-                    <><line key={`output-line-${neuronIndex}-${outputIdx}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={getColorFromCumulativeChange(cumulativeChange)} strokeWidth="2" />
-                    <circle key={`output-neuron-${outputIdx}`} cx={x2} cy={y2} r={10} fill="red" /></>
+                    <>
+                    <line key={`output-line-${neuronIndex}-${outputIdx}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={getColorFromCumulativeChange(cumulativeChange)} strokeWidth="2" />
+                    <circle cx={x2} cy={y2} r={10} fill="white" fillOpacity="0.3" />
+                    <circle cx={x2} cy={y2} r={5} fill={biasColor} />
+                    </>
                     );
                 });
                 })}

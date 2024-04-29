@@ -138,6 +138,8 @@ const App = observer(() => {
 
 
   const [visitedStates, setVisitedStates] = useState({'Title': true });
+  const [isExecuteClicked, setIsExecuteClicked] = useState(false);
+  const [isTrainingComponentLoaded, setIsTrainingComponentLoaded] = useState(false);
 
   const handleSetCurrentState = (newState) => {
     console.log("Updating state from", currentState, "to", newState); // Debugging current state update
@@ -210,7 +212,18 @@ const loadModel = async () => {
     }
   };
   
+  const handleExecute = () => {
+    onExecute();
+    setIsExecuteClicked(true);
+  };
 
+  useEffect(() => {
+    if (isExecuteClicked) {
+      setTimeout(() => {
+        setIsTrainingComponentLoaded(true);
+      }, 3000);  // Simuler un délai de chargement
+    }
+  }, [isExecuteClicked]);
 
   const Component = () => {
     const { t } = useTranslation();}
@@ -1071,32 +1084,37 @@ case STATES.PlayNote:
 
   case STATES.ConsigneTesting:
   return (
-    <div
-  style={{
-    width: '100vw',
-    height: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'auto'  // Ajout d'un défilement si nécessaire
-  }}
->
-  <div className="instructions-container">
-    <h4>{t('testing_instructions_title')}</h4>
-    <ol>
-      <li>{t('testing_instruction_step1')}</li>
-      <li>{t('testing_instruction_step2')}</li>
-    </ol>
-  </div>
-  <button onClick={onExecute} style={{ marginRight: '20px', width: '300px', height: 'auto' }} className="execute-btn">
-    {t('execute')}
-  </button>
-  <div style={{ width: '90vw', minHeight: '50vh' }}> {/* Ajuster la taille du conteneur du SVG */}
-    <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
-  </div>
-  <button onClick={() => handleSetCurrentState(STATES.Testing)}> Testing </button>
-</div>
+     <div
+      style={{
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+        overflow: 'auto'
+      }}
+    >
+      <div className="instructions-container">
+        <h4>{t('testing_instructions_title')}</h4>
+        <ol>
+          <li>{t('testing_instruction_step1')}</li>
+          <li>{t('testing_instruction_step2')}</li>
+        </ol>
+      </div>
+      <button onClick={handleExecute} style={{ marginRight: '20px', width: '300px', height: 'auto' }} className="execute-btn">
+        {t('execute')}
+      </button>
+      {isTrainingComponentLoaded && (
+        <button onClick={() => handleSetCurrentState(STATES.Testing)}>Testing</button>
+      )}
+      <div style={{ width: '90vw', minHeight: '50vh' }}>
+        {isExecuteClicked && (
+          <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
+        )}
+      </div>
+    </div>
 
   );
 
