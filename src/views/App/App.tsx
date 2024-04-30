@@ -104,6 +104,9 @@ const App = observer(() => {
 
   const [trainingData, setTrainingData] = useState([]); //For visualisation of the training
 
+  const [activations, setActivations] = useState([]); // For testing visualisation
+
+
   const { t, i18n } = useTranslation();
 
 
@@ -116,12 +119,13 @@ const App = observer(() => {
   };
 //For bar chart$
 
-  const [predictions, setPredictions] = React.useState([0.2, 0.3, 0.1, 0.15, 0.25]); 
+  const [predictions, setPredictions] = React.useState([0.2, 0.3, 0.1, 0.15, 0.25]);
+ 
   const labels = [ t('action_stop'),
   t('action_forward'),
   t('action_backward'),
-  t('action_left'),
-  t('action_right')]; 
+  t('action_right'),
+  t('action_left')]; 
 
   const [activeTab, setActiveTab] = useState('Training');
   
@@ -660,11 +664,12 @@ const loadModel = async () => {
     console.error("getUserMedia n'est pas supporté par ce navigateur.");
     return;
   }
-
+  try {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   const mediaRecorder = new MediaRecorder(stream);
 
   setIsRecording(true);
+  setShowPopup(true)
   let audioChunks = [];
   mediaRecorder.ondataavailable = (event) => {
     audioChunks.push(event.data);
@@ -726,7 +731,14 @@ const loadModel = async () => {
   setTimeout(() => {
     mediaRecorder.stop();
   }, recordDuration);
-};
+} catch (error) {
+  console.error("Erreur lors de la tentative d'accès au micro:", error);
+  setIsRecording(false);
+  setShowPopup(false); // S'assurer que le popup est masqué en cas d'erreur
+  alert("L'accès au microphone a été refusé ou une erreur est survenue."); // Informer l'utilisateur
+}
+}
+;
 
   const onClickGetRobots = async () => {
     const _robots = await user.getRobotsUuids();
@@ -816,8 +828,10 @@ const loadModel = async () => {
                 console.log("notemapped ", noteToNumberMapping[note])
                 console.log("input data du modèle: ", data, " + ", noteNumber);
                 user.predict(controledRobot, data, noteToNumberMapping[note], isWinnerTakesAll, inputMode)
-                    .then(predictions => {
-                        setPredictions(predictions);
+                    .then(response => {
+                        setPredictions(response.predictions);
+                        setActivations(response.activations);
+                        console.log('Activations Updated:', response.activations);
                     })
                     .catch(error => {
                         console.error('Error during prediction:', error);
@@ -951,16 +965,16 @@ case STATES.PlayNote:
     STOP: stopGif,
     FORWARD: forwardGif,
     BACKWARD: backwardGif,
-    LEFT: leftGif,
-    RIGHT: rightGif
+    LEFT: rightGif,
+    RIGHT: leftGif
   };
 
   const staticSources = {
     STOP: stopStatic,
     FORWARD: forwardStatic,
     BACKWARD: backwardStatic,
-    LEFT: leftStatic,
-    RIGHT: rightStatic
+    LEFT: rightStatic,
+    RIGHT: leftStatic
   };
 
   const handleMouseEnter = (button, action) => {
@@ -1190,20 +1204,22 @@ case STATES.PlayNote:
         loadModel();
     }
       return (
-        <div>
+        <><div>
           <h2>Testing Model...</h2>
           {model ? (
-            <NeuralNetworkVisualization model={model} inputMode = {inputMode} />
+            <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv = {predictions} />
+
           ) : (
             <p>Loading model...</p>
           )}
           <button
-        onClick={() =>  handleSetCurrentState(STATES.Testing)}
-        style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}
-      >
-        {t('return_to_testing')}
-      </button>
-        </div>
+            onClick={() => handleSetCurrentState(STATES.Testing)}
+            style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}
+          >
+            {t('return_to_testing')}
+          </button>
+        </div><Piano onNoteChange={setNote} silentMode={silentMode} className="piano" /></>
+
       );
       
     default:

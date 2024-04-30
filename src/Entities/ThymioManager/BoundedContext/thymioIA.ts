@@ -193,13 +193,22 @@ displayModelWeights() {
           const noteValue = currentNote || 0;
           const captorsNumeric = captors.map(c => parseFloat(c));
           inputTensor = tf.tensor2d([captorsNumeric.concat(noteValue)], [1, captorsNumeric.length + 1]); // [1, 10]
-    }
+    }   
 
+          const intermediateModels = this.model.layers.map((layer, index) => {
+            const subModel = tf.model({
+              inputs: this.model.input,
+              outputs: this.model.layers[index].output
+            });
+            return subModel;
+          });
+
+        const activations = intermediateModels.map(model => model.predict(inputTensor).dataSync());
     
         const prediction = this.model.predict(inputTensor) as tf.Tensor<tf.Rank>;
     
-        prediction.array().then(array => {
-          const predictions = array[0];
+        prediction.array().then(finalPredictions => {
+          const predictions = finalPredictions[0];
           console.log('Raw prediction:', predictions);
           let predictedIndex;
           if (useWinnerTakesAll) {
@@ -220,7 +229,7 @@ displayModelWeights() {
           }
     
           // Résoudre la promesse avec les prédictions
-          resolve(predictions);
+          resolve({ predictions, activations });
         }).catch(error => {
           console.error('Error in prediction:', error);
           reject(error);
