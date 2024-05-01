@@ -71,9 +71,9 @@
   "action_backward": "Reculer",
   "action_left": "Gauche",
   "action_right": "Droite",
-  "testing_instructions_title": "Vous allez maintenant tester le modèle.",
-  "testing_instruction_step1": "Écoutez attentivement la réponse du robot.",
-  "testing_instruction_step2": "Évaluez la pertinence des actions du robot.",
+  "testing_instructions_title": "L'ordinateur va maintenant préparer le modèle",
+  "testing_instruction_step1": "Cliquez sur le bouton ci-dessous pour lancer l'entraînement",
+  "testing_instruction_step2": "Observez l'entraînement du réseau de neurones",
 
 
   "tooltip_get_robots": "Cliquez Sur ce bouton pour trouver les robots connectés.",
@@ -123,6 +123,11 @@
   "state_ConsigneTesting": "Instructions de Test",
   "state_Testing": "Test",
   "state_CurrentModelTest": "Test du Modèle Actuel",
-  "Recording": "Enregistrement en cours..."
+  "Recording": "Enregistrement en cours...",
+
+  "no_note": "Pas de note enregistrée!",
+  "connecting_robot": "Connection au robot...",
+  "mic_error" : "L'accès au micro a été refusée ou a échoué",
+  "no_training_data": "Il faut entraîner au minimum une action pour pouvoir tester le modèle"
   }
   

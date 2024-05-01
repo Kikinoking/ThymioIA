@@ -108,7 +108,7 @@
           const yInput = (inputIndex + 1) * svgHeight / (inputLayerSize + 1);
           const xInput = layerSpacing*0.5; // Position X de la couche d'entrée
           return (
-            <circle key={`input-neuron-${inputIndex}`} cx={xInput} cy={yInput} r={5} fill="blue" />
+            <circle key={`input-neuron-${inputIndex}`} cx={xInput} cy={yInput} r={10} fill="blue" stroke ="black "/>
           );
         })}
 

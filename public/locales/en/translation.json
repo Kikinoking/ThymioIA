@@ -16,7 +16,7 @@
     "use_note_only": "Use Note Only",
     "start_recording": "Start Recording",
     "playback": "Playback",
-    "note_display": "Note: {noteRecording}",
+    "note_display": "Note: ",
     "go_to_map_action": "Go to Map Action",
     "choose_action": "Choose an action",
     "stop": "Stop",
@@ -72,9 +72,10 @@
   "action_backward": "Backward",
   "action_left": "Right",
   "action_right": "Left",
-  "testing_instructions_title": "You will now test the model.",
-  "testing_instruction_step1": "Listen carefully to the robot's response.",
-  "testing_instruction_step2": "Evaluate the appropriateness of the robot's actions.",
+  "testing_instructions_title": "The computer will now prepare the model",
+  "testing_instruction_step1": "Click the button below to start training",
+  "testing_instruction_step2": "Observe the training of the neural network",
+
 
   "tooltip_get_robots": "Click on this button to find connected robots",
 
@@ -118,7 +119,11 @@
   "state_ConsigneTesting": "Testing Guidelines",
   "state_Testing": "Testing",
   "state_CurrentModelTest": "Current Model Test",
-  "Recording": "Recording in progress..."
+  "Recording": "Recording in progress...",
+  "no_note": "No valid note recorded!",
+  "connecting_robot": "Connecting to the robot...",
+  "mic_error" : "Access to the microphone failed or has been denied by the user",
+  "no_training_data": "No training data available. Please provide at least one training example before testing."
 
   
       

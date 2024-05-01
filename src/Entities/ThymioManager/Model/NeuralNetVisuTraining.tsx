@@ -145,7 +145,7 @@
     const layerSpacing = svgWidth / (epochLayers.length + 1);  // +2 for input and output layers
 
     return (
-        <>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <svg width={svgWidth} height={svgHeight} style={{ border: '1px solid black' }}>
             {new Array(inputLayerSize).fill(0).map((_, inputIndex) => {
             const yInput = (inputIndex + 1) * svgHeight / (inputLayerSize + 1);
@@ -231,24 +231,27 @@
             </g>
             )}
         </svg>
-        <div>
+        <div style={{ marginTop: '20px', width: '100%', display: 'flex', justifyContent: 'space-around' }}>
                 <input
                     type="range"
                     min="0"
                     max={trainingData.length - 1}
                     value={currentEpoch}
                     onChange={handleEpochChange}
-                    style={{ width: '50%' }}
+                    style={{ width: '80%' }}
                 />
             </div>
         <div>
-        <button onClick={() => setCurrentEpoch(Math.max(0, currentEpoch - 1))} disabled={currentEpoch === 0}>Previous Epoch</button>
-            <button onClick={handleNextEpoch} disabled={currentEpoch === trainingData.length - 1}>Next Epoch</button>
-            <button onClick={toggleAnimation}>{isAnimating ? 'Stop Animation' : 'Start Animation'}</button>        </div>
+        <div style={{ marginTop: '10px' }}>
+                <button onClick={() => setCurrentEpoch(Math.max(0, currentEpoch - 1))} disabled={currentEpoch === 0}>Previous Epoch</button>
+                <button onClick={() => setCurrentEpoch(Math.min(currentEpoch + 1, trainingData.length - 1))}>Next Epoch</button>
+                <button onClick={toggleAnimation}>{isAnimating ? 'Stop Animation' : 'Start Animation'}</button> 
+            </div>
+                  </div>
         <div style={{ marginTop: '10px' }}>
             <span>Current Epoch: {currentEpoch + 1} / {trainingData.length}</span>
         </div>
-        </>
+        </div>
     );
     };
 

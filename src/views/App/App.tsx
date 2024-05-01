@@ -107,6 +107,9 @@ const App = observer(() => {
   const [activations, setActivations] = useState([]); // For testing visualisation
 
 
+  const [showConnectingPopup, setShowConnectingPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");     // Delay when connecting using dongle.
+
   const { t, i18n } = useTranslation();
 
 
@@ -171,7 +174,6 @@ const loadModel = async () => {
     ConsigneTraining: 'ConsigneTraining',
     PlayNote: 'PlayNote',
     MapAction: 'MapAction',
-    CurrentModelTrain: 'CurrentModelTrain',
     ConsigneTesting: 'ConsigneTesting',
     Testing: 'Testing',
     CurrentModelTest: 'CurrentModelTest'
@@ -185,36 +187,7 @@ const loadModel = async () => {
     skip: t('joyride.skip')
   };
 
-  const nextState = () => {
-    switch (currentState) {
-      case STATES.Title:
-        handleSetCurrentState(STATES.ConsigneTraining);
-        break;
-      case STATES.ConsigneTraining:
-        handleSetCurrentState(STATES.PlayNote);
-        break;
-      case STATES.PlayNote:
-        handleSetCurrentState(STATES.MapAction);
-        break;
-      case STATES.MapAction:
-        handleSetCurrentState(STATES.CurrentModelTrain);
-        break;
-      case STATES.CurrentModelTrain:
-        handleSetCurrentState(STATES.ConsigneTesting);
-        break;
-      case STATES.ConsigneTesting:
-        handleSetCurrentState(STATES.Testing);
-        break;
-      case STATES.Testing:
-        handleSetCurrentState(STATES.CurrentModelTest);
-        break;
-      case STATES.CurrentModelTest:
-        handleSetCurrentState(STATES.Title); // Loop back to the start or decide to end.
-        break;
-      default:
-        handleSetCurrentState(STATES.Title);
-    }
-  };
+  
   
   const handleExecute = () => {
     onExecute();
@@ -735,7 +708,7 @@ const loadModel = async () => {
   console.error("Erreur lors de la tentative d'accès au micro:", error);
   setIsRecording(false);
   setShowPopup(false); // S'assurer que le popup est masqué en cas d'erreur
-  alert("L'accès au microphone a été refusé ou une erreur est survenue."); // Informer l'utilisateur
+  alert(t('mic_error')); // Informer l'utilisateur
 }
 }
 ;
@@ -747,7 +720,15 @@ const loadModel = async () => {
 
   const onSelectRobot = async (robotUuid: string) => {
     user.takeControl(robotUuid);
+    
+    setPopupMessage(t('connecting_robot')); 
+    setShowConnectingPopup(true);
     setControledRobot(robotUuid);
+    setTimeout(() => {
+      setShowConnectingPopup(false); // Cacher le popup après 3 secondes
+      handleSetCurrentState(STATES.ConsigneTraining); // Changer d'état
+    }, 3000);
+    
   };
 
   const onAction = async (action: string) => {
@@ -842,17 +823,13 @@ const loadModel = async () => {
         return () => clearInterval(interval);
     }
 }, [mode, controledRobot, note, user, isWinnerTakesAll, inputMode]);
-useEffect(() => {
-  if (controledRobot) {
-    nextState();
-  }
-}, [controledRobot]);
+
 
 const handleTransition = () => {
   if (noteRecording !== null && noteRecording !== 0) {
     handleSetCurrentState(STATES.MapAction);
   } else {
-    alert("No valid note recorded!");
+    alert(t('no_note'));
   }
 };
   
@@ -860,6 +837,21 @@ const renderCurrentState = () => {
   switch (currentState) {
     case STATES.Title:
       return (
+        <>
+        {showConnectingPopup && (
+          <div className="popup-overlay-title">
+          <div className="popup-content-title">
+            <p>{popupMessage}</p>
+            <div className="spinner-container">
+            <div style={{ display: 'flex' }}>
+            {Array.from({ length: 12 }).map((_, index) => (
+              <div key={index} className="spinner-bar"></div>
+              ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        )}
         <><h1 style={{ fontSize: '44px' }}>{t('ai_tools_title')}</h1>
         <div style={{ flex: 1, marginRight: '20px', fontSize:  '12pt'}}>
           <div className="instructions-container">
@@ -883,6 +875,7 @@ const renderCurrentState = () => {
 
           ))}
         </div></>
+        </>
       );
     case STATES.ConsigneTraining:
       return (<> <div className="instructions-container">
@@ -909,7 +902,15 @@ case STATES.PlayNote:
       <button className="start-recording-button" onClick={() => {
     startRecording();
     setShowPopup(true);
-  }} disabled={isRecording} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end', width: '250px', height: '50px' }}>
+  }} disabled={isRecording} 
+  style={{ 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'flex-start', 
+    width: 'auto', 
+    padding: '10px 20px',
+    gap: '10px'  
+  }}>
   <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     {/* SVG path ici */}
     <path fillRule="evenodd" clipRule="evenodd" d="M12 2C13.1046 2 14 2.89543 14 4V11C14 12.1046 13.1046 13 12 13C10.8954 13 10 12.1046 10 11V4C10 2.89543 10.8954 2 12 2Z" fill="currentColor"/>
@@ -994,111 +995,103 @@ case STATES.PlayNote:
   };
 
   return (
-    <><div className="actions-container" style={{ flex: 1, marginRight: '20px' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>{t('choose_action')}</h2>
-      <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
-        {Object.keys(gifSources).map(action => (
-          <button
-            key={action}
-            onClick={() => handleAction(action)}
-            onMouseEnter={(e) => handleMouseEnter(e.currentTarget, action)}
-            onMouseLeave={(e) => handleMouseLeave(e.currentTarget, action)}
-            style={{
-              border: '2px solid #ccc',
-              borderRadius: '5px',
-              background: 'none',
-              padding: '10px',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center', // Centre verticalement les éléments dans le bouton
-            }}
-          >
-            <img
-              src={staticSources[action]}
-              alt={action}
-              style={{ width: '150px', height: '150px' }} />
-            {t(action.toLowerCase())}
-          </button>
-        ))}
+    <>
+      <div className="actions-container" style={{ flex: 1, marginRight: '20px' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>{t('choose_action')}</h2>
+        <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
+          {Object.keys(gifSources).map(action => (
+            <button
+              key={action}
+              onClick={() => handleAction(action)}
+              onMouseEnter={(e) => handleMouseEnter(e.currentTarget, action)}
+              onMouseLeave={(e) => handleMouseLeave(e.currentTarget, action)}
+              style={{
+                border: '2px solid #ccc',
+                borderRadius: '5px',
+                background: 'none',
+                padding: '10px',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <img
+                src={staticSources[action]}
+                alt={action}
+                style={{ width: '150px', height: '150px' }}
+              />
+              {t(action.toLowerCase())}
+            </button>
+          ))}
+        </div>
+        <br />
       </div>
-      <br />
-    </div><div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-        <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-          <div style={{ flex: 1 }} className="thymio-container">
-            <div style={{ width: '30%', margin: '0 10px' }}>
-              <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '100%', height: 'auto' }} />
-            </div>
-          </div>
-          <div style={{ flex: 2, overflowX: 'auto' }} className="trainer-table-container">
-            <table className="trainer-table">
-              <thead>
-                <tr>
-                  <th>{t('Action')}</th>
-                  <th>{t('captors_values')}</th>
-                  <th>{t('note_display')}</th>
+      <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+        <div style={{ overflowX: 'auto', maxHeight: '300px' }} className="trainer-table-container"> {/* Ajustez maxHeight selon vos besoins */}
+          <table className="trainer-table">
+            <thead>
+              <tr>
+                <th>{t('Action')}</th>
+                {inputMode !== 'NOTE_ONLY' && <th>{t('captors_values')}</th>}
+                <th>{t('note_display')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {trainer.map(({ action, captors, note }, index) => (
+                <tr key={index}>
+                  <td>{t(`action_${action.toLowerCase()}`)}</td>
+                  {inputMode !== 'NOTE_ONLY' && <td><ThymioSVG captors={captors} style={{ width: '100px', height: 'auto' }} /></td>}
+                  <td>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <p style={{ margin: '0' }}>{note}</p>
+                      <div style={{ transform: 'scale(0.7)', marginTop: '-20px'}}>
+                        <MusicalStaff note={note}  />
+                      </div>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {trainer.map(({ action, captors, note }, index) => (
-                  <tr key={index}>
-                    <td>{t(`action_${action.toLowerCase()}`)}</td>
-                    <td><ThymioSVG captors={captors} style={{ width: '100px', height: 'auto' }} /></td>
-                    <td>{note}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
           <button onClick={() => handleSetCurrentState(STATES.PlayNote)} style={{ margin: '0 10px' }} className="map-more-actions-button">
             {t('map_more_actions')}
           </button>
-          <button onClick={() => { console.log("Save model"); } } style={{ margin: '0 10px' }} className="save-model-button">
+          <button onClick={() => { console.log("Save model"); }} style={{ margin: '0 10px' }} className="save-model-button">
             {t('save_model')}
           </button>
-          <button onClick={() => handleSetCurrentState(STATES.ConsigneTesting)} style={{ margin: '0 10px' }} className="test-model-button">
+          <button
+            onClick={() => {
+              if (trainer.length > 0) {
+                handleSetCurrentState(STATES.ConsigneTesting);
+              } else {
+                alert(t('no_training_data'));
+              }
+            }} 
+            style={{ margin: '0 10px' }} 
+            className="test-model-button">
             {t('test_the_model')}
           </button>
         </div>
-      </div></>
+      </div>
+    </>
   );
+  
+  
   
 
 
 
-  case STATES.CurrentModelTrain:
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-      <button onClick={() => setCurrentEpoch(prev => Math.max(prev - 1, 0))}>Précédent</button>
-      <button onClick={() => setCurrentEpoch(prev => Math.min(prev + 1, trainingData.length - 1))}>Suivant</button>
-      <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-      <button onClick={onExecute} style={{ marginRight: '20px' , width :'300px', height : 'auto'}}className="execute-btn">
-            {t('execute')}
-            </button>
-      <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
-        <button onClick={() =>  handleSetCurrentState(STATES.PlayNote)} style={{ margin: '0 10px' }} className="map-more-actions-button">
-        {t('map_more_actions')}
-        </button>
-        <button onClick={() => { console.log("Save model"); }} style={{ margin: '0 10px' }} className="save-model-button">
-        {t('save_model')}
-        </button>
-        <button onClick={() =>  handleSetCurrentState(STATES.ConsigneTesting)} style={{ margin: '0 10px' }} className="test-model-button">
-        {t('test_the_model')}
-        </button>
-      </div>
-    </div>
-  );
+  
 
   
 
   case STATES.ConsigneTesting:
   return (
-     <div
+    <div
       style={{
         width: '100vw',
         height: '100vh',
@@ -1106,31 +1099,30 @@ case STATES.PlayNote:
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        alignSelf: 'center',
-        overflow: 'auto'
+        overflow: 'hidden' // Ajustez pour prévenir le débordement indésirable
       }}
     >
-      <div className="instructions-container">
+      <div className="instructions-container" style={{ textAlign: 'center' }}>
         <h4>{t('testing_instructions_title')}</h4>
         <ol>
           <li>{t('testing_instruction_step1')}</li>
           <li>{t('testing_instruction_step2')}</li>
         </ol>
       </div>
-      <button onClick={handleExecute} style={{ marginRight: '20px', width: '300px', height: 'auto' }} className="execute-btn">
+      <button onClick={handleExecute} style={{ width: '300px', height: 'auto', marginTop: '20px' }} className="execute-btn">
         {t('execute')}
       </button>
       {isTrainingComponentLoaded && (
-        <button onClick={() => handleSetCurrentState(STATES.Testing)}>Testing</button>
+        <button onClick={() => handleSetCurrentState(STATES.Testing)} style={{ marginTop: '20px' }}>Testing</button>
       )}
-      <div style={{ width: '90vw', minHeight: '50vh' }}>
-        {isExecuteClicked && (
+      {isExecuteClicked && (
+        <div style={{ width: '90vw', minHeight: '50vh', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
           <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
-        )}
-      </div>
+        </div>
+      )}
     </div>
-
   );
+
 
     case STATES.Testing:
       return (
@@ -1203,24 +1195,45 @@ case STATES.PlayNote:
     if (!model && !loading) {
         loadModel();
     }
-      return (
-        <><div>
-          <h2>Testing Model...</h2>
-          {model ? (
-            <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv = {predictions} />
-
-          ) : (
-            <p>Loading model...</p>
+    return (
+      <>
+        <div style={{ display: 'flex', alignItems: 'center', position: 'relative', justifyContent: 'center' }}>
+          {note !== null && (
+            <div className='note-display' style={{ alignSelf: 'center' }}>
+              <p>{t('tone')}: {note}</p>
+              <MusicalStaff noteRecording={note} />
+            </div>
           )}
-          <button
-            onClick={() => handleSetCurrentState(STATES.Testing)}
-            style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}
-          >
-            {t('return_to_testing')}
-          </button>
-        </div><Piano onNoteChange={setNote} silentMode={silentMode} className="piano" /></>
-
-      );
+    
+          
+          <svg
+            height="50"
+            width="200"
+            style={{ position: 'absolute', left: '30%', top: '50%', transform: 'translate(-50%, -50%)' }}
+            xmlns="http://www.w3.org/2000/svg">
+            <line x1="0" y1="25" x2="170" y2="25" stroke="blue" strokeWidth="5" markerEnd="url(#arrowhead)" />
+            <defs>
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" stroke="blue" fill = "blue"/>
+              </marker>
+            </defs>
+          </svg>
+    
+          {/* Conteneur pour NeuralNetworkVisualization pour permettre un meilleur contrôle du positionnement */}
+          <div style={{ width: 'auto', marginLeft: '120px' }}>
+            <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv={predictions} />
+          </div>
+        </div>
+        <button
+          onClick={() => handleSetCurrentState(STATES.Testing)}
+          style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}
+        >
+          {t('return_to_testing')}
+        </button>
+        <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
+      </>
+    );
       
     default:
       return null;

@@ -18,7 +18,6 @@ const NavigationBar = ({ currentState, setCurrentState, visitedStates }) => {
         'state_ConsigneTraining',
         'state_PlayNote',
         "state_MapAction",
-        "state_CurrentModelTrain",
         "state_ConsigneTesting",
         "state_Testing",
         "state_CurrentModelTest"
@@ -30,7 +29,6 @@ const NavigationBar = ({ currentState, setCurrentState, visitedStates }) => {
         ConsigneTraining: 'ConsigneTraining',
         PlayNote: 'PlayNote',
         MapAction: 'MapAction',
-        CurrentModelTrain: 'CurrentModelTrain',
         ConsigneTesting: 'ConsigneTesting',
         Testing: 'Testing',
         CurrentModelTest: 'CurrentModelTest'
