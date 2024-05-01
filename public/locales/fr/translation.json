@@ -128,6 +128,13 @@
   "no_note": "Pas de note enregistrée!",
   "connecting_robot": "Connection au robot...",
   "mic_error" : "L'accès au micro a été refusée ou a échoué",
-  "no_training_data": "Il faut entraîner au minimum une action pour pouvoir tester le modèle"
+  "no_training_data": "Il faut entraîner au minimum une action pour pouvoir tester le modèle",
+
+  "previous_epoch": "Étape précédente",
+  "next_epoch": "Étape suivante",
+  "start_animation": "Démarrer l'animation",
+  "stop_animation": "Arrêter l'animation",
+  "current_epoch": "Etape actuelle : ",
+  "epoch_slider": "Changer d'époque"
   }
   

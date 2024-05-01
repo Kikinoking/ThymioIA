@@ -1,7 +1,9 @@
     import React, { useState, useEffect, useRef } from 'react';
+    import { useTranslation } from 'react-i18next';
 
     const NeuralNetworkVisualizationTraining = ({ trainingData, inputMode }) => {
         
+        const { t } = useTranslation();
     const [currentEpoch, setCurrentEpoch] = useState(0);
     const [previousWeights, setPreviousWeights] = useState([]);
     const [currentWeights, setCurrentWeights] = useState([]);
@@ -15,7 +17,18 @@
     useEffect(() => {
         currentEpochRef.current = currentEpoch; // Update ref whenever state changes
     }, [currentEpoch]);
-    
+
+    useEffect(() => {
+        if (trainingData && trainingData.length > 0 && !isAnimating) {
+          startAnimation();  // Démarrer l'animation automatiquement
+        }
+        
+        // Nettoyage: arrêter l'animation lors du démontage du composant
+        return () => {
+          stopAnimation();
+        };
+      }, [trainingData]);
+      
     useEffect(() => {
         // Update weights on epoch change
         if (trainingData[currentEpoch]) {
@@ -146,7 +159,7 @@
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <svg width={svgWidth} height={svgHeight} style={{ border: '1px solid black' }}>
+        <svg width={svgWidth} height={svgHeight} style={{ border: 'none' }}>
             {new Array(inputLayerSize).fill(0).map((_, inputIndex) => {
             const yInput = (inputIndex + 1) * svgHeight / (inputLayerSize + 1);
             const xInput = layerSpacing;
@@ -231,7 +244,7 @@
             </g>
             )}
         </svg>
-        <div style={{ marginTop: '20px', width: '100%', display: 'flex', justifyContent: 'space-around' }}>
+        <div style={{ marginTop: '2px', width: '70%', display: 'flex', justifyContent: 'space-around' }}>
                 <input
                     type="range"
                     min="0"
@@ -239,17 +252,18 @@
                     value={currentEpoch}
                     onChange={handleEpochChange}
                     style={{ width: '80%' }}
+                    aria-label={t('epoch_slider')}
                 />
             </div>
         <div>
-        <div style={{ marginTop: '10px' }}>
-                <button onClick={() => setCurrentEpoch(Math.max(0, currentEpoch - 1))} disabled={currentEpoch === 0}>Previous Epoch</button>
-                <button onClick={() => setCurrentEpoch(Math.min(currentEpoch + 1, trainingData.length - 1))}>Next Epoch</button>
-                <button onClick={toggleAnimation}>{isAnimating ? 'Stop Animation' : 'Start Animation'}</button> 
+        <div style={{ marginTop: '1 0px' }}>
+                <button onClick={() => setCurrentEpoch(Math.max(0, currentEpoch - 1))} disabled={currentEpoch === 0}>{t('previous_epoch')}</button>
+                <button onClick={() => setCurrentEpoch(Math.min(currentEpoch + 1, trainingData.length - 1))}>{t('next_epoch')}</button>
+                <button onClick={toggleAnimation}>{isAnimating ? t('stop_animation') : t('start_animation')}</button> 
             </div>
                   </div>
         <div style={{ marginTop: '10px' }}>
-            <span>Current Epoch: {currentEpoch + 1} / {trainingData.length}</span>
+            <span>{t('current_epoch')} {currentEpoch + 1} / {trainingData.length}</span>
         </div>
         </div>
     );

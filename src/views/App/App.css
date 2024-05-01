@@ -195,8 +195,8 @@
 .instructions-container {
   border: 2px solid #db2525; 
   border-radius: 8px; /* Coins arrondis */
-  padding: 10px 10px 10px 10px; /* Réduit le padding supérieur */
-  margin: 5px; /* Marge extérieure */
+  padding: 5px 5px 5px 5px; /* Réduit le padding supérieur */
+  margin: 2px; /* Marge extérieure */
   background-color: #f9f9f9; /* Fond légèrement gris */
   width: 600px; /* Largeur fixe */
   box-shadow: 0 4px 8px rgba(163, 160, 160, 0.1); /* Ombre discrète */
@@ -204,22 +204,22 @@
 
 .instructions-container h4 {
   color: #333; /* Titre en couleur plus sombre */
-  margin-top: 5px; /* Réduit l'espace au-dessus du titre */
-  margin-bottom: 5px; /* Espace réduit après le titre */
-  font-size: 30px; /* Taille de la police */
+  margin-top: 3px; /* Réduit l'espace au-dessus du titre */
+  margin-bottom: 3px; /* Espace réduit après le titre */
+  font-size: 26px; /* Taille de la police */
 }
 
 .instructions-container ol {
   padding-left: 20px; /* Alignement des numéros à l'intérieur du bloc */
   font-size: 30px; /* Taille de la police pour les listes */
-  margin-top: 5px; /* Réduit l'espace au-dessus de la liste */
+  margin-top: 3px; /* Réduit l'espace au-dessus de la liste */
   
 }
 
 .instructions-container li {
-  margin-bottom: 8px; /* Espace entre les lignes */
+  margin-bottom: 3px; /* Espace entre les lignes */
   color: #000000;
-  font-size: 26px; /* Taille de la police pour les éléments de liste */
+  font-size: 20px; /* Taille de la police pour les éléments de liste */
   text-align: left;
 }
 .trainer-table {
@@ -354,4 +354,36 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+
+/* App.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Aligner les éléments au début du conteneur */
+  width: 80vw;
+  height: 83vh;
+  overflow: auto; /* Permettre le défilement vertical si nécessaire */
+  padding: 10px 0; /* Ajouter un peu d'espace en haut et en bas */
+}
+
+
+.execute-btn {
+  width: 150px;
+  height: auto;
+  margin: 20px 0;
+}
+
+.visualization-container {
+  width: 60vw;
+  min-height: 70vh;
+  max-height: 120vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2px;
+  border: transparent;
 }

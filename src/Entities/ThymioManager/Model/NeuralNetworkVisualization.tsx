@@ -94,11 +94,12 @@
 
     const getColorFromWeight = (weight) => {
       if (weight === undefined) {
-        return 'rgba(255, 255, 255, 0.5)';
+          return 'rgba(255, 255, 255, 0.5)'; 
       }
-      return `rgb(${Math.min(255, Math.floor(255 * Math.max(0, weight) + 50))}, ${Math.min(255, Math.floor(255 * Math.max(0, -weight) + 50))}, 0)`;
-
-    };
+      
+      return `rgb(${Math.min(255, Math.floor(255 * Math.max(0, -weight) + 50))}, ${Math.min(255, Math.floor(255 * Math.max(0, weight) + 50))}, 0)`;
+  };
+  
 
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>

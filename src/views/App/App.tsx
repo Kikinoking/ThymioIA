@@ -148,6 +148,10 @@ const App = observer(() => {
   const [isExecuteClicked, setIsExecuteClicked] = useState(false);
   const [isTrainingComponentLoaded, setIsTrainingComponentLoaded] = useState(false);
 
+
+  const [showInstructions, setShowInstructions] = useState(true);//To show/hide instruction to make room for visualisation training
+  const [isTrainingComplete, setIsTrainingComplete] = useState(false); //Wait end of training before visualisation of NN
+
   const handleSetCurrentState = (newState) => {
     console.log("Updating state from", currentState, "to", newState); // Debugging current state update
     setCurrentState(newState);
@@ -189,9 +193,11 @@ const loadModel = async () => {
 
   
   
-  const handleExecute = () => {
-    onExecute();
+  const handleExecute = async () => {
+    await onExecute();
+    setShowInstructions(false);
     setIsExecuteClicked(true);
+    setIsTrainingComplete(true);
   };
 
   useEffect(() => {
@@ -1090,38 +1096,32 @@ case STATES.PlayNote:
   
 
   case STATES.ConsigneTesting:
-  return (
-    <div
-      style={{
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'hidden' // Ajustez pour prévenir le débordement indésirable
-      }}
-    >
-      <div className="instructions-container" style={{ textAlign: 'center' }}>
-        <h4>{t('testing_instructions_title')}</h4>
-        <ol>
-          <li>{t('testing_instruction_step1')}</li>
-          <li>{t('testing_instruction_step2')}</li>
-        </ol>
+    return (
+      <div className="container">
+        {showInstructions && (
+          <div className="instructions-container">
+            <h4>{t('testing_instructions_title')}</h4>
+            <ol>
+              <li>{t('testing_instruction_step1')}</li>
+              <li>{t('testing_instruction_step2')}</li>
+            </ol>
+            <button onClick={handleExecute} className="execute-btn">
+              {t('execute')}
+            </button>
+          </div>
+        )}
+        
+        {isTrainingComplete && (
+          <div className="visualization-container">
+            <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
+          </div>
+        )}
+        
+        {isTrainingComponentLoaded && (
+          <button onClick={() => handleSetCurrentState(STATES.Testing)} style={{ marginTop: '20px' }}>{t('testing')}</button>
+        )}
       </div>
-      <button onClick={handleExecute} style={{ width: '300px', height: 'auto', marginTop: '20px' }} className="execute-btn">
-        {t('execute')}
-      </button>
-      {isTrainingComponentLoaded && (
-        <button onClick={() => handleSetCurrentState(STATES.Testing)} style={{ marginTop: '20px' }}>Testing</button>
-      )}
-      {isExecuteClicked && (
-        <div style={{ width: '90vw', minHeight: '50vh', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
-          <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
-        </div>
-      )}
-    </div>
-  );
+    );
 
 
     case STATES.Testing:
@@ -1129,7 +1129,7 @@ case STATES.PlayNote:
         <div>
           {/* Première ligne : Contrôle d'enregistrement, affichages, ThymioSVG, et BarChart */}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1 }}> 
               <button onClick={toggleContinuousRecording} className="toggle-recording-btn">
                 {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
               </button>

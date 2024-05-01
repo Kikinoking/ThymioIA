@@ -123,7 +123,14 @@
   "no_note": "No valid note recorded!",
   "connecting_robot": "Connecting to the robot...",
   "mic_error" : "Access to the microphone failed or has been denied by the user",
-  "no_training_data": "No training data available. Please provide at least one training example before testing."
+  "no_training_data": "No training data available. Please provide at least one training example before testing.",
+
+  "previous_epoch": "Previous Epoch",
+  "next_epoch": "Next Epoch",
+  "start_animation": "Start Animation",
+  "stop_animation": "Stop Animation",
+  "current_epoch": "Current Epoch: ",
+  "epoch_slider": "Change epoch"
 
   
       
