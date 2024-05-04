@@ -12,6 +12,8 @@
     const animationIntervalId = useRef(null);
     const currentEpochRef = useRef(0); // Using ref to track the current epoch
     const [cumulativeBiasChanges, setCumulativeBiasChanges] = useState([]);
+
+    const CHANGE_THRESHOLD = 0.01; // for weighs, training visualisation
     
 
     useEffect(() => {
@@ -95,7 +97,7 @@
 
     const startAnimation = () => {
         if (!isAnimating) {
-            animationIntervalId.current = setInterval(handleNextEpoch, 100);
+            animationIntervalId.current = setInterval(handleNextEpoch, 50);
             setIsAnimating(true);
         }
     };
@@ -147,10 +149,13 @@
     };
     const getColorFromWeight = (weight) => {
         if (weight === undefined) {
-        return 'rgba(255, 255, 255, 0.5)';
+            return 'rgba(255, 255, 255, 0.5)'; // Couleur par défaut pour les poids non définis
         }
-        return `rgb(${Math.min(255, Math.floor(255 * Math.max(0, weight) + 50))}, ${Math.min(255, Math.floor(255 * Math.max(0, -weight) + 50))}, 0)`;
-
+        // Calcul de l'intensité des couleurs en amplifiant les variations
+        const red = Math.min(255, Math.floor(255 * Math.max(0, -weight) * 1.5)); // Amplifie les poids négatifs
+        const green = Math.min(255, Math.floor(255 * Math.max(0, weight) * 1.5)); // Amplifie les poids positifs
+    
+        return `rgb(${red}, ${green}, 0)`;
     };
 
     const epochLayers = trainingData[currentEpoch] || [];
@@ -199,10 +204,17 @@
                         const y2 = (linkIdx + 1) * nextNeuronSpacing;
                         const cumulativeChange = cumulativeChanges[layerIndex]?.[neuronIdx]?.[linkIdx] || 0;
                         const previousWeight = previousWeights[layerIndex]?.[neuronIdx]?.[linkIdx] ?? null;
+                        const weightChange = previousWeight ? Math.abs(weight - previousWeight) : null;
                         console.log("NewColor = ", getColorFromCumulativeChange(cumulativeChange))
-                        if (cumulativeChange === 0) return null;
+                        let linkColor;
+                        if (weightChange && weightChange > CHANGE_THRESHOLD) {
+                            const cumulativeChange = cumulativeChanges[layerIndex][neuronIdx][linkIdx];
+                            linkColor = getColorFromCumulativeChange(cumulativeChange);
+                        } else {
+                            linkColor = getColorFromWeight(weight);
+                        }
                         return (
-                        <line key={`link-${layerIndex}-${neuronIdx}-${linkIdx}`} x1={x} y1={y} x2={nextX} y2={y2} stroke={getColorFromCumulativeChange(cumulativeChange)} strokeWidth="2" />
+                        <line key={`link-${layerIndex}-${neuronIdx}-${linkIdx}`} x1={x} y1={y} x2={nextX} y2={y2} stroke={getColorFromWeight(weight)} strokeWidth="2" />
                         );
                     }));
                     }
@@ -234,7 +246,7 @@
                     
                     return (
                     <>
-                    <line key={`output-line-${neuronIndex}-${outputIdx}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={getColorFromCumulativeChange(cumulativeChange)} strokeWidth="2" />
+                    <line key={`output-line-${neuronIndex}-${outputIdx}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={getColorFromWeight(weight)} strokeWidth="2" />
                     <circle cx={x2} cy={y2} r={10} fill="white" fillOpacity="0.3" />
                     <circle cx={x2} cy={y2} r={5} fill={biasColor} />
                     </>

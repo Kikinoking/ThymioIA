@@ -94,10 +94,13 @@
 
     const getColorFromWeight = (weight) => {
       if (weight === undefined) {
-          return 'rgba(255, 255, 255, 0.5)'; 
+          return 'rgba(255, 255, 255, 0.5)'; // Couleur par défaut pour les poids non définis
       }
-      
-      return `rgb(${Math.min(255, Math.floor(255 * Math.max(0, -weight) + 50))}, ${Math.min(255, Math.floor(255 * Math.max(0, weight) + 50))}, 0)`;
+      // Calcul de l'intensité des couleurs en amplifiant les variations
+      const red = Math.min(255, Math.floor(255 * Math.max(0, -weight) * 1.5)); // Amplifie les poids négatifs
+      const green = Math.min(255, Math.floor(255 * Math.max(0, weight) * 1.5)); // Amplifie les poids positifs
+  
+      return `rgb(${red}, ${green}, 0)`;
   };
   
 

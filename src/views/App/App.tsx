@@ -110,6 +110,8 @@ const App = observer(() => {
   const [showConnectingPopup, setShowConnectingPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");     // Delay when connecting using dongle.
 
+  
+
   const { t, i18n } = useTranslation();
 
 
@@ -173,6 +175,35 @@ const loadModel = async () => {
     }
 };
 
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+          const text = e.target.result;
+          const data = JSON.parse(text);
+          setTrainer(data);
+          console.log("Trainer data loaded from file.");
+      };
+      reader.onerror = (error) => {
+          console.error('Error reading file:', error);
+          alert('An error occurred reading the file.');
+      };
+      reader.readAsText(file);
+  }
+};
+
+
+const loadTrainerLocally = () => {
+  const data = localStorage.getItem('trainerData');
+  return data ? JSON.parse(data) : null;
+};
+
+
+
+
+
   const STATES = {
     Title: 'Title',
     ConsigneTraining: 'ConsigneTraining',
@@ -190,6 +221,22 @@ const loadModel = async () => {
     next: t('joyride.next'),
     skip: t('joyride.skip')
   };
+
+  const saveTrainerToFile = () => {
+    const trainerData = JSON.stringify(trainer); // Convertir les données du trainer en JSON
+    const blob = new Blob([trainerData], { type: 'application/json' });
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = "trainerData.json"; // Nom du fichier à sauvegarder
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+};
+
+
+
 
   
   
@@ -560,6 +607,8 @@ const loadModel = async () => {
     handleSetCurrentState(STATES.PlayNote);
   };
 
+ 
+
   useEffect(() => {
     
     // Vérifiez que audioContext et analyser sont définis avant de démarrer getFrequencies
@@ -865,7 +914,9 @@ const renderCurrentState = () => {
             <ol>
                 <li>{t('instruction_step1')}</li>
                 <li>{t('instruction_step2')}</li>
-                <li>{t('instruction_step3')}</li>
+                {inputMode !== 'NOTE_ONLY' && <li>{t('instruction_step6')}</li>}
+                {inputMode !== 'NOTE_ONLY' && <li>{t('instruction_step3')}</li>}
+                
                 <li>{t('instruction_step4')}</li>
                 <li>{t('instruction_step5')}</li>
             </ol>
@@ -904,55 +955,52 @@ const renderCurrentState = () => {
 case STATES.PlayNote:
   return (
     <>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <button className="start-recording-button" onClick={() => {
-    startRecording();
-    setShowPopup(true);
-  }} disabled={isRecording} 
-  style={{ 
-    display: 'flex', 
-    alignItems: 'center', 
-    justifyContent: 'flex-start', 
-    width: 'auto', 
-    padding: '10px 20px',
-    gap: '10px'  
-  }}>
-  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* SVG path ici */}
-    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C13.1046 2 14 2.89543 14 4V11C14 12.1046 13.1046 13 12 13C10.8954 13 10 12.1046 10 11V4C10 2.89543 10.8954 2 12 2Z" fill="currentColor"/>
-    <path fillRule="evenodd" clipRule="evenodd" d="M18 11V4C18 1.79086 16.2091 0 14 0C11.7909 0 10 1.79086 10 4V11C10 13.2091 11.7909 15 14 15V18H10V20H18V18H14V15C16.2091 15 18 13.2091 18 11Z" fill="currentColor"/>
-  </svg>
-  {t('start_recording')}
-</button>
-        <Piano onNoteChange={setNoteRecording} silentMode={silentMode} className="piano" style={{ marginTop: '20px', width: '100%' }} />
-      </div>
-      <br />
-      {audioUrl && (
-        <button onClick={() => new Audio(audioUrl).play()}>{t('playback')}</button>
-      )}
-      
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid white', padding: '20px' }}>
-        {user.captors.state[controledRobot] && (
-          <div  className="thymio-svg-component" style={{ width: '30%', margin: '0 10px' }}>
-            <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '100%', height: 'auto' }} />
-          </div>
+      <div className="record-note-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <label>1) Record a note</label>
+        <button className="start-recording-button" onClick={() => {
+          startRecording();
+          setShowPopup(true);
+        }} disabled={isRecording}
+        style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', // Centrer le contenu du bouton
+          width: 'auto', 
+          padding: '10px 20px',
+          gap: '10px'  
+        }}>
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M12 2C13.1046 2 14 2.89543 14 4V11C14 12.1046 13.1046 13 12 13C10.8954 13 10 12.1046 10 11V4C10 2.89543 10.8954 2 12 2Z" fill="currentColor"/>
+            <path fillRule="evenodd" clipRule="evenodd" d="M18 11V4C18 1.79086 16.2091 0 14 0C11.7909 0 10 1.79086 10 4V11C10 13.2091 11.7909 15 14 15V18H10V20H18V18H14V15C16.2091 15 18 13.2091 18 11Z" fill="currentColor"/>
+          </svg>
+          {t('start_recording')}
+        </button>
+        {audioUrl && (
+          <button onClick={() => new Audio(audioUrl).play()}>{t('playback')}</button>
         )}
-        <div className="musical-staff-component" style={{ width: '50%' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
-        {noteRecording !== 0 && (
-          <div className='Note' style={{ margin: '0 auto' }}>
-            <p>{t('note')} {noteRecording}</p>
-          </div>
-        )}
+        <div className="piano-container">
+          <Piano onNoteChange={setNoteRecording} silentMode={silentMode} className="piano" />
+        </div>
       </div>
+
+      <div className="note-recorded-section">
+        <label>2) Note recorded</label>
+        <div className="note-recorded-display">
+          {inputMode === 'CAPTORS_AND_NOTE' && user.captors.state[controledRobot] && (
+            <div className="thymio-svg-component">
+              <ThymioSVG captors={user.captors.state[controledRobot]} />
+            </div>
+          )}
           <MusicalStaff noteRecording={noteRecording} />
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <button className="go-to-map-action-button" onClick={handleTransition}>{t('go_to_map_action')}</button>
+
+      <div className="go-to-map-action-button-container">
+        <button className="go-to-map-action-button" onClick={handleTransition}>{ t('go_to_map_action')}</button>
       </div>
+
       {showPopup && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }} className="popup-overlay">
+        <div className="popup-overlay">
           <div style={{ display: 'flex' }}>
             {Array.from({ length: 10 }).map((_, index) => (
               <div key={index} className="wave-bar"></div>
@@ -963,6 +1011,10 @@ case STATES.PlayNote:
       )}
     </>
   );
+
+
+
+
     
     
     
@@ -1000,6 +1052,8 @@ case STATES.PlayNote:
 
   };
 
+  
+
   return (
     <>
       <div className="actions-container" style={{ flex: 1, marginRight: '20px' }}>
@@ -1033,7 +1087,9 @@ case STATES.PlayNote:
           ))}
         </div>
         <br />
+        
       </div>
+      
       <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
         <div style={{ overflowX: 'auto', maxHeight: '300px' }} className="trainer-table-container"> {/* Ajustez maxHeight selon vos besoins */}
           <table className="trainer-table">
@@ -1066,9 +1122,20 @@ case STATES.PlayNote:
           <button onClick={() => handleSetCurrentState(STATES.PlayNote)} style={{ margin: '0 10px' }} className="map-more-actions-button">
             {t('map_more_actions')}
           </button>
-          <button onClick={() => { console.log("Save model"); }} style={{ margin: '0 10px' }} className="save-model-button">
+          
+          <button onClick={saveTrainerToFile} className="save-model-button">
             {t('save_model')}
           </button>
+          <button onClick={() => document.getElementById('fileInput').click()} className="load-model-button">
+            {t('load_other_model')}
+          </button>
+          <input
+            type="file"
+            id="fileInput"
+            style={{ display: 'none' }}
+            onChange={handleFileUpload}
+            accept=".json"
+          />
           <button
             onClick={() => {
               if (trainer.length > 0) {
@@ -1127,65 +1194,101 @@ case STATES.PlayNote:
     case STATES.Testing:
       return (
         <div>
-          {/* Première ligne : Contrôle d'enregistrement, affichages, ThymioSVG, et BarChart */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <div style={{ flex: 1 }}> 
-              <button onClick={toggleContinuousRecording} className="toggle-recording-btn">
-                {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
-              </button>
-              {maxFreq !== null && (
-                <div className='max-frequency-display'>
-                  <p>{t('max_frequency')}: {maxFreq.toFixed(2)} Hz</p>
-                </div>
-              )}
-              {note !== null  && (
-                <div className='note-display' style={{ marginBottom: '40px' }}>
-                  <p style={{ marginBottom: '20px' }}>{t('tone')}: {note}</p>
-                  <MusicalStaff noteRecording={note} />
-                </div>
-              )}
-            </div>
-            {user.captors.state[controledRobot] && (
-              <div style={{ flex: 1, transform: 'scale(0.6)' }}>
-                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '100%', height: 'auto' }} className="thymio-svg" />
+          {/* First line: Live recording with the Piano and control buttons */}
+          <div style={{
+            display: 'flex',
+            marginBottom: '20px',
+            alignItems: 'stretch'
+          }}>
+            <div style={{
+              border: '1px solid white',
+              padding: '10px',
+              minWidth: '600px', // Fixed width for the piano
+              marginRight: '20px',
+              display: 'flex',
+              flexDirection: 'column' // Changes layout to vertical for label, button and piano
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }}>
+                <label style={{ textAlign: 'left', width: '100%' }}><span className="label-text">1) Live recording</span></label>
+                <button onClick={toggleContinuousRecording} className="toggle-recording-btn" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', marginBottom: '2px' }}>
+                  {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
+                </button>
               </div>
-            )}
-            <div style={{ flex: 0.75, height: '350px', minHeight: '350px' }}className="bar-chart-container"> 
-          <BarChart data={predictions} labels={labels} />
-        </div>
+              <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
+            </div>
+    
+            {/* Control buttons stacked vertically */}
+            <div style={{
+              border: '1px solid white',
+              padding: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between'
+            }}>
+              <button onClick={stopExecutionAndReset} className="stop-testing-btn">
+                {t('stop_testing')}
+              </button>
+              <button onClick={() => handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn">
+                {t('visualize_neural_network')}
+              </button>
+              <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">
+                {isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}
+              </button>
+              <button onClick={() => { resetModelAndTrainer(); handleSetCurrentState(STATES.ConsigneTraining); }} className="reset-training-btn">
+                {t('reinitialize_the_model')}
+              </button>
+            </div>
           </div>
     
-          {/* Deuxième ligne : Boutons Load, Execute et Visualize */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-            <button onClick={() => console.log('Load other model')} style={{ marginRight: '20px' }}className="load-model-btn">
-            {t('load_other_model')}
-            </button>
-            <button onClick={onExecute} style={{ marginRight: '20px' , width :'300px', height : 'auto'}}className="execute-btn">
-            {t('execute')}
-            </button>
-            <button onClick={() =>  handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn">
-            {t('visualize_neural_network')}
-            </button>
-          </div>
+          {/* Second line: Input received and Action selected */}
+          <div style={{
+            display: 'flex',
+            marginBottom: '20px'
+          }}>
+            {/* Part 2: Input received with ThymioSVG and MusicalStaff */}
+            <div style={{
+              border: '1px solid white',
+              padding: '10px',
+              marginRight: '20px',
+              flexGrow: 1,
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <label style={{ textAlign: 'left' }}><span className="label-text">2) Input received</span></label>
+              <div style={{ display: 'flex', flexGrow: 1, alignItems: 'center' }}>
+                {inputMode === 'CAPTORS_AND_NOTE' && (
+                  <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '150px', height: 'auto', marginRight: '20px' }} />
+                )}
+                <MusicalStaff noteRecording={note} style={{ flex: 1 }} />
+              </div>
+            </div>
     
-          {/* Troisième ligne : Piano */}
-          <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
-
-    
-          {/* Quatrième ligne : Contrôle du test et réinitialisation */}
-          <div style={{ marginTop: '20px' }}>
-            <button onClick={stopExecutionAndReset} style={{ marginRight: '20px' }} className="stop-testing-btn">
-            {t('stop_testing')}
-            </button>
-            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} style={{ marginRight: '20px' }} className="switch-decision-btn">
-            {isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}
-            </button>
-            <button onClick={() => { resetModelAndTrainer();  handleSetCurrentState(STATES.ConsigneTraining);}} className="reset-training-btn">
-            {t('reinitialize_the_model')}
-            </button>
+            {/* Part 3: Action selected with BarChart */}
+            <div style={{
+              border: '1px solid white',
+              padding: '10px',
+              flexGrow: 2,
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <label style={{ textAlign: 'left' }}><span className="label-text">3) Action selected</span></label>
+              <div className="bar-chart-container" style={{ flex: 1 }}>
+                <BarChart data={predictions} labels={labels} />
+              </div>
+            </div>
           </div>
         </div>
       );
+    
+
+
+
+    
+
+
+
+    
+
     
 
     case STATES.CurrentModelTest:

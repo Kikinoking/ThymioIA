@@ -17,7 +17,7 @@
     "start_recording": "Start Recording",
     "playback": "Playback",
     "note_display": "Note: ",
-    "go_to_map_action": "Go to Map Action",
+    "go_to_map_action": "3) Go to Map Action",
     "choose_action": "Choose an action",
     "stop": "Stop",
     "forward": "Right",
@@ -51,7 +51,7 @@
     "english": "English",
     "note_only": "Note only",
     "reinitialize_the_model": "Reinitialize the model",
-    "switch_to_probabilistic_decision": "Swtich to Probabilistic Decision",
+    "switch_to_probabilistic_decision": "Switch to Probabilistic Decision",
     "switch_to_winner_takes_all": "Switch to winner take all",
     "captors_and_note": "Captors and note",
     "captors_values":"Captors values",
@@ -135,4 +135,4 @@
   
       
   }
-  
+    
