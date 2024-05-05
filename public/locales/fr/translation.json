@@ -17,13 +17,16 @@
     "start_recording": "Commencer l'enregistrement",
     "playback": "Relecture",
     "note_display": "Note :",
-    "go_to_map_action": "3) Aller à Cartographier Action",
-    "choose_action": "Choisissez une action",
+    "go_to_map_action": "3) Aller associer une action",
+    "choose_action": "1) Choisissez une action",
     "stop": "Arrêt",
     "forward": "Avancer",
     "backward": "Reculer",
     "left": "Droite",
     "right": "Gauche",
+    "or": "Ou",
+    "Neuralnet_training": "Entraînement du réseau de neurones",
+    "Model_ready": "Le modèle est maintenant prêt, cliquez ici pour le tester!",
     "map_more_actions": "Cartographier plus d'actions",
     "save_model": "Sauvegarder le modèle",
     "test_the_model": "Tester le modèle",
@@ -56,6 +59,8 @@
     "captors_values":"Valeurs capteurs",
     "Action":"Action",
     "note_only": "note seule",
+    "note_recorded": "Note enregistrée: ",
+    "go_to_map_action_captors": "4) Aller associer une action",
     "train_instruction_1": "Vous allez maintenant entraîner le robot",
     "train_instruction_2": "Enregistrez un son avec le microphone, ou jouez-le sur le piano",
     "train_instruction_3": "Sélectionnez une action que vous associerez à ce son + entrée du capteur",
@@ -77,7 +82,7 @@
 
 
   "tooltip_get_robots": "Cliquez Sur ce bouton pour trouver les robots connectés.",
-
+  "tooltip_select_robot": "Cliquez ici pour choisir ce robot.",
   "tooltip_use_captors_and_note": "Ce mode utilise les 9 capteurs de proximité et le microphone",
   "tooltip_use_note_only": "Ce mode utilise uniquement le micro",
   "tooltip_start_recording": "Cliquez ici pour enregistrer un son (donnez l'autorisation du microphone à l'ordinateur)",
@@ -135,6 +140,9 @@
   "start_animation": "Démarrer l'animation",
   "stop_animation": "Arrêter l'animation",
   "current_epoch": "Etape actuelle : ",
-  "epoch_slider": "Changer d'époque"
+  "epoch_slider": "Changer d'époque",
+
+
+
   }
   

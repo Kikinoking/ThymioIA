@@ -110,6 +110,13 @@ const App = observer(() => {
   const [showConnectingPopup, setShowConnectingPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");     // Delay when connecting using dongle.
 
+  const [captorsForAction, setCaptorsForAction] = useState([]); //To store captors between playnote and mapAction
+
+  const [actionClicked, setActionClicked] = useState(false); //Used to make blink in mapAction
+  
+  const [isExecuting, setIsExecuting] = useState(false);  // État pour contrôler l'affichage du popup pendant training
+
+
   
 
   const { t, i18n } = useTranslation();
@@ -194,6 +201,14 @@ const handleFileUpload = (event) => {
   }
 };
 
+const captureSensorValues = () => {
+  const currentCaptors = user.captors.state[controledRobot] || [];
+  // Stockez les valeurs des capteurs dans l'état pour les utiliser plus tard
+  setCaptorsForAction(currentCaptors); // Vous devez ajouter cette nouvelle variable d'état pour stocker les capteurs
+  console.log("Captors captured for action:", currentCaptors);
+};
+
+
 
 const loadTrainerLocally = () => {
   const data = localStorage.getItem('trainerData');
@@ -241,10 +256,12 @@ const loadTrainerLocally = () => {
   
   
   const handleExecute = async () => {
+    setIsExecuting(true);
     await onExecute();
     setShowInstructions(false);
     setIsExecuteClicked(true);
     setIsTrainingComplete(true);
+    setIsExecuting(false)
   };
 
   useEffect(() => {
@@ -254,6 +271,22 @@ const loadTrainerLocally = () => {
       }, 3000);  // Simuler un délai de chargement
     }
   }, [isExecuteClicked]);
+
+  useEffect(() => {
+    if (currentState === STATES.MapAction) {
+      setActionClicked(false);
+    }
+  }, [currentState]);
+  
+
+  useEffect(() => {
+    // Vérifiez si l'état actuel est PlayNote
+    if (currentState === STATES.PlayNote) {
+      setNoteRecording(0);
+      console.log('Note recording reset to zero');
+    }
+  }, [currentState]); // Dépendance sur currentState pour réagir à ses changements
+  
 
   const Component = () => {
     const { t } = useTranslation();}
@@ -290,6 +323,12 @@ const loadTrainerLocally = () => {
             content: t('tooltip_get_robots'),
             placement: 'left',
             disableBeacon: true
+          },
+          {
+            target: '.robot-list',
+            content: t('tooltip_select_robot'),
+            placement: 'bottom',
+            disableBeacon: true
           }
         ]);
         break;
@@ -309,6 +348,7 @@ const loadTrainerLocally = () => {
       ]);
       break;
       case 'PlayNote':
+        setTimeout(() => {
       setSteps([
         {
           target: '.start-recording-button', 
@@ -337,6 +377,7 @@ const loadTrainerLocally = () => {
           placement: 'bottom'
         }
       ]);
+    }, 500);
       break;
       case 'MapAction':
       setSteps([
@@ -792,7 +833,7 @@ const loadTrainerLocally = () => {
     const newEntry = {
       uuid: controledRobot,
       action,
-      captors: user.captors.state[controledRobot] || [],
+      captors: captorsForAction,
       note: currentNoteRecording
     };
     setTrainer(trainer => [...trainer, newEntry]);
@@ -925,12 +966,13 @@ const renderCurrentState = () => {
             <button onClick={onClickGetRobots} className="getRobots-button">{t('get_robots')}</button>
 
           </div>
+          <div className="robot-list">
           {robots.map((robot, index) => (
             <div key={index} className="card">
-              <button onClick={() => onSelectRobot(robot)}>{robot}</button>
+              <button onClick={() => onSelectRobot(robot)} className="robot-button">{robot}</button>
             </div>
 
-          ))}
+          ))}</div>
         </div></>
         </>
       );
@@ -955,7 +997,7 @@ const renderCurrentState = () => {
 case STATES.PlayNote:
   return (
     <>
-      <div className="record-note-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div className={`record-note-section ${noteRecording === 0 ? 'blinking-border' : ''}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <label>1) Record a note</label>
         <button className="start-recording-button" onClick={() => {
           startRecording();
@@ -964,7 +1006,7 @@ case STATES.PlayNote:
         style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          justifyContent: 'center', // Centrer le contenu du bouton
+          justifyContent: 'center',
           width: 'auto', 
           padding: '10px 20px',
           gap: '10px'  
@@ -983,20 +1025,32 @@ case STATES.PlayNote:
         </div>
       </div>
 
-      <div className="note-recorded-section">
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '20px' }}>
+    <div className="note-recorded-section" style={{ flex: 1, maxHeight: '200px' }}>
         <label>2) Note recorded</label>
-        <div className="note-recorded-display">
-          {inputMode === 'CAPTORS_AND_NOTE' && user.captors.state[controledRobot] && (
-            <div className="thymio-svg-component">
-              <ThymioSVG captors={user.captors.state[controledRobot]} />
-            </div>
-          )}
-          <MusicalStaff noteRecording={noteRecording} />
+        <div className="note-recorded-display" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: '30px' }}>
+            <MusicalStaff noteRecording={noteRecording} />
+            <p style={{ margin: '10px 0 0' }}>{t('note_recorded')}: {noteRecording ? noteRecording : 'None'}</p>
         </div>
-      </div>
+    </div>
+    {inputMode === 'CAPTORS_AND_NOTE' && (
+        <div className={`thymio-svg-container ${noteRecording !== 0 && inputMode === 'CAPTORS_AND_NOTE' ? 'blinking-border' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', maxHeight: '240px', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}>
+            <label className="label-text" style={{ alignSelf: 'flex-start', margin: '10px 10px 0 10px', fontWeight: 'bold', textAlign: 'left', color: 'white', backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: '2px 5px' }}>3) Activez les senseurs voulus</label>
+            <div className="thymio-svg-component" style={{ width: '100%', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '10px', transform: 'scale(0.4)' }}>
+                <ThymioSVG captors={user.captors.state[controledRobot]} />
+            </div>
+        </div>
+    )}
+</div>
 
-      <div className="go-to-map-action-button-container">
-        <button className="go-to-map-action-button" onClick={handleTransition}>{ t('go_to_map_action')}</button>
+
+      <div className="go-to-map-action-button-container" style={{ marginTop: '-10px' }}>
+      <button className={`go-to-map-action-button ${noteRecording !== 0 ? 'blinking-border' : ''}`} onClick={() => {
+        captureSensorValues();
+        handleTransition();
+      }}>
+          {inputMode === 'CAPTORS_AND_NOTE' ? t('go_to_map_action_captors') : t('go_to_map_action')}
+        </button>
       </div>
 
       {showPopup && (
@@ -1015,181 +1069,211 @@ case STATES.PlayNote:
 
 
 
+
+
+
+
+
+
+
+
     
     
     
-      case STATES.MapAction:
-  // Objets pour gérer les sources d'images
-  const gifSources = {
-    STOP: stopGif,
-    FORWARD: forwardGif,
-    BACKWARD: backwardGif,
-    LEFT: rightGif,
-    RIGHT: leftGif
-  };
-
-  const staticSources = {
-    STOP: stopStatic,
-    FORWARD: forwardStatic,
-    BACKWARD: backwardStatic,
-    LEFT: rightStatic,
-    RIGHT: leftStatic
-  };
-
-  const handleMouseEnter = (button, action) => {
-    const img = button.getElementsByTagName('img')[0];
-    img.src = gifSources[action];
-  };
-
-  const handleMouseLeave = (button, action) => {
-    const img = button.getElementsByTagName('img')[0];
-    img.src = staticSources[action];
-  };
-
-  const handleAction = (action) => {
-    console.log(action + " action triggered");
-    onAction(action);
-
-  };
-
+  case STATES.MapAction:
+    // Objets pour gérer les sources d'images
+    const gifSources = {
+      STOP: stopGif,
+      FORWARD: forwardGif,
+      BACKWARD: backwardGif,
+      LEFT: rightGif,
+      RIGHT: leftGif
+    };
   
-
-  return (
-    <>
-      <div className="actions-container" style={{ flex: 1, marginRight: '20px' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>{t('choose_action')}</h2>
-        <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
-          {Object.keys(gifSources).map(action => (
-            <button
-              key={action}
-              onClick={() => handleAction(action)}
-              onMouseEnter={(e) => handleMouseEnter(e.currentTarget, action)}
-              onMouseLeave={(e) => handleMouseLeave(e.currentTarget, action)}
-              style={{
-                border: '2px solid #ccc',
-                borderRadius: '5px',
-                background: 'none',
-                padding: '10px',
-                cursor: 'pointer',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <img
-                src={staticSources[action]}
-                alt={action}
-                style={{ width: '150px', height: '150px' }}
-              />
-              {t(action.toLowerCase())}
-            </button>
-          ))}
-        </div>
-        <br />
-        
-      </div>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-        <div style={{ overflowX: 'auto', maxHeight: '300px' }} className="trainer-table-container"> {/* Ajustez maxHeight selon vos besoins */}
-          <table className="trainer-table">
-            <thead>
-              <tr>
-                <th>{t('Action')}</th>
-                {inputMode !== 'NOTE_ONLY' && <th>{t('captors_values')}</th>}
-                <th>{t('note_display')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {trainer.map(({ action, captors, note }, index) => (
-                <tr key={index}>
-                  <td>{t(`action_${action.toLowerCase()}`)}</td>
-                  {inputMode !== 'NOTE_ONLY' && <td><ThymioSVG captors={captors} style={{ width: '100px', height: 'auto' }} /></td>}
-                  <td>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <p style={{ margin: '0' }}>{note}</p>
-                      <div style={{ transform: 'scale(0.7)', marginTop: '-20px'}}>
-                        <MusicalStaff note={note}  />
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', width: '100%' }}>
-          <button onClick={() => handleSetCurrentState(STATES.PlayNote)} style={{ margin: '0 10px' }} className="map-more-actions-button">
-            {t('map_more_actions')}
-          </button>
-          
-          <button onClick={saveTrainerToFile} className="save-model-button">
-            {t('save_model')}
-          </button>
-          <button onClick={() => document.getElementById('fileInput').click()} className="load-model-button">
-            {t('load_other_model')}
-          </button>
-          <input
-            type="file"
-            id="fileInput"
-            style={{ display: 'none' }}
-            onChange={handleFileUpload}
-            accept=".json"
-          />
-          <button
-            onClick={() => {
-              if (trainer.length > 0) {
-                handleSetCurrentState(STATES.ConsigneTesting);
-              } else {
-                alert(t('no_training_data'));
-              }
-            }} 
-            style={{ margin: '0 10px' }} 
-            className="test-model-button">
-            {t('test_the_model')}
-          </button>
-        </div>
-      </div>
-    </>
-  );
+    const staticSources = {
+      STOP: stopStatic,
+      FORWARD: forwardStatic,
+      BACKWARD: backwardStatic,
+      LEFT: rightStatic,
+      RIGHT: leftStatic
+    };
   
+    const handleMouseEnter = (button, action) => {
+      const img = button.getElementsByTagName('img')[0];
+      img.src = gifSources[action];
+    };
   
+    const handleMouseLeave = (button, action) => {
+      const img = button.getElementsByTagName('img')[0];
+      img.src = staticSources[action];
+    };
   
-
-
-
+    const handleAction = (action) => {
+      console.log(action + " action triggered");
+      setActionClicked(true);
+      onAction(action);
+    };
   
-
-  
-
-  case STATES.ConsigneTesting:
     return (
-      <div className="container">
-        {showInstructions && (
-          <div className="instructions-container">
-            <h4>{t('testing_instructions_title')}</h4>
-            <ol>
-              <li>{t('testing_instruction_step1')}</li>
-              <li>{t('testing_instruction_step2')}</li>
-            </ol>
-            <button onClick={handleExecute} className="execute-btn">
-              {t('execute')}
-            </button>
+      <>
+        <div className={`actions-container ${!actionClicked ? 'blinking-border' : ''}`} style={{ border: '2px solid #ccc', padding: '10px', marginBottom: '20px' }}>
+          <h2 className="label-text">{t('choose_action')}</h2>
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            {Object.keys(gifSources).map(action => (
+              <button
+                key={action}
+                onClick={() => handleAction(action)}
+                onMouseEnter={(e) => handleMouseEnter(e.currentTarget, action)}
+                onMouseLeave={(e) => handleMouseLeave(e.currentTarget, action)}
+                style={{
+                  border: '2px solid #ccc',
+                  borderRadius: '5px',
+                  background: 'none',
+                  padding: '10px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <img
+                  src={staticSources[action]}
+                  alt={action}
+                  style={{ width: '150px', height: '150px' }}
+                />
+                {t(action.toLowerCase())}
+              </button>
+            ))}
           </div>
-        )}
-        
-        {isTrainingComplete && (
-          <div className="visualization-container">
-            <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
+        </div>
+        <div style={{ display: 'flex' }}>
+          <div style={{ flex: 3, marginRight: '20px' }}>
+            <div style={{ overflowX: 'auto', maxHeight: '250px' }} className="trainer-table-container">
+              <table className="trainer-table">
+                <thead>
+                  <tr>
+                    <th>{t('Action')}</th>
+                    {inputMode !== 'NOTE_ONLY' && <th>{t('captors_values')}</th>}
+                    <th>{t('note_display')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trainer.map(({ action, captors, note }, index) => (
+                    <tr key={index}>
+                      <td>{t(`action_${action.toLowerCase()}`)}</td>
+                      {inputMode !== 'NOTE_ONLY' && <td><ThymioSVG captors={captors} style={{ width: '100px', height: 'auto' }} /></td>}
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                          <p style={{ margin: '0' }}>{note}</p>
+                          <div style={{ transform: 'scale(0.7)', marginTop: '-20px'}}>
+                            <MusicalStaff note={note} />
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        )}
-        
-        {isTrainingComponentLoaded && (
-          <button onClick={() => handleSetCurrentState(STATES.Testing)} style={{ marginTop: '20px' }}>{t('testing')}</button>
-        )}
-      </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div className={`map-more-actions-container ${actionClicked ? 'blinking-border' : ''}`} style={{ paddingTop: '0px', border: '2px solid white', marginTop: '0px' }}>
+            <label className="label-text" style={{ position: 'relative', top: '0px', left: '-10px' }}>2)</label>
+              <button onClick={() => handleSetCurrentState(STATES.PlayNote)} className="map-more-actions-button" style={{ marginBottom: '10px' }}>
+                {t('map_more_actions')}
+              </button>
+              <div style={{ paddingTop: '0px', border: 'none', marginBottom: '10px' }}>
+              <label className="label-text" style={{ position: 'relative', top: '0px', left: '-10px' }}>{t('or')}</label>
+              </div>
+              <button onClick={() => {
+                if (trainer.length > 0) {
+                  handleSetCurrentState(STATES.ConsigneTesting);
+                } else {
+                  alert(t('no_training_data'));
+                }
+              }} className="test-model-button">
+                {t('test_the_model')}
+              </button>
+            </div>
+            <div style={{ padding: '10px', border: '2px solid white' }}>
+              <button onClick={saveTrainerToFile} className="save-model-button" style={{ marginBottom: '10px' }}>
+                {t('save_model')}
+              </button>
+              <button onClick={() => document.getElementById('fileInput').click()} className="load-model-button">
+                {t('load_other_model')}
+              </button>
+              <input
+                type="file"
+                id="fileInput"
+                style={{ display: 'none' }}
+                onChange={handleFileUpload}
+                accept=".json"
+              />
+            </div>
+          </div>
+        </div>
+      </>
     );
+    
+  
+  
+  
+  
 
+
+
+  
+
+  
+
+    case STATES.ConsigneTesting:
+      return (
+        <div className="container">
+            {isExecuting && (
+              <div className="popup-overlay">
+                <div className="popup-content">
+                  <p>{t('processing')}</p>
+                  <div className="spinner-container">
+                    {Array.from({ length: 12 }).map((_, index) => (
+                      <div key={index} className="spinner-bar"></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          {showInstructions && (
+            <div className="instructions-container">
+              <h4>{t('testing_instructions_title')}</h4>
+              <ol>
+                <li>{t('testing_instruction_step1')}</li>
+                <li>{t('testing_instruction_step2')}</li>
+              </ol>
+              <button onClick={handleExecute} className="execute-btn">
+                {t('execute')}
+              </button>
+            </div>
+          )}
+          
+          {isTrainingComplete && (
+            <div className="visualization-container" style={{ border: '2px solid white', padding: '10px', margin: '20px 0', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <label className="label-text" style={{ position: 'absolute', top: '10px', left: '10px' }}>{t('Neuralnet_training')}</label>
+              <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
+            </div>
+          )}
+
+          
+          {isTrainingComponentLoaded && (
+            <div style={{ border: '2px solid white', padding: '10px', marginTop: '5px' }}>
+              <div>
+              <label className="label-text" style={{ position: 'relative', top: '0px', left: '0px' }}>{t('Model_ready')}</label>
+              </div>
+              <button onClick={() => handleSetCurrentState(STATES.Testing)}>{t('testing')}</button>
+            </div>
+          )}
+        </div>
+      );
+    
 
     case STATES.Testing:
       return (

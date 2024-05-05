@@ -203,7 +203,7 @@ displayModelWeights() {
             return subModel;
           });
 
-        const activations = intermediateModels.map(model => model.predict(inputTensor).dataSync());
+        const activations = intermediateModels.map(model => model.predict(inputTensor).dataSync()); 
     
         const prediction = this.model.predict(inputTensor) as tf.Tensor<tf.Rank>;
     

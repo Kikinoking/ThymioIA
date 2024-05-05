@@ -19,12 +19,37 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 .thymio-svg-component {
-  width: 200px; /* Remplacez par la largeur appropriée */
-  height: 150px; /* Remplacez par la hauteur appropriée */
+  width: 100px; /* Remplacez par la largeur appropriée */
+  height: 100px; /* Remplacez par la hauteur appropriée */
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
+@keyframes blink-border {
+  0%, 100% {
+    border-color: white;
+  }
+  50% {
+    border-color: yellow;
+  }
+}
+
+.blinking-border {
+  animation: blink-border 1s linear infinite;
+}
+
+
+@keyframes blink {
+  50% {
+    background-color: yellow;
+  }
+}
+
+.blinking {
+  animation: blink 1s linear infinite;
+}
+
 
 @keyframes logo-spin {
   from {
@@ -230,7 +255,7 @@
 
 .trainer-table th,
 .trainer-table td {
-  border: 5px solid darkblue;
+  border: 5px solid rgb(168, 168, 192);
   padding: 8px;
   text-align: center;
 }

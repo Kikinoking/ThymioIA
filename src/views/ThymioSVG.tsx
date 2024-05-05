@@ -6,7 +6,7 @@ type ThymioSVGProps = {
   style?: React.CSSProperties;
 };
 
-const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style }) => {
+const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {} }) => {
   const [svgContent, setSvgContent] = useState('');
 
   useEffect(() => {
@@ -16,15 +16,17 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style }) => {
         const parser = new DOMParser();
         const svgDoc = parser.parseFromString(data, "image/svg+xml");
 
-        // Ajustez la taille du SVG ici
+        // Ajustez la taille du SVG ici si nécessaire
         const svgElement = svgDoc.querySelector('svg');
-        Object.keys(style).forEach(key => {
-          svgElement.style[key] = style[key];
-        });
+        if (svgElement) {
+          Object.keys(style).forEach(key => {
+            svgElement.style[key] = style[key];
+          });
+        }
 
         // Manipulation des calques en fonction des capteurs
         captors.forEach((status, index) => {
-          const layer = svgDoc.getElementById(`Layer ${index}`);
+          const layer = svgDoc.getElementById(`Layer ${index + 1}`);  // Assurez-vous que l'indexation est correcte
           if (layer) {
             layer.style.visibility = status ? 'visible' : 'hidden';
           }
@@ -41,7 +43,7 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style }) => {
   }, [captors, style]);
 
   return (
-    <div dangerouslySetInnerHTML={{ __html: svgContent }} />
+    <div dangerouslySetInnerHTML={{ __html: svgContent }} style={style} />
   );
 };
 

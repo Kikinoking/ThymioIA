@@ -18,7 +18,7 @@
     "playback": "Playback",
     "note_display": "Note: ",
     "go_to_map_action": "3) Go to Map Action",
-    "choose_action": "Choose an action",
+    "choose_action": "1) Choose an action",
     "stop": "Stop",
     "forward": "Right",
     "backward": "Backward",
@@ -72,13 +72,18 @@
   "action_backward": "Backward",
   "action_left": "Right",
   "action_right": "Left",
+  "or": "Or",
   "testing_instructions_title": "The computer will now prepare the model",
   "testing_instruction_step1": "Click the button below to start training",
   "testing_instruction_step2": "Observe the training of the neural network",
+  "Neuralnet_training": "Training of the neural network",
+  "Model_ready": "The model is now ready, click to test it!",
+  "note_recorded": "Note recorded: ",
+  "go_to_map_action_captors" : "4) Go to Map Action",
 
 
   "tooltip_get_robots": "Click on this button to find connected robots",
-
+  "tooltip_select_robot": "Click here to choose this robot.",
   "tooltip_use_captors_and_note": "This mode uses the 9 proximity sensors and the microphone.",
   "tooltip_use_note_only": "This mode uses only the microphone.",
   "tooltip_start_recording": "Click here to record a sound (allow the microphone access to your computer).",
