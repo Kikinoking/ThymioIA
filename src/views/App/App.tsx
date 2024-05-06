@@ -643,6 +643,13 @@ const loadTrainerLocally = () => {
     }
   };
 
+  const getThresholdLabel = (value) => {
+    if (value < 198) return t('very_sensitive');
+    if (value < 215) return t('sensitive');
+    if (value < 232) return t('less_sensitive');
+    return t('very_less_sensitive');
+  };
+
   const startContinuousRecording = async () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       console.error("getUserMedia n'est pas supporté par ce navigateur.");
@@ -1476,24 +1483,23 @@ case STATES.PlayNote:
 
     
 
-    case STATES.CurrentModelTest:
-      
-
-    // Appeler loadModel lorsqu'on entre dans cet état
+  case STATES.CurrentModelTest:
     if (!model && !loading) {
-        loadModel();
+      loadModel();
     }
     return (
       <>
         <div style={{ display: 'flex', alignItems: 'center', position: 'relative', justifyContent: 'center' }}>
           {note !== null && (
-            <div className='note-display' style={{ alignSelf: 'center' }}>
+            <div className='note-display' style={{ alignSelf: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '20px' }}>
+              <button onClick={toggleContinuousRecording} className="toggle-recording-btn" style={{ marginBottom: '20px', borderWidth: '2px', borderColor: "white" }}>
+                {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
+              </button>
               <p>{t('tone')}: {note}</p>
               <MusicalStaff noteRecording={note} />
             </div>
           )}
-    
-          
+      
           <svg
             height="50"
             width="200"
@@ -1503,25 +1509,34 @@ case STATES.PlayNote:
             <defs>
               <marker id="arrowhead" markerWidth="10" markerHeight="7" 
                 refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" stroke="blue" fill = "blue"/>
+                <polygon points="0 0, 10 3.5, 0 7" stroke="blue" fill="blue"/>
               </marker>
             </defs>
           </svg>
-    
+      
           {/* Conteneur pour NeuralNetworkVisualization pour permettre un meilleur contrôle du positionnement */}
           <div style={{ width: 'auto', marginLeft: '120px' }}>
             <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv={predictions} />
           </div>
         </div>
-        <button
-          onClick={() => handleSetCurrentState(STATES.Testing)}
-          style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}
-        >
-          {t('return_to_testing')}
-        </button>
-        <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
+          <button onClick={stopExecutionAndReset} className="stop-testing-btn" style={{ marginRight: '10px' }}>
+            {mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}
+          </button>
+          <button
+            onClick={() => handleSetCurrentState(STATES.Testing)}
+            style={{ padding: '10px 20px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}
+          >
+            {t('return_to_testing')}
+          </button>
+          <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn" style={{ marginLeft: '10px' }}>
+            {isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}
+          </button>
+        </div>
+        <Piano onNoteChange={setNote} silentMode={silentMode} className="piano"/>
       </>
     );
+  
       
     default:
       return null;
@@ -1599,7 +1614,7 @@ return (
           />
         </div>
         <div className="MenuLink">
-          <label htmlFor="thresholdSlider">{t('threshold')}: {threshold}</label>
+          <label htmlFor="thresholdSlider">{t('threshold')}: {getThresholdLabel(threshold)}</label>
           <input
             id="thresholdSlider"
             type="range"

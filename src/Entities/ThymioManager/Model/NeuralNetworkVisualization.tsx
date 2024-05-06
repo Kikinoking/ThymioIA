@@ -231,7 +231,7 @@
       const radiusoutput = outputactiv ? calculateRadius(outputactiv[index]) : 10;
       return (
         <g key={`output-neuron-${index}`}>
-          <circle cx={x} cy={y} r={radiusoutput} fill="red" />
+          <circle cx={x} cy={y} r={radiusoutput} fill="orange" />
           <circle cx={x} cy={y} r={Math.min(5, radiusoutput / 2)} fill={getBiasColor(layers[layers.length - 1].biases[index])} />
         </g>
       );

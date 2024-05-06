@@ -126,6 +126,15 @@
   "tooltip_switch_decision": "This button toggles between two modes: Winner takes all = the most probable action is always chosen, or probabilistic decision = actions are chosen proportionally to their probability.",
   "tooltip_reset_training": "Click here to start over.",
 
+  "very_sensitive": "Very sensitive",
+    "sensitive": "Sensitive",
+    "less_sensitive": "Not very sensitive",
+    "very_less_sensitive": "Very insensitive",
+
+    "playnote": "Play a note",
+    "Input_received" : "Input received",
+
+    "action_predicted": "Action predicted probabilities",
   "joyride": {
     "next": "Next",
     "back": "Back",
