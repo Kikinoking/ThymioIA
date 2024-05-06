@@ -11,7 +11,9 @@ i18n
   .init({
     fallbackLng: 'en', // use en if detected lng is not available
     debug: true, // enable console logging in development
-
+    backend: {
+      loadPath: '/public/locales/{{lng}}/{{ns}}.json',  // Assurez-vous que ce chemin est correct
+    },
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
     },

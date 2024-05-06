@@ -1,5 +1,10 @@
     import React, { useState, useEffect, useRef } from 'react';
     import { useTranslation } from 'react-i18next';
+    import Svgaction1 from '../../../assets/actionsicons/STOPStatic.png';
+    import Svgaction2 from '../../../assets/actionsicons/ForwardStatic.png';
+    import Svgaction3 from '../../../assets/actionsicons/BackStaticV2.png';
+    import Svgaction4 from '../../../assets/actionsicons/RightStatic.png';
+    import Svgaction5 from '../../../assets/actionsicons/LeftStatic.png';
 
     const NeuralNetworkVisualizationTraining = ({ trainingData, inputMode }) => {
         
@@ -238,6 +243,10 @@
                     const x1 = (epochLayers.length-1) * layerSpacing;
                     const x2 = svgWidth - layerSpacing;
                     const y2 = (outputIdx + 1) * svgHeight / (outputLayerSize + 1);
+                    const svgX = x2 + 20; // Ajustez si nécessaire pour aligner correctement
+                    const svgSize = 60; // Taille ajustable du SVG
+                    const svgImages = [Svgaction1, Svgaction2, Svgaction3, Svgaction4, Svgaction5];
+                    const svgSrc = svgImages[outputIdx % svgImages.length];
                     const cumulativeChange = cumulativeChanges[epochLayers.length - 1]?.[neuronIndex]?.[outputIdx] || 0
                     const bias = epochLayers[epochLayers.length - 1].biases && epochLayers[epochLayers.length - 1].biases[neuronIndex] ? epochLayers[epochLayers.length - 1].biases[neuronIndex] : 0;
                     const biasColor = getColorFromBias(bias);
@@ -245,11 +254,29 @@
                     
                     
                     return (
-                    <>
-                    <line key={`output-line-${neuronIndex}-${outputIdx}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={getColorFromWeight(weight)} strokeWidth="2" />
-                    <circle cx={x2} cy={y2} r={10} fill="white" fillOpacity="0.3" />
-                    <circle cx={x2} cy={y2} r={5} fill={biasColor} />
-                    </>
+                        <React.Fragment key={`fragment-${neuronIndex}-${outputIdx}`}>
+                        <line key={`output-line-${neuronIndex}-${outputIdx}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={getColorFromWeight(weight)} strokeWidth="2" />
+                        <circle cx={x2} cy={y2} r={5} fill={biasColor} />
+                        <circle cx={x2} cy={y2} r={10} fill="orange" />
+                        
+                        <image
+                            key={`svg-image-${outputIdx}`}
+                            href={svgSrc}
+                            x={svgX}
+                            y={y2 - svgSize / 2}
+                            width={svgSize}
+                            height={svgSize}
+                        />
+                        <rect
+                            x={svgX}
+                            y={y2 - svgSize / 2}
+                            width={svgSize}
+                            height={svgSize}
+                            fill="none"
+                            stroke="white"
+                            strokeWidth="1.5"
+                        />
+                    </React.Fragment>
                     );
                 });
                 })}

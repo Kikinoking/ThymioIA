@@ -14,9 +14,10 @@
     "choose_training_mode": "D'abord, choisissez si vous voulez entraîner le robot en utilisant les capteurs + microphone ou seulement le microphone.",
     "use_captors_and_note": "Utiliser Capteurs et Note",
     "use_note_only": "Utiliser seulement la Note",
-    "start_recording": "Commencer l'enregistrement",
+    "start_recording": "Enregistrer",
     "playback": "Relecture",
     "note_display": "Note :",
+    "proceed_to_playnote": "Aller à l'entraînement",
     "go_to_map_action": "3) Aller associer une action",
     "choose_action": "1) Choisissez une action",
     "stop": "Arrêt",
@@ -24,6 +25,8 @@
     "backward": "Reculer",
     "left": "Droite",
     "right": "Gauche",
+    "processing": "entraînement du modèle",
+    "start_testing": "Activer le test",
     "or": "Ou",
     "Neuralnet_training": "Entraînement du réseau de neurones",
     "Model_ready": "Le modèle est maintenant prêt, cliquez ici pour le tester!",
@@ -61,6 +64,9 @@
     "note_only": "note seule",
     "note_recorded": "Note enregistrée: ",
     "go_to_map_action_captors": "4) Aller associer une action",
+    "no_activation": "Pas d'activation",
+    "positive_activation": "Activation positive",
+    "negative_activation": "Activation négative",
     "train_instruction_1": "Vous allez maintenant entraîner le robot",
     "train_instruction_2": "Enregistrez un son avec le microphone, ou jouez-le sur le piano",
     "train_instruction_3": "Sélectionnez une action que vous associerez à ce son + entrée du capteur",
@@ -71,6 +77,18 @@
       "probability": "Probabilité",
       "prediction_probability": "Probabilité de Prédiction"
     },
+
+    
+      
+      "instruction_step6": "Cette instruction est manquante", 
+    
+      "open_settings": "Ouvrir les paramètres",
+     
+    
+    
+    "note_record_instruct": "1) Enregistrer une note",
+    "note_record_done": "2) Note enregistrée: ",
+    "trig_sensors": "3) Activez les senseurs voulus",
     "action_stop": "Arrêt",
   "action_forward": "Avancer",
   "action_backward": "Reculer",
@@ -79,6 +97,7 @@
   "testing_instructions_title": "L'ordinateur va maintenant préparer le modèle",
   "testing_instruction_step1": "Cliquez sur le bouton ci-dessous pour lancer l'entraînement",
   "testing_instruction_step2": "Observez l'entraînement du réseau de neurones",
+  "testing": "Tester le modèle",
 
 
   "tooltip_get_robots": "Cliquez Sur ce bouton pour trouver les robots connectés.",
@@ -115,7 +134,6 @@
     "last": "Fin"
   },
   "toggle_settings": "Afficher les paramètres",
-  "open_settings": "Ouvrir les paramètres",
   "close_settings": "Fermer les paramètres",
   "start_tour": "Commencer le tour",
   "return_to_testing": "Retourner à l'étape de test",
@@ -129,6 +147,9 @@
   "state_Testing": "Test",
   "state_CurrentModelTest": "Test du Modèle Actuel",
   "Recording": "Enregistrement en cours...",
+  "input_neuron" : "Neuron d'entrée (mic ou capteur)",
+  "intermediate_neuron": "Neuron intermédiaire",
+  "output_neuron": "Neuron de sortie",
 
   "no_note": "Pas de note enregistrée!",
   "connecting_robot": "Connection au robot...",
@@ -140,7 +161,7 @@
   "start_animation": "Démarrer l'animation",
   "stop_animation": "Arrêter l'animation",
   "current_epoch": "Etape actuelle : ",
-  "epoch_slider": "Changer d'époque",
+  "epoch_slider": "Changer d'époque"
 
 
 

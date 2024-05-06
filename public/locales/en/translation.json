@@ -6,6 +6,11 @@
     "instruction_step3": "Turn the robot ON.",
     "instruction_step4": "Click on the button To search for robots.",
     "instruction_step5": "Select your robot in the list.",
+    "instruction_step6": "instruction step number 6",
+    "toggle_settings": "Toggle settings",
+    "open_settings": "Open settings",
+    "close_settings": "Close settings",
+    "start_tour": "Start tour",
     "get_robots": "getRobots",
     "consigne_training_title": "You will now train the robot",
     "record_sound": "Record a Sound with the microphone, or play it on the piano",
@@ -39,6 +44,7 @@
     "switch_decision_mode": "{isWinnerTakesAll ? \"Switch to probabilistic decision\" : \"Switch to Winner-Takes-All\"}",
     "reinitialize_model": "Reinitialize the model",
     "testing_model": "Testing Model...",
+    "testing" : "Test the model",
     "settings_panel": "Settings Panel",
     "current_input_mode": "Current Input Mode: ",
     "record_duration": "Record Duration: ",
@@ -80,7 +86,19 @@
   "Model_ready": "The model is now ready, click to test it!",
   "note_recorded": "Note recorded: ",
   "go_to_map_action_captors" : "4) Go to Map Action",
+  "note_record_instruct":"1) Record a note",
+  "note_record_done":"2) Note recorded",
+  "trig_sensors": "3) Activate the desired sensors",
 
+  "no_activation": "No activation",
+  "positive_activation": "Positive activation",
+  "negative_activation": "Negative activation",
+  "input_neuron" : "Input neuron (mic or sensor)",
+  "intermediate_neuron": "Intermediate neuron",
+  "output_neuron": "Output neuron",
+  "proceed_to_playnote": "Proceed to training",
+  "processing": "Training the model...",
+  "start_testing": "Start testing",
 
   "tooltip_get_robots": "Click on this button to find connected robots",
   "tooltip_select_robot": "Click here to choose this robot.",
@@ -112,9 +130,11 @@
     "next": "Next",
     "back": "Back",
     "skip": "Skip",
-    "last": "Last"
+    "last": "Last",
+    "close": "Close"
 
   },
+  
   "return_to_testing": "Return to testing",
   "state_Title": "Title",
   "state_ConsigneTraining": "Training Guidelines",

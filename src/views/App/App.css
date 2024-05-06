@@ -40,15 +40,7 @@
 }
 
 
-@keyframes blink {
-  50% {
-    background-color: yellow;
-  }
-}
 
-.blinking {
-  animation: blink 1s linear infinite;
-}
 
 
 @keyframes logo-spin {
@@ -381,6 +373,11 @@
   }
 }
 
+.barchart-container {
+  height: 259px; 
+  overflow: hidden; 
+}
+
 
 /* App.css */
 .container {
@@ -404,7 +401,7 @@
 .visualization-container {
   width: 60vw;
   min-height: 70vh;
-  max-height: 120vh;
+  max-height: 125vh;
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -505,3 +502,41 @@
   align-items: center;
   flex-direction: column;
 }
+
+
+.legend-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  margin-top: 30px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+.legend-line {
+  width: 30px;
+  height: 3px;
+  margin-right: 5px;
+}
+
+.legend-text {
+  font-size: 14px;
+  color: #fff; 
+}
+.legend-circle {
+  width: 20px;          /* Taille du cercle */
+  height: 20px;         /* Taille du cercle */
+  border-radius: 50%;   /* Arrondit les angles pour former un cercle */
+  margin-right: 8px;    /* Espace à droite du cercle pour séparation avec le texte */
+  display: inline-block; /* Affichage en ligne pour aligner avec le texte */
+  vertical-align: middle; /* Alignement vertical pour que le cercle soit centré avec le texte */
+}
+

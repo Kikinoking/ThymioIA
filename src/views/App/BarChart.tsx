@@ -28,21 +28,28 @@ const BarChart = ({ data, labels }) => {
   };
 
   const options = {
-    maintainAspectRatio: false,
+    responsive: true,
+    maintainAspectRatio: false, // Cela permet au graphique de s'adapter à la hauteur définie
+    layout: {
+      padding: {
+        top: 15,
+        right: 15,
+        bottom: 15,
+        left: 15
+      }
+    },
     scales: {
       x: {
         ticks: {
-          color: '#dfe8e8', // Couleur des étiquettes de l'axe X
+          color: '#dfe8e8',
           font: {
             family: 'Roboto',
             size: 14,
           }
         },
         grid: {
-          drawBorder: true, // Dessine la bordure de l'axe
-          borderWidth: 2, // Épaisseur de la bordure de l'axe
-          borderColor: 'rgba(223, 232, 232, 1)', // Couleur de la bordure de l'axe
-          drawOnChartArea: false, // N'affiche pas les grilles dans la zone du graphique
+          drawBorder: false,
+          drawOnChartArea: false,
         },
         title: {
           display: true,
@@ -55,18 +62,17 @@ const BarChart = ({ data, labels }) => {
         },
       },
       y: {
+        beginAtZero: true,
         ticks: {
-          color: '#dfe8e8', // Couleur des étiquettes de l'axe Y
+          color: '#dfe8e8',
           font: {
             family: 'Roboto',
             size: 14,
           }
         },
         grid: {
-          drawBorder: true, // Dessine la bordure de l'axe
-          borderWidth: 20, // Épaisseur de la bordure de l'axe
-          borderColor: 'rgba(255, 255, 255, 1)', // Couleur de la bordure de l'axe
-          drawOnChartArea: false, // N'affiche pas les grilles dans la zone du graphique
+          drawBorder: false,
+          drawOnChartArea: false,
         },
         title: {
           display: true,
@@ -81,6 +87,7 @@ const BarChart = ({ data, labels }) => {
     },
     plugins: {
       legend: {
+        position: 'top',
         labels: {
           color: '#dfe8e8',
           font: {
@@ -91,6 +98,8 @@ const BarChart = ({ data, labels }) => {
       },
     },
   };
+  
+  
   
 
   return <Bar data={chartData} options={options} />;

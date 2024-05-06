@@ -80,7 +80,7 @@ const App = observer(() => {
 
 
 
-  const [recordDuration, setRecordDuration] = useState(5000);  //Record duration
+  const [recordDuration, setRecordDuration] = useState(3000);  //Record duration
 
   const [robots, setRobots] = useState<string[]>([]);
   const [controledRobot, setControledRobot] = useState<string>('');
@@ -121,7 +121,16 @@ const App = observer(() => {
 
   const { t, i18n } = useTranslation();
 
-
+  const toggleTestingMode = () => {
+    if (mode === 'PREDICT') {
+      setMode('TRAIN');  // Arrête le testing et revient à l'entraînement
+      if (controledRobot) {
+        user.emitMotorEvent(controledRobot, 'STOP');  // Arrête tout mouvement ou action en cours
+      }
+    } else {
+      setMode('PREDICT');  // Commence le testing
+    }
+  }
   
   const toggleTutorial = () => {
     setIsTutorialActive(!isTutorialActive);
@@ -150,7 +159,7 @@ const App = observer(() => {
   const [loading, setLoading] = useState(false);
 
   
-  const [currentEpoch, setCurrentEpoch] = useState(0);
+
 
 
   const [visitedStates, setVisitedStates] = useState({'Title': true });
@@ -161,6 +170,10 @@ const App = observer(() => {
   const [showInstructions, setShowInstructions] = useState(true);//To show/hide instruction to make room for visualisation training
   const [isTrainingComplete, setIsTrainingComplete] = useState(false); //Wait end of training before visualisation of NN
 
+  const [isModeSelected, setIsModeSelected] = useState(false);
+
+  
+
   const handleSetCurrentState = (newState) => {
     console.log("Updating state from", currentState, "to", newState); // Debugging current state update
     setCurrentState(newState);
@@ -170,7 +183,17 @@ const App = observer(() => {
       return updatedVisitedStates;
     });
   };
-  
+  const changeLanguage = (lng) => {
+    console.log(`Changing language to ${lng}`);
+    i18n.changeLanguage(lng).then(() => {
+        console.log(`Language changed to ${i18n.language}`);
+    });
+    i18n.on('languageChanged', () => {
+      this.forceUpdate();
+    });
+};
+
+
 
 // Fonction pour charger le modèle
 const loadModel = async () => {
@@ -257,12 +280,13 @@ const loadTrainerLocally = () => {
   
   const handleExecute = async () => {
     setIsExecuting(true);
-    await onExecute();
+    await  onExecute();
     setShowInstructions(false);
     setIsExecuteClicked(true);
     setIsTrainingComplete(true);
     setIsExecuting(false)
   };
+
 
   useEffect(() => {
     if (isExecuteClicked) {
@@ -644,7 +668,11 @@ const loadTrainerLocally = () => {
     if(user){
       await user.reinitializeModel(newMode); // Reinitialize the model on the backend
       console.log("Model reinitialized for mode:", newMode);
-      }
+    }
+    setIsModeSelected(true); // Indicate that a mode has been selected
+  };
+
+  const proceedToPlayNote = () => {
     handleSetCurrentState(STATES.PlayNote);
   };
 
@@ -867,9 +895,13 @@ const loadTrainerLocally = () => {
 
   const stopExecutionAndReset = () => {
    
-    setMode('TRAIN');
-    if (controledRobot) {
-      user.emitMotorEvent(controledRobot, 'STOP');
+    if (mode === 'PREDICT') {
+      setMode('TRAIN');  // Arrête le testing et revient à l'entraînement
+      if (controledRobot) {
+        user.emitMotorEvent(controledRobot, 'STOP');  // Arrête tout mouvement ou action en cours
+      }
+    } else {
+      setMode('PREDICT');  // Commence le testing
     }
   
   
@@ -882,6 +914,7 @@ const loadTrainerLocally = () => {
     // Réinitialisez le trainer
     setTrainer([]);
     stopExecutionAndReset();
+    setIsModeSelected(false);
   
     // Réinitialiser d'autres états si nécessaire
     // setRobots([]), setControledRobot(''), etc.
@@ -977,28 +1010,47 @@ const renderCurrentState = () => {
         </>
       );
     case STATES.ConsigneTraining:
-      return (<> <div className="instructions-container">
-      <h4>{t('instructions_title')}</h4>
-      <ol>
-      <li>{t('train_instruction_1')}</li>
-      <li>{t('train_instruction_2')}</li>
-      <li>{t('train_instruction_3')}</li>
-      <li>{t('train_instruction_4')}</li>
-      <li>{t('train_instruction_5')}</li>
-      </ol>
-    </div>
-      <button className="use-captors-and-note-button" onClick={() => handleModeChange('CAPTORS_AND_NOTE')}>
-        {t('use_captors_and_note')}
-      </button>
-      <button className="use-note-only-button" onClick={() => handleModeChange('NOTE_ONLY')}>
-        {t('use_note_only')}
-      </button></>)
+      return (
+        <div>
+          <div className="instructions-container">
+            <h4>{t('instructions_title')}</h4>
+            <ol>
+              {/* Conditionally display instructions based on mode selection */}
+              {isModeSelected ? (
+                <>
+                  <li>{t('train_instruction_1')}</li>
+                  <li>{t('train_instruction_2')}</li>
+                  <li>{t('train_instruction_3')}</li>
+                  <li>{t('train_instruction_4')}</li>
+                </>
+              ) : (
+                <li>{t('train_instruction_5')}</li>
+              )}
+            </ol>
+          </div>
+          {!isModeSelected ? (
+            <>
+              {/* Show mode selection buttons only if mode is not yet selected */}
+              <button className="use-captors-and-note-button" onClick={() => handleModeChange('CAPTORS_AND_NOTE')}>
+                {t('use_captors_and_note')}
+              </button>
+              <button className="use-note-only-button" onClick={() => handleModeChange('NOTE_ONLY')}>
+                {t('use_note_only')}
+              </button>
+            </>
+          ) : (
+            <button className="proceed-to-playnote-button" onClick={proceedToPlayNote}>
+              {t('proceed_to_playnote')}
+            </button>
+          )}
+        </div>
+      );
 
 case STATES.PlayNote:
   return (
     <>
       <div className={`record-note-section ${noteRecording === 0 ? 'blinking-border' : ''}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <label>1) Record a note</label>
+        <label>{t('note_record_instruct')}</label>
         <button className="start-recording-button" onClick={() => {
           startRecording();
           setShowPopup(true);
@@ -1027,7 +1079,7 @@ case STATES.PlayNote:
 
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '20px' }}>
     <div className="note-recorded-section" style={{ flex: 1, maxHeight: '200px' }}>
-        <label>2) Note recorded</label>
+        <label>{t('note_record_done')}</label>
         <div className="note-recorded-display" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: '30px' }}>
             <MusicalStaff noteRecording={noteRecording} />
             <p style={{ margin: '10px 0 0' }}>{t('note_recorded')}: {noteRecording ? noteRecording : 'None'}</p>
@@ -1035,7 +1087,7 @@ case STATES.PlayNote:
     </div>
     {inputMode === 'CAPTORS_AND_NOTE' && (
         <div className={`thymio-svg-container ${noteRecording !== 0 && inputMode === 'CAPTORS_AND_NOTE' ? 'blinking-border' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', maxHeight: '240px', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}>
-            <label className="label-text" style={{ alignSelf: 'flex-start', margin: '10px 10px 0 10px', fontWeight: 'bold', textAlign: 'left', color: 'white', backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: '2px 5px' }}>3) Activez les senseurs voulus</label>
+            <label className="label-text" style={{ alignSelf: 'flex-start', margin: '10px 10px 0 10px', fontWeight: 'bold', textAlign: 'left', color: 'white', backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: '2px 5px' }}>{t('trig_sensors')}</label>
             <div className="thymio-svg-component" style={{ width: '100%', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '10px', transform: 'scale(0.4)' }}>
                 <ThymioSVG captors={user.captors.state[controledRobot]} />
             </div>
@@ -1162,12 +1214,12 @@ case STATES.PlayNote:
                   {trainer.map(({ action, captors, note }, index) => (
                     <tr key={index}>
                       <td>{t(`action_${action.toLowerCase()}`)}</td>
-                      {inputMode !== 'NOTE_ONLY' && <td><ThymioSVG captors={captors} style={{ width: '100px', height: 'auto' }} /></td>}
+                      {inputMode !== 'NOTE_ONLY' && <td><ThymioSVG captors={captors} style={{ width: '100px', height: 'auto', marginLeft: '25px'}} /></td>}
                       <td>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                           <p style={{ margin: '0' }}>{note}</p>
                           <div style={{ transform: 'scale(0.7)', marginTop: '-20px'}}>
-                            <MusicalStaff note={note} />
+                            <MusicalStaff noteRecording={note} />
                           </div>
                         </div>
                       </td>
@@ -1229,7 +1281,7 @@ case STATES.PlayNote:
 
     case STATES.ConsigneTesting:
       return (
-        <div className="container">
+        <div className="container" >
             {isExecuting && (
               <div className="popup-overlay">
                 <div className="popup-content">
@@ -1249,22 +1301,52 @@ case STATES.PlayNote:
                 <li>{t('testing_instruction_step1')}</li>
                 <li>{t('testing_instruction_step2')}</li>
               </ol>
-              <button onClick={handleExecute} className="execute-btn">
+              <button onClick={handleExecute} className="execute-btn blinking-border">
                 {t('execute')}
               </button>
             </div>
           )}
           
           {isTrainingComplete && (
-            <div className="visualization-container" style={{ border: '2px solid white', padding: '10px', margin: '20px 0', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <label className="label-text" style={{ position: 'absolute', top: '10px', left: '10px' }}>{t('Neuralnet_training')}</label>
-              <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
-            </div>
-          )}
+  <div className="visualization-container" style={{ border: '2px solid white', padding: '10px', overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '-10px' }}>
+    <label className="label-text" style={{ position: 'absolute', top: '10px', left: '10px' }}>{t('Neuralnet_training')}</label>
+    <div className="legend-container">
+      {/* Légende pour l'activation */}
+      <div className="legend-item">
+        <div className="legend-line" style={{ backgroundColor: 'black' }}></div>
+        <div className="legend-text">{t('no_activation')}</div>
+      </div>
+      <div className="legend-item">
+        <div className="legend-line" style={{ backgroundColor: 'green' }}></div>
+        <div className="legend-text">{t('positive_activation')}</div>
+      </div>
+      <div className="legend-item">
+        <div className="legend-line" style={{ backgroundColor: 'red' }}></div>
+        <div className="legend-text">{t('negative_activation')}</div>
+      </div>
+      {/* Légende pour les types de neurones */}
+      <div className="legend-item">
+          <div className="legend-circle" style={{ backgroundColor: 'blue' }}></div>
+          <div className="legend-text">{t('input_neuron')}</div>
+      </div>
+      <div className="legend-item">
+          <div className="legend-circle" style={{ backgroundColor: 'white' }}></div>
+          <div className="legend-text">{t('intermediate_neuron')}</div>
+      </div>
+      <div className="legend-item">
+          <div className="legend-circle" style={{ backgroundColor: 'orange' }}></div>
+          <div className="legend-text">{t('output_neuron')}</div>
+      </div>
+
+    </div>
+    <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
+  </div>
+)}
+
 
           
           {isTrainingComponentLoaded && (
-            <div style={{ border: '2px solid white', padding: '10px', marginTop: '5px' }}>
+            <div style={{ border: '2px solid white', padding: '10px', marginTop: '0px' } }className="blinking-border">
               <div>
               <label className="label-text" style={{ position: 'relative', top: '0px', left: '0px' }}>{t('Model_ready')}</label>
               </div>
@@ -1275,94 +1357,113 @@ case STATES.PlayNote:
       );
     
 
-    case STATES.Testing:
-      return (
-        <div>
-          {/* First line: Live recording with the Piano and control buttons */}
-          <div style={{
-            display: 'flex',
-            marginBottom: '20px',
-            alignItems: 'stretch'
-          }}>
-            <div style={{
-              border: '1px solid white',
-              padding: '10px',
-              minWidth: '600px', // Fixed width for the piano
-              marginRight: '20px',
-              display: 'flex',
-              flexDirection: 'column' // Changes layout to vertical for label, button and piano
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }}>
-                <label style={{ textAlign: 'left', width: '100%' }}><span className="label-text">1) Live recording</span></label>
-                <button onClick={toggleContinuousRecording} className="toggle-recording-btn" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', marginBottom: '2px' }}>
-                  {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
-                </button>
-              </div>
-              <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
-            </div>
-    
-            {/* Control buttons stacked vertically */}
-            <div style={{
-              border: '1px solid white',
-              padding: '10px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between'
-            }}>
-              <button onClick={stopExecutionAndReset} className="stop-testing-btn">
-                {t('stop_testing')}
-              </button>
-              <button onClick={() => handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn">
-                {t('visualize_neural_network')}
-              </button>
-              <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">
-                {isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}
-              </button>
-              <button onClick={() => { resetModelAndTrainer(); handleSetCurrentState(STATES.ConsigneTraining); }} className="reset-training-btn">
-                {t('reinitialize_the_model')}
-              </button>
-            </div>
-          </div>
-    
-          {/* Second line: Input received and Action selected */}
-          <div style={{
-            display: 'flex',
-            marginBottom: '20px'
-          }}>
-            {/* Part 2: Input received with ThymioSVG and MusicalStaff */}
-            <div style={{
-              border: '1px solid white',
-              padding: '10px',
-              marginRight: '20px',
-              flexGrow: 1,
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <label style={{ textAlign: 'left' }}><span className="label-text">2) Input received</span></label>
-              <div style={{ display: 'flex', flexGrow: 1, alignItems: 'center' }}>
-                {inputMode === 'CAPTORS_AND_NOTE' && (
-                  <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '150px', height: 'auto', marginRight: '20px' }} />
-                )}
-                <MusicalStaff noteRecording={note} style={{ flex: 1 }} />
-              </div>
-            </div>
-    
-            {/* Part 3: Action selected with BarChart */}
-            <div style={{
-              border: '1px solid white',
-              padding: '10px',
-              flexGrow: 2,
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <label style={{ textAlign: 'left' }}><span className="label-text">3) Action selected</span></label>
-              <div className="bar-chart-container" style={{ flex: 1 }}>
-                <BarChart data={predictions} labels={labels} />
-              </div>
-            </div>
-          </div>
+      case STATES.Testing:
+  return (
+    <div>
+      {/* First line: Always the Piano for both modes */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'stretch',
+        marginBottom: '20px',
+        width: inputMode === 'CAPTORS_AND_NOTE' ? 'auto' : '100%' // Full width only in NOTE_ONLY
+      }}>
+        <div style={{
+          border: '1px solid white',
+          padding: '10px',
+          minWidth: inputMode === 'CAPTORS_AND_NOTE' ? '600px' : '100%', // Full width only in NOTE_ONLY
+          marginRight: inputMode === 'CAPTORS_AND_NOTE' ? '20px' : '0', // No margin on the right in NOTE_ONLY
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <label style={{ textAlign: 'left', width: '100%' }}><span className="label-text">1) Play a note</span></label>
+          <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
         </div>
-      );
+
+        {/* Control buttons only in CAPTORS_AND_NOTE mode and only on the first line */}
+        {inputMode === 'CAPTORS_AND_NOTE' && (
+          <div style={{
+            border: '1px solid white',
+            padding: '10px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+          }}>
+            <button onClick={stopExecutionAndReset} className="stop-testing-btn">{t('stop_testing')}</button>
+            <button onClick={() => handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn">{t('visualize_neural_network')}</button>
+            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">{isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}</button>
+            <button onClick={() => { resetModelAndTrainer(); handleSetCurrentState(STATES.ConsigneTraining); }} className="reset-training-btn">{t('reinitialize_the_model')}</button>
+          </div>
+        )}
+      </div>
+
+      {/* Second line: Conditional rendering based on inputMode */}
+      <div style={{ display: 'flex', flexDirection: 'row', marginBottom: '20px', height: '280px' }}>  {/* Uniform height for all second line components */}
+        <div style={{
+          border: '1px solid white',
+          padding: '10px',
+          marginRight: '20px',
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between' // Center content vertically
+        }}>
+          <label style={{ textAlign: 'left' }}><span className="label-text">2) {inputMode === 'CAPTORS_AND_NOTE' ? 'Input received' : 'Note recorded'}</span></label>
+          <button onClick={toggleContinuousRecording} className="toggle-recording-btn" style={{
+            position: 'relative',  // Adjusted from absolute to relative
+            left: '50%',
+            transform: 'translateX(-50%)',
+            marginBottom: '10px'  // More margin to separate from the text below
+          }}>
+            {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
+          </button>
+          <div style={{ flex: 1 }}> {/* This div wraps the ThymioSVG and MusicalStaff */}
+            {inputMode === 'CAPTORS_AND_NOTE' ? (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'row', // Arrange side by side
+                alignItems: 'center' // Center items vertically
+              }}>
+                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '150px', height: 'auto', marginRight: '20px' }} />
+                <MusicalStaff noteRecording={note} />
+              </div>
+            ) : (
+              <MusicalStaff noteRecording={note} />
+            )}
+          </div>
+          <p style={{ margin: '10px 0 0' }}>{t('note_recorded')}: {note ? note : 'None'}</p>
+        </div>
+        <div className="barchart-container" style={{
+          border: '1px solid white',
+          padding: '10px',
+          flexGrow: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center' // Center content vertically
+        }}>
+          <label style={{ textAlign: 'left' }}><span className="label-text">3) {inputMode === 'CAPTORS_AND_NOTE' ? 'Action selected' : 'Action predicted'}</span></label>
+          <BarChart data={predictions} labels={labels} style={{ flexGrow: 1, overflow: 'hidden' }} />
+        </div>
+        {inputMode === 'NOTE_ONLY' && (
+          <div style={{
+            border: '1px solid white',
+            padding: '10px',
+            flexGrow: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+          }}>
+            <button onClick={stopExecutionAndReset} className="stop-testing-btn">{mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}</button>
+            <button onClick={() => handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn">{t('visualize_neural_network')}</button>
+            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">{isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}</button>
+            <button onClick={() => { resetModelAndTrainer(); handleSetCurrentState(STATES.ConsigneTraining); }} className="reset-training-btn">{t('reinitialize_the_model')}</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+      
     
 
 

@@ -25,12 +25,12 @@ interface MusicalStaffProps {
 const MusicalStaff: React.FC<MusicalStaffProps> = ({ noteRecording }) => {
     const note = noteRecording ? noteRecording.slice(0, -1) : 'A';
     const sharp = note.includes('#'); // Vérifiez si c'est un dièse
-    const octave = noteRecording ? noteRecording.slice(-1) : '4';
+    const octave = noteRecording ? noteRecording.slice(-1) : '6';
     const yPos = notesPosition[note.replace('#', '')] - (parseInt(octave, 10) - 4) * 70;
 
     
   
-    const sharpX = 180; // Position X pour le dièse, ajustez en fonction de votre layout
+    const sharpX = 140; // Position X pour le dièse, ajustez en fonction de votre layout
     const sharpY = yPos +8; // Position Y pour le dièse, ajustez légèrement au-dessus de la note
   
     return (
