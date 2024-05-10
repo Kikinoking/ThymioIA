@@ -78,9 +78,9 @@ export class ThymioIA implements IThymioIA {
 
       // Définir la taille de l'entrée basée sur le mode d'entrée sélectionné
       const inputShape = inputMode === 'NOTE_ONLY' ? [1] : [10]; // 9 capteurs + 1 note ou juste 1 note
-
+      const outputDim = inputMode === 'NOTE_ONLY' ? 8 : 1;
       // Ajouter la première couche en spécifiant la forme d'entrée
-      model.add(tf.layers.embedding({inputDim: 38, outputDim: 12, inputLength: inputShape}));
+      model.add(tf.layers.embedding({inputDim: 38, outputDim: outputDim, inputLength: inputShape}));
       model.add(tf.layers.flatten());
       model.add(tf.layers.dense({units: 8, activation: 'relu'}));
       model.add(tf.layers.dense({units: 5, activation: 'softmax'}));

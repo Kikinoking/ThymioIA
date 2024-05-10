@@ -25,7 +25,7 @@
     "go_to_map_action": "3) Go to Map Action",
     "choose_action": "1) Choose an action",
     "stop": "Stop",
-    "forward": "Right",
+    "forward": "Forward",
     "backward": "Backward",
     "left": "Right",
     "right": "Left",
@@ -48,7 +48,7 @@
     "settings_panel": "Settings Panel",
     "current_input_mode": "Current Input Mode: ",
     "record_duration": "Record Duration: ",
-    "threshold": "Threshold: ",
+    "threshold": "Mic threshold: ",
     "disable_silent_mode": "Disable Silent Mode",
     "enable_silent_mode": "Enable Silent Mode",
     "reset_model": "Reset Model",
@@ -143,6 +143,10 @@
     "close": "Close"
 
   },
+
+  "filename_required": "A valid filename is required",
+  "error_load": "An error occurred reading the file.",
+  "enter_filename": "Enter a filename",
   
   "return_to_testing": "Return to testing",
   "state_Title": "Title",

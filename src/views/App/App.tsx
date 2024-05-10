@@ -29,6 +29,7 @@ import NeuralNetworkVisualization from '../../Entities/ThymioManager/Model/Neura
 import NeuralNetworkVisualizationTraining from '../../Entities/ThymioManager/Model/NeuralNetVisuTraining'
 import Joyride, { CallBackProps, STATUS } from 'react-joyride';
 import NavigationBar from './NavigationBar';
+import { train } from '@tensorflow/tfjs';
 
 
 
@@ -116,8 +117,9 @@ const App = observer(() => {
   
   const [isExecuting, setIsExecuting] = useState(false);  // État pour contrôler l'affichage du popup pendant training
 
+  const [filename, setFilename] = useState('');
 
-  
+  const [sensorData, setSensorData] = useState([]); //For neural net testing visualisation of the input
 
   const { t, i18n } = useTranslation();
 
@@ -218,7 +220,7 @@ const handleFileUpload = (event) => {
       };
       reader.onerror = (error) => {
           console.error('Error reading file:', error);
-          alert('An error occurred reading the file.');
+          alert(t('error_load'));
       };
       reader.readAsText(file);
   }
@@ -260,18 +262,19 @@ const loadTrainerLocally = () => {
     skip: t('joyride.skip')
   };
 
-  const saveTrainerToFile = () => {
-    const trainerData = JSON.stringify(trainer); // Convertir les données du trainer en JSON
+  const saveTrainerToFile = (filename) => {
+    const trainerData = JSON.stringify(trainer);
     const blob = new Blob([trainerData], { type: 'application/json' });
     const href = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = href;
-    link.download = "trainerData.json"; // Nom du fichier à sauvegarder
+    link.download = filename ? `${filename}.json` : 'ModelData.json';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(href);
 };
+
 
 
 
@@ -519,6 +522,8 @@ const loadTrainerLocally = () => {
 
   const toggleSettings = () => {
     setShowSettings(prev => !prev);
+    
+   
   };
 
   const toggleSilentMode = () => {
@@ -944,6 +949,7 @@ const loadTrainerLocally = () => {
                 console.log("note: ", note);
                 console.log("notemapped ", noteToNumberMapping[note])
                 console.log("input data du modèle: ", data, " + ", noteNumber);
+                setSensorData(data);
                 user.predict(controledRobot, data, noteToNumberMapping[note], isWinnerTakesAll, inputMode)
                     .then(response => {
                         setPredictions(response.predictions);
@@ -1255,21 +1261,30 @@ case STATES.PlayNote:
                 {t('test_the_model')}
               </button>
             </div>
-            <div style={{ padding: '10px', border: '2px solid white' }}>
-              <button onClick={saveTrainerToFile} className="save-model-button" style={{ marginBottom: '10px' }}>
-                {t('save_model')}
+            <div className="button-container" style={{ padding: '10px', border: '2px solid white' }}>
+              <input
+                  type="text"
+                  className="filename-input"
+                  placeholder={t('enter_filename')}
+                  value={filename}
+                  onChange={e => setFilename(e.target.value)}
+                  
+              />
+              <button onClick={() => saveTrainerToFile(filename)} className="save-model-button">
+                  {t('save_model')}
               </button>
               <button onClick={() => document.getElementById('fileInput').click()} className="load-model-button">
-                {t('load_other_model')}
+                  {t('load_other_model')}
               </button>
               <input
-                type="file"
-                id="fileInput"
-                style={{ display: 'none' }}
-                onChange={handleFileUpload}
-                accept=".json"
+                  type="file"
+                  id="fileInput"
+                  className="input-file"
+                  onChange={handleFileUpload}
+                  accept=".json"
+                  style={{ display: 'none' }} // This makes sure the file input is not visible but can be triggered by the button
               />
-            </div>
+          </div>
           </div>
         </div>
       </>
@@ -1383,7 +1398,7 @@ case STATES.PlayNote:
           display: 'flex',
           flexDirection: 'column'
         }}>
-          <label style={{ textAlign: 'left', width: '100%' }}><span className="label-text">1) Play a note</span></label>
+          <label style={{ textAlign: 'left', width: '100%' }}><span className="label-text">1) {t('playnote')}</span></label>
           <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
         </div>
 
@@ -1415,7 +1430,8 @@ case STATES.PlayNote:
           flexDirection: 'column',
           justifyContent: 'space-between' // Center content vertically
         }}>
-          <label style={{ textAlign: 'left' }}><span className="label-text">2) {inputMode === 'CAPTORS_AND_NOTE' ? 'Input received' : 'Note recorded'}</span></label>
+          <label style={{ textAlign: 'left' }}><span className="label-text">2) {inputMode === 'CAPTORS_AND_NOTE' ? t('Input_received') : t('note_recorded')}</span></label>
+
           <button onClick={toggleContinuousRecording} className="toggle-recording-btn" style={{
             position: 'relative',  // Adjusted from absolute to relative
             left: '50%',
@@ -1443,12 +1459,12 @@ case STATES.PlayNote:
         <div className="barchart-container" style={{
           border: '1px solid white',
           padding: '10px',
-          flexGrow: 2,
+          flexGrow: '2',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center' // Center content vertically
         }}>
-          <label style={{ textAlign: 'left' }}><span className="label-text">3) {inputMode === 'CAPTORS_AND_NOTE' ? 'Action selected' : 'Action predicted'}</span></label>
+          <label style={{ textAlign: 'left' }}><span className="label-text">3) {t('action_predicted')}</span></label>
           <BarChart data={predictions} labels={labels} style={{ flexGrow: 1, overflow: 'hidden' }} />
         </div>
         {inputMode === 'NOTE_ONLY' && (
@@ -1516,24 +1532,33 @@ case STATES.PlayNote:
       
           {/* Conteneur pour NeuralNetworkVisualization pour permettre un meilleur contrôle du positionnement */}
           <div style={{ width: 'auto', marginLeft: '120px' }}>
-            <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv={predictions} />
+         
+            <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv={predictions} sensorData = {sensorData} currentNote = {noteToNumberMapping[note]}/>
           </div>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
-          <button onClick={stopExecutionAndReset} className="stop-testing-btn" style={{ marginRight: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    {/* Conteneur pour le piano */}
+    <div style={{ maxWidth: '1000px', flex: 1 }}>
+        <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
+    </div>
+
+    {/* Conteneur pour les boutons, alignés verticalement */}
+    <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '20px' }}>
+        <button onClick={stopExecutionAndReset} className="stop-testing-btn" style={{ marginBottom: '10px' }}>
             {mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}
-          </button>
-          <button
+        </button>
+        <button
             onClick={() => handleSetCurrentState(STATES.Testing)}
-            style={{ padding: '10px 20px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}
-          >
+            style={{ marginBottom: '10px', padding: '10px 20px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}
+        >
             {t('return_to_testing')}
-          </button>
-          <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn" style={{ marginLeft: '10px' }}>
+        </button>
+        <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">
             {isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}
-          </button>
-        </div>
-        <Piano onNoteChange={setNote} silentMode={silentMode} className="piano"/>
+        </button>
+    </div>
+</div>
+
       </>
     );
   
@@ -1545,7 +1570,7 @@ case STATES.PlayNote:
 
 return (
   <>
-    <NavigationBar states={STATES_ARRAY} currentState={currentState} setCurrentState={setCurrentState} visitedStates={visitedStates} />
+    <NavigationBar states={STATES_ARRAY} currentState={currentState} setCurrentState={setCurrentState} visitedStates={visitedStates} setMode={setMode} user={user}  controledRobot={controledRobot} />
     <div className="App" style={{ marginTop: '40px' }}>
       {renderCurrentState()}
     </div>

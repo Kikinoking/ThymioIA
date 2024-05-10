@@ -188,6 +188,7 @@
                     const y = (neuronIdx + 1) * neuronSpacing;
                     let lines = [];
                     const bias = layer.biases && layer.biases[neuronIdx] ? layer.biases[neuronIdx] : 0;
+                    console.log(`Layer ${layerIndex} Neuron ${neuronIdx} Bias:`, bias);
                     const biasColor = getColorFromBias(bias);
                     if (layerIndex === 0) {return null;
                         

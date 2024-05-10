@@ -53,7 +53,7 @@
     "settings_panel": "Paramètres",
     "current_input_mode": "Mode d'Entrée Actuel",
     "record_duration": "Durée Enregistrement:",
-    "threshold": "Seuil",
+    "threshold": "Seuil micro",
     "disable_silent_mode": "Désactiver le Mode Silencieux",
     "enable_silent_mode": "Activer le Mode Silencieux",
     "reset_model": "Réinitialiser le Modèle",
@@ -84,7 +84,9 @@
       "probability": "Probabilité",
       "prediction_probability": "Probabilité de Prédiction"
     },
-
+    "filename_required": "Il faut nommer le fichier",
+    "error_load": "Une erreur est apparue lors de la lecture du fichier",
+    "enter_filename": "Enter un nom de fichier",
     
       
       "instruction_step6": "Cette instruction est manquante", 

@@ -2,7 +2,7 @@ import React from 'react';
 import './NavigationBar.css'; // Ensure to create this CSS file
 import { useTranslation } from 'react-i18next';
 
-const NavigationBar = ({ currentState, setCurrentState, visitedStates }) => {
+const NavigationBar = ({ currentState, setCurrentState, visitedStates, setMode, user, controledRobot}) => {
     const { t } = useTranslation();
     
 
@@ -43,6 +43,14 @@ const NavigationBar = ({ currentState, setCurrentState, visitedStates }) => {
         }
         return stateColors.future; // Unvisited states are red
     };
+
+    const handleButtonClick = (stateKey) => {
+        setCurrentState(STATES[stateKey.replace('state_', '')]);
+        setMode('TRAIN'); // This will set mode to 'TRAIN' every time a button is clicked
+        if (user && controledRobot) {
+            user.emitMotorEvent(controledRobot, 'STOP');  // Stop the robot when navigating
+        }
+    };
     
 
     return (
@@ -52,7 +60,7 @@ const NavigationBar = ({ currentState, setCurrentState, visitedStates }) => {
                     {index > 0 && <div className="separator" />}
                     <button
                         style={{ backgroundColor: getColor(stateKey) }} // Apply background color
-                        onClick={() => setCurrentState(STATES[stateKey.replace('state_', '')])} // Use stateKeys for setState
+                        onClick={() => handleButtonClick(stateKey)} 
                         className={`state-item ${getColor(stateKey)}`}
                         disabled={!visitedStates[STATES[stateKey.replace('state_', '')]]}
                     >

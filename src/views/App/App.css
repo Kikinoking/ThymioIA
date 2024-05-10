@@ -540,3 +540,32 @@
   vertical-align: middle; /* Alignement vertical pour que le cercle soit centré avec le texte */
 }
 
+
+.save-model-button,
+.load-model-button {
+  font-size: 14px; /* Taille de police plus petite pour les boutons */
+  padding: 8px 16px; /* Ajout de padding pour un meilleur aspect visuel */
+  background-color: #1a1a1a;; /* Couleur de fond claire */
+  color: #ffffff; /* Couleur de texte foncée pour contraste */
+  border: 1px solid #1a1a1a;; /* Bordure subtile */
+  border-radius: 4px; /* Bords arrondis pour un look moderne */
+  cursor: pointer; /* Curseur pointeur pour indiquer la possibilité de cliquer */
+  margin-bottom: 10px; /* Marge en bas pour espacer des éléments suivants */
+}
+.save-model-button:hover,
+.load-model-button:hover {
+  border-color: #ffffff /* Changement de couleur de fond au survol */
+}
+
+
+.input-file {
+  display: none; /* Cache l'élément input de type file */
+}
+.filename-input {
+  width: 100%;        /* Makes the input field take the full width of its container */
+  padding: 0px;       /* Adds padding inside the input box for better text visibility */
+  margin-bottom: 10px; /* Adds space below the input field */
+  border: 2px solid #ccc; /* Gives a solid border with a light grey color */
+  border-radius: 2px; /* Rounds the corners of the input field */
+  font-size: 14px;    /* Sets a readable font size */
+}

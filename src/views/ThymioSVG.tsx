@@ -26,7 +26,7 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {} }) => {
 
         // Manipulation des calques en fonction des capteurs
         captors.forEach((status, index) => {
-          const layer = svgDoc.getElementById(`Layer ${index + 1}`);  // Assurez-vous que l'indexation est correcte
+          const layer = svgDoc.getElementById(`Layer ${index}`);  // Assurez-vous que l'indexation est correcte
           if (layer) {
             layer.style.visibility = status ? 'visible' : 'hidden';
           }
