@@ -407,57 +407,73 @@ const loadTrainerLocally = () => {
     }, 500);
       break;
       case 'MapAction':
-      setSteps([
-        {
-          target: '.actions-container', // Assurez-vous que le conteneur des boutons a cette classe
-          content: t('tooltip_map_actions'),
-          placement: 'top',
-          disableBeacon: true,
-          styles: {
-            options: {
-              zIndex: 10000
-            }
-          }
-        }
-      ]);
-      break;
-      case 'CurrentModelTrain': 
         setSteps([
           {
-            target: '.thymio-container',
-            content: t('tooltip_thymio_svg'),
+            target: '.actions-container', // Conteneur des actions principales
+            content: t('tooltip_map_actions'),
             placement: 'top',
-            disableBeacon: true
+            disableBeacon: true,
+            styles: {
+              options: {
+                zIndex: 10000
+              }
+            }
           },
           {
-            target: 'th',
-            content: t('tooltip_action_column'),
-            placement: 'top',
+            target: '.trainer-table-container', // Assurez-vous que votre tableau a cette classe
+            content: t('tooltip_trainer_table'),
+            placement: 'left',
+            styles: {
+              options: {
+                zIndex: 10000
+              }
+            }
           },
           {
-            target: 'th + th',
-            content: t('tooltip_captors_column'),
-            placement: 'top',
-          },
-          {
-            target: 'th + th + th',
-            content: t('tooltip_note_column'),
-            placement: 'top',
-          },
-          {
-            target: '.map-more-actions-button',
+            target: '.map-more-actions-button', // Bouton pour plus d'actions de mappage
             content: t('tooltip_map_more_actions'),
-            placement: 'bottom',
+            placement: 'right',
+            styles: {
+              options: {
+                zIndex: 10000
+              }
+            }
           },
           {
-            target: '.save-model-button',
-            content: t('tooltip_save_model'),
-            placement: 'bottom',
-          },
-          {
-            target: '.test-model-button',
+            target: '.test-model-button', // Bouton pour tester le modèle
             content: t('tooltip_test_model'),
+            placement: 'right',
+            styles: {
+              options: {
+                zIndex: 10000
+              }
+            }
+          },
+          {
+            target: '.button-container', // Conteneur pour les boutons de sauvegarde et de chargement du modèle
+            content: t('tooltip_button_container'),
             placement: 'bottom',
+            styles: {
+              options: {
+                zIndex: 10000
+              }
+            }
+          }
+        ]);
+        break;
+      case 'CurrentModelTrain': 
+        setSteps([
+          
+          {
+            target: '.visualization-container', // Assurez-vous que ce sélecteur cible le conteneur correct
+      content: t('tooltip_neural_network_visualization_train'),
+      placement: 'top',
+      disableBeacon: true,
+      styles: {
+        options: {
+          zIndex: 10000
+        }
+      }
           }
         ]);
         break;
@@ -511,6 +527,9 @@ const loadTrainerLocally = () => {
             placement: 'right',
           }
         ]);
+        break;
+        case 'CurrentModelTest':
+          
       
       
     }
@@ -1526,62 +1545,69 @@ case STATES.PlayNote:
     }
     return (
       <>
-        <div style={{ display: 'flex', alignItems: 'center', position: 'relative', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          {/* Conteneur pour le note-display et ThymioSVG (si applicable) */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '2px solid white', marginRight: '0px', marginTop: '-10px' }}>
           {note !== null && (
-            <div className='note-display' style={{ alignSelf: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '20px' }}>
-              <button onClick={toggleContinuousRecording} className="toggle-recording-btn" style={{ marginBottom: '20px', borderWidth: '2px', borderColor: "white" }}>
-                {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
-              </button>
-              <p>{t('tone')}: {note}</p>
+          <div className='note-display' style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0px', border: '2px solid white', marginTop: '-10px' }}>
+            <button onClick={toggleContinuousRecording} className="toggle-recording-btn" style={{ marginBottom: '2px', borderWidth: '2px', borderColor: "white" }}>
+              {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
+            </button>
+            <p>{t('tone')}: {note} </p>
+            <div style={{ transform: 'scale(0.8)' ,padding: '0px'}}> 
               <MusicalStaff noteRecording={note} />
             </div>
+          </div>
           )}
-      
-          <svg
-            height="50"
-            width="200"
-            style={{ position: 'absolute', left: '30%', top: '50%', transform: 'translate(-50%, -50%)' }}
-            xmlns="http://www.w3.org/2000/svg">
-            <line x1="0" y1="25" x2="170" y2="25" stroke="blue" strokeWidth="5" markerEnd="url(#arrowhead)" />
-            <defs>
-              <marker id="arrowhead" markerWidth="10" markerHeight="7" 
-                refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" stroke="blue" fill="blue"/>
-              </marker>
-            </defs>
-          </svg>
-      
-          {/* Conteneur pour NeuralNetworkVisualization pour permettre un meilleur contrôle du positionnement */}
-          <div style={{ width: 'auto', marginLeft: '120px' }}>
+
+
          
-            <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv={predictions} sensorData = {sensorData} currentNote = {noteToNumberMapping[note]}/>
+
+            {inputMode === 'CAPTORS_AND_NOTE' && (
+              <ThymioSVG captors={sensorData} style={{ transform: 'rotate(45deg)', width: '130px', height: 'auto', marginTop: '0px' }} />
+            )}
+          </div>
+
+          {/* Conteneur pour NeuralNetworkVisualization */}
+          <div style={{ flexGrow: 1 }}>
+            <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv={predictions} sensorData={sensorData} currentNote={noteToNumberMapping[note]} />
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    {/* Conteneur pour le piano */}
-    <div style={{ maxWidth: '1000px', flex: 1 }}>
-        <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
-    </div>
 
-    {/* Conteneur pour les boutons, alignés verticalement */}
-    <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '20px' }}>
-        <button onClick={stopExecutionAndReset} className="stop-testing-btn" style={{ marginBottom: '10px' }}>
-            {mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}
-        </button>
-        <button
-            onClick={() => handleSetCurrentState(STATES.Testing)}
-            style={{ marginBottom: '10px', padding: '10px 20px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}
-        >
-            {t('return_to_testing')}
-        </button>
-        <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">
-            {isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}
-        </button>
-    </div>
-</div>
+        {inputMode === 'NOTE_ONLY' && (
+              <svg width="800" height="500" style={{ zIndex: 1005 ,position: 'absolute', top: '100%', left: '100%', transform: 'translate(-150%, -95%)' }}>
+                <line x1="120" y1="65" x2="190  " y2="65" stroke="blue" strokeWidth="5" markerEnd="url(#arrowhead-note)" />
+                <defs>
+                  <marker id="arrowhead-note" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="blue"/>
+                  </marker>
+                </defs>
+              </svg>
+            )}
+        
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+          {/* Conteneur pour le piano */}
+          <div style={{ maxWidth: '1000px', flex: 1 }}>
+            <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
+          </div>
 
+          {/* Conteneur pour les boutons */}
+          <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '20px' }}>
+            <button onClick={stopExecutionAndReset} className="stop-testing-btn" style={{ marginBottom: '10px' }}>
+              {mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}
+            </button>
+            <button onClick={() => handleSetCurrentState(STATES.Testing)} style={{ marginBottom: '10px', padding: '10px 20px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}>
+              {t('return_to_testing')}
+            </button>
+            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">
+              {isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}
+            </button>
+          </div>
+        </div>
       </>
     );
+
+
   
       
     default:

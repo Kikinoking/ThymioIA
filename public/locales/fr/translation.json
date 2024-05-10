@@ -79,7 +79,14 @@
     "train_instruction_3": "Sélectionnez une action que vous associerez à cette combinaison d'entrées",
     "train_instruction_4": "Répétez jusqu'à ce que vous ayez entraîné toutes les actions souhaitées",
     "train_instruction_5": "Tout d'abord, choisissez si vous souhaitez entraîner le robot en utilisant les capteurs + microphone ou seulement le microphone.",
-    "train_instruction_6": "Activez les senseurs du thymio voulus"
+    "train_instruction_6": "Activez les senseurs du thymio voulus",
+    
+    "tooltip_trainer_table" : "Ici se trouvent les données utilisées pour l'entraînement.",
+    "tooltip_map_more_actions": "Cliquez ici si vous voulez apprendre au Thymio plus d'actions.",
+    "tooltip_test_model": "Cliquer ici pour aller entraîner le modèle.",
+    "tooltip_button_container": "Cette fenêtre permet d'enregistrer les données d'entraînement actuelles ou bien d'en charger des existantes.",
+    "tooltip_neural_network_visualization_train": "Ici, vous voyez l'entraînement du réseau de neurones.",
+    
     "bar_chart": {
       "actions": "Actions",
       "probability": "Probabilité",
@@ -124,9 +131,9 @@
   "tooltip_action_column": "Ici vous pouvez voir quelle action a été sélectionnée,",
   "tooltip_captors_column": "Pour cet état spécifique des capteurs,",
   "tooltip_note_column": "Et lorsque le thymio entend cette note.",
-  "tooltip_map_more_actions": "Cliquez ici si vous voulez apprendre au Thymio plus d'actions.",
+
   "tooltip_save_model": "Cliquez ici pour enregistrer le modèle, afin de le réutiliser ultérieurement.",
-  "tooltip_test_model": "Cliquez ici si vous avez fini l'entraînement.",
+
   "tooltip_execute" : "Cliquez sur ce bouton pour tester votre modèle. Thymio va se mettre à écouter et réagir en fonction de la note entendue.",
   "tooltip_toggle_recording_musical_staff": "Ce bouton active/désactive l'écoute du thymio.",
   "tooltip_bar_chart": "Ce graphe montre quelles sont les actions les plus probables que Thymio va entreprendre, en fonction de l'état actuel de ses capteurs et de la note qu'il entend actuellement.",
