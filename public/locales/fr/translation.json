@@ -76,9 +76,10 @@
     "negative_activation": "Activation négative",
     "train_instruction_1": "Vous allez maintenant entraîner le robot",
     "train_instruction_2": "Enregistrez un son avec le microphone, ou jouez-le sur le piano",
-    "train_instruction_3": "Sélectionnez une action que vous associerez à ce son + entrée du capteur",
+    "train_instruction_3": "Sélectionnez une action que vous associerez à cette combinaison d'entrées",
     "train_instruction_4": "Répétez jusqu'à ce que vous ayez entraîné toutes les actions souhaitées",
     "train_instruction_5": "Tout d'abord, choisissez si vous souhaitez entraîner le robot en utilisant les capteurs + microphone ou seulement le microphone.",
+    "train_instruction_6": "Activez les senseurs du thymio voulus"
     "bar_chart": {
       "actions": "Actions",
       "probability": "Probabilité",
@@ -86,10 +87,9 @@
     },
     "filename_required": "Il faut nommer le fichier",
     "error_load": "Une erreur est apparue lors de la lecture du fichier",
-    "enter_filename": "Enter un nom de fichier",
+    "enter_filename": "Entrer un nom de fichier",
     
       
-      "instruction_step6": "Cette instruction est manquante", 
     
       "open_settings": "Ouvrir les paramètres",
      
@@ -101,8 +101,8 @@
     "action_stop": "Arrêt",
   "action_forward": "Avancer",
   "action_backward": "Reculer",
-  "action_left": "Gauche",
-  "action_right": "Droite",
+  "action_left": "Droite",
+  "action_right": "Gauche",
   "testing_instructions_title": "L'ordinateur va maintenant préparer le modèle",
   "testing_instruction_step1": "Cliquez sur le bouton ci-dessous pour lancer l'entraînement",
   "testing_instruction_step2": "Observez l'entraînement du réseau de neurones",
@@ -117,6 +117,7 @@
   "tooltip_piano": "Si vous n'avez pas d'instrument, ou que vous ne pouvez pas faire de bruit, utilisez le piano pour enregistrer une note.",
   "piano-component-train": "Si vous n'avez pas d'instrument, ou que vous ne pouvez pas faire de bruit, utilisez le piano pour enregistrer une note.",
   "tooltip_thymio_svg": "Ce schéma met en rouge les capteurs de Thymio qui détectent quelque chose.",
+  "tooltip_input_components": "Ici vous pouvez voir l'état actuel du thymio et la note qu'il entend.",
   "tooltip_musical_staff": "Après avoir joué enregistré un son ou joué une note avec le piano, elle apparaîtra ici.",
   "tooltip_go_to_map_action": "Après avoir enregistré la note et activé les capteurs que vous voulez, cliquez ici pour la suite.",
   "tooltip_map_actions": "Cliquez l'action pour laquelle vous voulez assigner la note (et la combinaison des capteurs) précédemment enregistré(es).",

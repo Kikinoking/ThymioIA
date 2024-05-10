@@ -394,7 +394,7 @@ const loadTrainerLocally = () => {
           placement: 'left'
         },
         {
-          target: '.musical-staff-component', 
+          target: '.note-recorded-display', 
           content: t('tooltip_musical_staff'),
           placement: 'right'
         },
@@ -480,19 +480,15 @@ const loadTrainerLocally = () => {
             placement: 'left',
           },
           {
-            target: '.thymio-svg',
-            content: t('tooltip_thymio_svg'),
+            target: '.input_components',
+            content: t('tooltip_input_components'),
             placement: 'top',
+
           },
           {
-            target: '.bar-chart-container',
+            target: '.barchart-container',
             content: t('tooltip_bar_chart'),
             placement: 'bottom',
-          },
-          {
-            target: '.load-model-btn',
-            content: t('tooltip_load_model'),
-            placement: 'left',
           },
           {
             target: '.visualize-nn-btn',
@@ -909,11 +905,12 @@ const loadTrainerLocally = () => {
    
     if (mode === 'PREDICT') {
       setMode('TRAIN');  // Arrête le testing et revient à l'entraînement
-      if (controledRobot) {
-        user.emitMotorEvent(controledRobot, 'STOP');  // Arrête tout mouvement ou action en cours
-      }
+      
     } else {
       setMode('PREDICT');  // Commence le testing
+    }
+    if (controledRobot) {
+      user.emitMotorEvent(controledRobot, 'STOP');  // Arrête tout mouvement ou action en cours
     }
   
   
@@ -926,6 +923,7 @@ const loadTrainerLocally = () => {
     // Réinitialisez le trainer
     setTrainer([]);
     stopExecutionAndReset();
+    setMode('TRAIN');
     setIsModeSelected(false);
   
     // Réinitialiser d'autres états si nécessaire
@@ -1001,8 +999,8 @@ const renderCurrentState = () => {
             <ol>
                 <li>{t('instruction_step1')}</li>
                 <li>{t('instruction_step2')}</li>
-                {inputMode !== 'NOTE_ONLY' && <li>{t('instruction_step6')}</li>}
-                {inputMode !== 'NOTE_ONLY' && <li>{t('instruction_step3')}</li>}
+              
+                <li>{t('instruction_step3')}</li>
                 
                 <li>{t('instruction_step4')}</li>
                 <li>{t('instruction_step5')}</li>
@@ -1033,6 +1031,8 @@ const renderCurrentState = () => {
                 <>
                   <li>{t('train_instruction_1')}</li>
                   <li>{t('train_instruction_2')}</li>
+                  {inputMode !== 'NOTE_ONLY' && <li>{t('train_instruction_6')}</li>}
+
                   <li>{t('train_instruction_3')}</li>
                   <li>{t('train_instruction_4')}</li>
                 </>
@@ -1172,6 +1172,12 @@ case STATES.PlayNote:
       const img = button.getElementsByTagName('img')[0];
       img.src = staticSources[action];
     };
+
+    const handleDelete = (index) => {
+     
+      const newTrainer = trainer.filter((_, i) => i !== index);
+      setTrainer(newTrainer); // Mettez à jour l'état avec le nouveau tableau
+    };
   
     const handleAction = (action) => {
       console.log(action + " action triggered");
@@ -1224,21 +1230,36 @@ case STATES.PlayNote:
                   </tr>
                 </thead>
                 <tbody>
-                  {trainer.map(({ action, captors, note }, index) => (
-                    <tr key={index}>
-                      <td>{t(`action_${action.toLowerCase()}`)}</td>
-                      {inputMode !== 'NOTE_ONLY' && <td><ThymioSVG captors={captors} style={{ width: '100px', height: 'auto', marginLeft: '25px'}} /></td>}
+                {trainer.map(({ action, captors, note }, index) => (
+                  <tr key={index}>
+                    <td>{t(`action_${action.toLowerCase()}`)}</td>
+                    {inputMode !== 'NOTE_ONLY' && (
                       <td>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <p style={{ margin: '0' }}>{note}</p>
-                          <div style={{ transform: 'scale(0.7)', marginTop: '-20px'}}>
-                            <MusicalStaff noteRecording={note} />
-                          </div>
-                        </div>
+                        <ThymioSVG captors={captors} style={{ width: '100px', height: 'auto', marginLeft: '25px'}} />
                       </td>
-                    </tr>
-                  ))}
-                </tbody>
+                    )}
+                    <td style={{ position: 'relative' }}> {/* Appliquer position relative sur la dernière cellule normale */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <p style={{ margin: '0' }}>{note}</p>
+                        <div style={{ transform: 'scale(0.7)', marginTop: '-20px'}}>
+                          <MusicalStaff noteRecording={note} />
+                        </div>
+                      </div>
+                      {/* Bouton de suppression positionné en haut à droite */}
+                      <div className="delete-button-container">
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDelete(index)}
+                          aria-label="Delete"
+                        >
+                          &#10005;
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+
               </table>
             </div>
           </div>
@@ -1440,7 +1461,7 @@ case STATES.PlayNote:
           }}>
             {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
           </button>
-          <div style={{ flex: 1 }}> {/* This div wraps the ThymioSVG and MusicalStaff */}
+          <div style={{ flex: 1 }} className = "input_components"> {/* This div wraps the ThymioSVG and MusicalStaff */}
             {inputMode === 'CAPTORS_AND_NOTE' ? (
               <div style={{
                 display: 'flex',

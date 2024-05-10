@@ -6,7 +6,6 @@
     "instruction_step3": "Turn the robot ON.",
     "instruction_step4": "Click on the button To search for robots.",
     "instruction_step5": "Select your robot in the list.",
-    "instruction_step6": "instruction step number 6",
     "toggle_settings": "Toggle settings",
     "open_settings": "Open settings",
     "close_settings": "Close settings",
@@ -64,10 +63,10 @@
     "Action":"Action",
     "train_instruction_1": "You will now train the robot",
     "train_instruction_2": "Record a Sound with the microphone, or play it on the piano",
-    "train_instruction_3": "Select an action that you will map to that sound + sensor input",
+    "train_instruction_3": "Select an action that you will map to this input",
     "train_instruction_4": "Repeat until you have trained every action you wanted",
     "train_instruction_5": "First, choose if you want to train the robot using the sensors + microphone or only the microphone.",
-    
+    "train_instruction_6" : "Activate the desired thymio sensors",
         "bar_chart": {
           "actions": "Actions",
           "probability": "Probability",
@@ -108,6 +107,7 @@
   "tooltip_piano": "If you don't have an instrument, or can't make noise, use the piano to record a note.",
   "piano-component-train": "If you don't have an instrument, or can't make noise, use the piano to record a note.",
   "tooltip_thymio_svg": "This diagram turns red the sensors of Thymio that detect something.",
+  "tooltip_input_components": "Here you can see the current state of the thymio's sensors and the note he is hearing",
   "tooltip_musical_staff": "After recording a sound or playing a note on the piano, it will appear here.",
   "tooltip_go_to_map_action": "After recording the note and activating the sensors you want, click here to proceed.",
   "tooltip_map_actions": "Click on the action for which you want to assign the previously recorded note (and sensor combination).",

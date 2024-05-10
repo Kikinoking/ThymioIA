@@ -569,3 +569,28 @@
   border-radius: 2px; /* Rounds the corners of the input field */
   font-size: 14px;    /* Sets a readable font size */
 }
+
+
+/*delete button of trainer table */
+.delete-button-container {
+    position: relative;
+    padding: 0;
+}
+
+.delete-button {
+    position: absolute;
+    top: -170px;
+    right: -10px;
+    border: none;
+    border-radius: 0;
+    background: none;
+    color: red;
+    cursor: pointer;
+    font-size: 24px;
+    margin: none;
+    outline: none;
+    padding: 0;
+    
+    
+    border: 4px solid white; /* Bordure blanche comme spécifié */
+}
