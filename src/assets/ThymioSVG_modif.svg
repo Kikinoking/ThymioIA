@@ -1311,11 +1311,9 @@
   <path d="M 337.102,437.139 L 337.102,446.716 L 339.105,446.716 L 339.105,445.954 L 338.01,445.954 L 338.01,437.901 L 339.105,437.901 L 339.105,437.139 L 337.102,437.139 Z M 345.193,437.139 L 345.193,437.901 L 346.295,437.901 L 346.295,445.954 L 345.193,445.954 L 345.193,446.716 L 347.196,446.716 L 347.196,437.139 L 345.193,437.139 Z M 340.422,439.87 C 339.924,440.491 339.68,441.511 339.688,442.921 C 339.68,443.8 339.766,444.507 339.959,445.049 C 340.133,445.591 340.407,446.007 340.755,446.3 C 341.105,446.593 341.55,446.736 342.092,446.745 C 342.484,446.736 342.827,446.655 343.131,446.494 C 343.429,446.326 343.682,446.095 343.874,445.796 C 344.065,445.494 344.215,445.122 344.336,444.685 C 344.442,444.243 344.504,443.657 344.504,442.921 C 344.504,442.033 344.409,441.315 344.233,440.784 C 344.048,440.234 343.786,439.817 343.438,439.533 C 343.079,439.24 342.634,439.106 342.092,439.097 C 341.376,439.106 340.816,439.357 340.422,439.87 Z M 343.14,440.465 C 343.42,440.864 343.561,441.687 343.57,442.921 C 343.561,444.146 343.42,444.961 343.14,445.368 C 342.86,445.778 342.501,445.981 342.083,445.981 C 341.664,445.981 341.332,445.802 341.085,445.448 C 340.772,444.987 340.622,444.146 340.622,442.921 C 340.622,441.687 340.763,440.864 341.043,440.465 C 341.323,440.046 341.673,439.841 342.092,439.85 C 342.51,439.841 342.86,440.046 343.14,440.465 Z" stroke-linejoin="miter" fill="#000000" stroke-width="0.568" fill-rule="nonzero" stroke="none" marker-start="none" marker-end="none"/>
   <path d="M 377.145,441.822 L 377.145,451.399 L 379.147,451.399 L 379.147,450.635 L 378.056,450.635 L 378.056,442.582 L 379.147,442.582 L 379.147,441.822 L 377.145,441.822 Z M 385.24,441.822 L 385.24,442.582 L 386.341,442.582 L 386.341,450.635 L 385.24,450.635 L 385.24,451.399 L 387.24,451.399 L 387.24,441.822 L 385.24,441.822 Z M 379.733,444.544 C 379.854,444.881 380.048,445.21 380.328,445.536 C 380.587,445.866 380.991,446.247 381.517,446.672 C 382.321,447.338 382.861,447.862 383.141,448.258 C 383.42,448.639 383.561,449.014 383.561,449.368 C 383.561,449.732 383.429,450.043 383.178,450.291 C 382.916,450.538 382.581,450.664 382.173,450.664 C 381.733,450.664 381.385,450.529 381.123,450.263 C 380.861,449.998 380.728,449.626 380.728,449.164 L 379.794,449.263 C 379.854,449.961 380.092,450.494 380.51,450.869 C 380.922,451.23 381.491,451.417 382.198,451.426 C 382.898,451.417 383.458,451.221 383.876,450.822 C 384.286,450.426 384.489,449.928 384.497,449.351 C 384.489,449.04 384.425,448.747 384.315,448.463 C 384.182,448.17 383.98,447.871 383.709,447.551 C 383.42,447.23 382.958,446.787 382.312,446.23 C 381.762,445.758 381.411,445.448 381.262,445.289 C 381.105,445.122 380.982,444.95 380.887,444.791 L 384.504,444.791 L 384.504,443.906 L 379.629,443.906 C 379.62,444.117 379.656,444.331 379.733,444.544 Z" stroke-linejoin="miter" fill="#ff0000" stroke-width="0.568" fill-rule="nonzero" stroke="none" marker-start="none" marker-end="none"/>
   <rect x="148.562" y="589.415" width="6.632" height="79.401" stroke="#0003ff" fill="#0003ff" stroke-width="0.452" stroke-linejoin="miter"/>
-  <g id="Group_1" stroke-linejoin="miter" stroke="#0003ff" stroke-width="0.452" fill="#0003ff">
-   <rect x="258.984" y="526.174" width="6.631" height="72.635"/>
-   <rect x="106.301" y="524.67" width="159.309" height="6.631"/>
-   <rect x="106.302" y="524.671" width="6.631" height="144.145"/>
-  </g>
+  <rect x="258.984" y="526.174" width="6.631" height="72.635" stroke-linejoin="miter" stroke="#0003ff" stroke-width="0.452" fill="#0003ff"/>
+  <rect x="106.301" y="524.67" width="159.309" height="6.631" stroke-linejoin="miter" stroke="#0003ff" stroke-width="0.452" fill="#0003ff"/>
+  <rect x="106.302" y="524.671" width="6.631" height="144.145" stroke-linejoin="miter" stroke="#0003ff" stroke-width="0.452" fill="#0003ff"/>
   <rect x="325.015" y="538.009" width="6.632" height="64.881" stroke="#0003ff" fill="#0003ff" stroke-width="0.452" stroke-linejoin="miter"/>
   <rect x="121.109" y="538.009" width="208.921" height="6.631" stroke="#0003ff" fill="#0003ff" stroke-width="0.452" stroke-linejoin="miter"/>
   <rect x="121.106" y="544.641" width="6.632" height="124.175" stroke="#0003ff" fill="#0003ff" stroke-width="0.452" stroke-linejoin="miter"/>
@@ -1332,6 +1330,33 @@
   <rect x="391.861" y="359.506" width="100.737" height="6.631" stroke="#0003ff" fill="#0003ff" stroke-width="0.452" stroke-linejoin="miter"/>
   <rect x="472.794" y="399.062" width="6.632" height="269.754" stroke="#0003ff" fill="#0003ff" stroke-width="0.452" stroke-linejoin="miter"/>
   <rect x="492.597" y="359.506" width="6.632" height="309.308" stroke="#0003ff" fill="#0003ff" stroke-width="0.452" stroke-linejoin="miter"/>
+  <g id="Group_1" stroke-linejoin="miter" stroke-linecap="round" stroke="none" stroke-width="0.5" fill="#0003ff">
+   <rect x="106.301" y="662.138" width="6.631" height="6.677"/>
+  </g>
+  <g id="Group_2" stroke-linejoin="miter" stroke-linecap="round" stroke="none" stroke-width="0.5" fill="#0003ff">
+   <rect x="121.239" y="658.8" width="6.631" height="6.677"/>
+  </g>
+  <g id="Group_3" stroke-linejoin="miter" stroke-linecap="round" stroke="none" stroke-width="0.5" fill="#0003ff">
+   <rect x="148.564" y="662.139" width="6.631" height="6.677"/>
+  </g>
+  <g id="Group_4" stroke-linejoin="miter" stroke-linecap="round" stroke="none" stroke-width="0.5" fill="#0003ff">
+   <rect x="239.881" y="662.139" width="6.631" height="6.677"/>
+  </g>
+  <g id="Group_5" stroke-linejoin="miter" stroke-linecap="round" stroke="none" stroke-width="0.5" fill="#0003ff">
+   <rect x="296.119" y="662.138" width="6.631" height="6.677"/>
+  </g>
+  <g id="Group_6" stroke-linejoin="miter" stroke-linecap="round" stroke="none" stroke-width="0.5" fill="#0003ff">
+   <rect x="373.391" y="662.138" width="6.631" height="6.677"/>
+  </g>
+  <g id="Group_7" stroke-linejoin="miter" stroke-linecap="round" stroke="none" stroke-width="0.5" fill="#0003ff">
+   <rect x="442.323" y="662.139" width="6.631" height="6.677"/>
+  </g>
+  <g id="Group_8" stroke-linejoin="miter" stroke-linecap="round" stroke="none" stroke-width="0.5" fill="#0003ff">
+   <rect x="472.794" y="662.14" width="6.631" height="6.677"/>
+  </g>
+  <g id="Group_9" stroke-linejoin="miter" stroke-linecap="round" stroke="none" stroke-width="0.5" fill="#0003ff">
+   <rect x="492.599" y="662.138" width="6.631" height="6.677"/>
+  </g>
  </g>
  <g id="Layer 4" transform="scale(1 -1)">
   <path d="M 284.324,629.745 L 284.341,616.904 L 310.647,616.41 L 310.867,629.62 L 284.324,629.745 Z" fill="#ff0000" stroke="#ff0000" stroke-width="0.452" stroke-linejoin="miter" marker-start="none" marker-end="none"/>

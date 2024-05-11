@@ -129,11 +129,12 @@
   sensorData.map((sensor, index) => {
     // Déterminer la couleur en fonction de l'état du capteur
     const isActive = sensor > 0; // Changez cette condition si nécessaire pour correspondre à vos données
-    const fillColor = isActive ? "green" : "red"; // Supposons que `sensor` soit 1 pour actif et 0 pour inactif
-    console.log("SENSORS ",sensor)
+    const fillColor = isActive ? "green" : "black"; // Supposons que `sensor` soit 1 pour actif et 0 pour inactif
+    
 
     return (
       <circle
+        id={`input-neuron-${index}`}
         key={`sensor-${index}-${sensor}`} // Ajout de sensor dans la clé pour forcer la mise à jour
         cx={layerSpacing * 0.5} // Position x constante pour simplifier
         cy={(index + 1) * svgHeight / (inputLayerSize + 1)}
@@ -148,17 +149,18 @@
       cx={layerSpacing * 0.5}
       cy={(sensorData.length + 1) * svgHeight / (inputLayerSize + 1)}
       r={calculateMicrophoneRadius(currentNote)}
-      fill="blue"
+      fill="green"
       stroke="black"
     />
   )
 ) : (
   <circle
+    id="input-neuron-microphone"
     key="microphone-only-neuron"
     cx={layerSpacing * 0.5}
     cy={svgHeight / 2}
     r={calculateMicrophoneRadius(currentNote)}
-    fill="blue"
+    fill="green"
     stroke="black"
   />
 )}
@@ -230,51 +232,85 @@
   const neuronSpacing = svgHeight / (layer.weights.length + 1);
 
   return (
-    <g key={layerIndex}>
-      {/* Dessiner d'abord les lignes pour les connexions */}
-      {layer.weights.map((neuronWeights, neuronIdx) => {
-        const y = (neuronIdx + 1) * neuronSpacing;
+  <g key={layerIndex}>
+    {/* Dessiner d'abord les lignes pour les connexions */}
+    {layer.weights.map((neuronWeights, neuronIdx) => {
+      const y = (neuronIdx + 1) * neuronSpacing;
 
-        // Connexions de la couche d'entrée à la première couche dense
-        const lines = (layerIndex === 0) ? new Array(inputLayerSize).fill(0).map((_, idx) => {
-          const yInput = (idx + 1) * svgHeight / (inputLayerSize + 1);
-          return (
+      // Connexions de la couche d'entrée à la première couche dense en tenant compte de l'état des capteurs
+      const lines = (layerIndex === 0) ? sensorData.map((sensor, idx) => {
+        const yInput = (idx + 1) * svgHeight / (sensorData.length + 2);
+        const isActive = sensor > 0;
+        const fillColor = isActive ? "green" : "black";
+        return (
+          <line
+            key={`input-to-layer-link-${idx}-${neuronIdx}`}
+            x1={layerSpacing * 0.5}
+            y1={yInput}
+            x2={x}
+            y2={y}
+            stroke={fillColor}
+            strokeWidth="2"
+          />
+        );
+      }) : [];
+
+      // Ajouter ici la ligne pour le microphone si nécessaire, ajustez comme il faut avec votre logique spécifique pour la couleur
+       if (layerIndex === 0) {
+          const yInput = svgHeight - (svgHeight / (sensorData.length + 2)); // Position du microphone
+          const microphoneColor = "green"; // Ou toute autre logique pour la couleur
+          lines.push(
             <line
-              key={`input-to-layer-link-${idx}-${neuronIdx}`}
+              key={`input-to-layer-link-mic-${neuronIdx}`}
               x1={layerSpacing * 0.5}
               y1={yInput}
               x2={x}
               y2={y}
-              stroke="blue"
+              stroke={microphoneColor}
               strokeWidth="2"
             />
           );
-        }) : [];
-
-        // Connexions entre les couches intermédiaires avec coloration basée sur les poids
-        if (layerIndex < layers.length - 1) {
-          const nextLayer = layers[layerIndex + 1];
-          const nextX = (layerIndex + 3) * layerSpacing;
-          const nextNeuronSpacing = svgHeight / (nextLayer.weights.length + 1);
-          neuronWeights.forEach((weight, linkIdx) => {
-            const y2 = (linkIdx + 1) * nextNeuronSpacing;
-            lines.push(
-              <line
-                key={`link-${layerIndex}-${neuronIdx}-${linkIdx}`}
-                x1={x}
-                y1={y}
-                x2={nextX}
-                y2={y2}
-                stroke={getColorFromWeight(weight)}
-                strokeWidth="2"
-              />
-            );
-          });
         }
+      // Connexions entre les couches intermédiaires avec coloration basée sur les poids
+      if (layerIndex < layers.length - 1) {
+        const nextLayer = layers[layerIndex + 1];
+        const nextX = (layerIndex + 3) * layerSpacing;
+        const nextNeuronSpacing = svgHeight / (nextLayer.weights.length + 1);
+        neuronWeights.forEach((weight, linkIdx) => {
+          const y2 = (linkIdx + 1) * nextNeuronSpacing;
+          lines.push(
+            <line
+              key={`link-${layerIndex}-${neuronIdx}-${linkIdx}`}
+              x1={x}
+              y1={y}
+              x2={nextX}
+              y2={y2}
+              stroke={getColorFromWeight(weight)}
+              strokeWidth="2"
+            />
+          );
+        });
+      }
 
-        // Rendu des lignes de connexion
-        return lines;
-      })}
+      // Rendu des lignes de connexion
+      return lines;
+    })}
+
+    {/* Ensuite, dessiner les cercles pour les neurones */}
+    {layer.weights.map((_, neuronIdx) => {
+      const y = (neuronIdx + 1) * neuronSpacing;
+      const radius = layer.activation && !isNaN(layer.activation[neuronIdx]) ? calculateRadius(layer.activation[neuronIdx]) : 5;
+
+      return (
+        <g key={`neuron-${layerIndex}-${neuronIdx}`}>
+          <circle cx={x} cy={y} r={Math.min(10, radius)} fill="purple" />
+          <circle cx={x} cy={y} r={Math.min(10, radius / 2)} fill={getBiasColor(layer.biases[neuronIdx])} />
+        </g>
+      );
+    })}
+  
+
+
 
       {/* Ensuite, dessiner les cercles pour les neurones */}
       {layer.weights.map((_, neuronIdx) => {

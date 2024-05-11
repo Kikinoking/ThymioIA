@@ -151,16 +151,16 @@ const App = observer(() => {
   t('action_left')]; 
 
   const arrowCoordinates = [
-  { x1: 85, y1: 88, x2: 175, y2: 55 },
-  { x1: 85, y1: 95, x2: 175, y2: 85  },
-  { x1: 85, y1: 108, x2: 175, y2: 115 },
-  { x1: 85, y1: 150, x2: 175, y2: 152},
-  { x1: 85, y1: 176, x2: 175, y2: 187 },
-  { x1: 85, y1: 210, x2: 175, y2: 222 },
-  { x1: 85, y1: 242, x2: 175, y2: 258  },
-  { x1: 85, y1: 255, x2: 175, y2: 287  },
-  { x1: 85, y1: 265, x2: 175, y2: 318 },
-  {x1: 60, y1: 320, x2: 175, y2: 360  },
+  { x1: 85, y1: 60, x2: 175, y2: 26 },
+  { x1: 85, y1: 67, x2: 175, y2: 55  },
+  { x1: 85, y1: 80, x2: 175, y2: 87 },
+  { x1: 85, y1: 121, x2: 175, y2: 122},
+  { x1: 85, y1: 148, x2: 175, y2: 157 },
+  { x1: 85, y1: 182, x2: 175, y2: 192 },
+  { x1: 85, y1: 214, x2: 175, y2: 230  },
+  { x1: 85, y1: 227, x2: 175, y2: 260  },
+  { x1: 85, y1: 237, x2: 175, y2: 290 },
+  {x1: 60, y1: 285, x2: 175, y2: 335  },
 ];
 
   const [activeTab, setActiveTab] = useState('Training');
@@ -1554,12 +1554,13 @@ case STATES.PlayNote:
     
 
   case STATES.CurrentModelTest:
+    
     if (!model && !loading) {
       loadModel();
     }
     return (
       <>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '0px' }}>
           {/* Conteneur pour le note-display et ThymioSVG (si applicable) */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '2px solid white', marginRight: '0px', marginTop: '-10px', backgroundColor: '#b1b3af' }}>
             {note !== null && (
@@ -1630,7 +1631,7 @@ case STATES.PlayNote:
 )}
 
     
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px', marginBottom: '-23px' }}>
           {/* Conteneur pour le piano */}
           <div style={{ maxWidth: '1000px', flex: 1 }}>
             <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
