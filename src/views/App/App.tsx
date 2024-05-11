@@ -150,6 +150,19 @@ const App = observer(() => {
   t('action_right'),
   t('action_left')]; 
 
+  const arrowCoordinates = [
+  { x1: 85, y1: 88, x2: 175, y2: 55 },
+  { x1: 85, y1: 95, x2: 175, y2: 85  },
+  { x1: 85, y1: 108, x2: 175, y2: 115 },
+  { x1: 85, y1: 150, x2: 175, y2: 152},
+  { x1: 85, y1: 176, x2: 175, y2: 187 },
+  { x1: 85, y1: 210, x2: 175, y2: 222 },
+  { x1: 85, y1: 242, x2: 175, y2: 258  },
+  { x1: 85, y1: 255, x2: 175, y2: 287  },
+  { x1: 85, y1: 265, x2: 175, y2: 318 },
+  {x1: 60, y1: 320, x2: 175, y2: 360  },
+];
+
   const [activeTab, setActiveTab] = useState('Training');
   
   const [currentState, setCurrentState] = useState('Title');
@@ -1121,7 +1134,7 @@ case STATES.PlayNote:
         <div className={`thymio-svg-container ${noteRecording !== 0 && inputMode === 'CAPTORS_AND_NOTE' ? 'blinking-border' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', maxHeight: '240px', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}>
             <label className="label-text" style={{ alignSelf: 'flex-start', margin: '10px 10px 0 10px', fontWeight: 'bold', textAlign: 'left', color: 'white', backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: '2px 5px' }}>{t('trig_sensors')}</label>
             <div className="thymio-svg-component" style={{ width: '100%', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '10px', transform: 'scale(0.4)' }}>
-                <ThymioSVG captors={user.captors.state[controledRobot]} />
+                <ThymioSVG captors={user.captors.state[controledRobot]}  showTraits={false}/>
             </div>
         </div>
     )}
@@ -1254,7 +1267,7 @@ case STATES.PlayNote:
                     <td>{t(`action_${action.toLowerCase()}`)}</td>
                     {inputMode !== 'NOTE_ONLY' && (
                       <td>
-                        <ThymioSVG captors={captors} style={{ width: '100px', height: 'auto', marginLeft: '25px'}} />
+                        <ThymioSVG captors={captors} style={{ width: '100px', height: 'auto', marginLeft: '25px'}} showTraits={false} />
                       </td>
                     )}
                     <td style={{ position: 'relative' }}> {/* Appliquer position relative sur la dernière cellule normale */}
@@ -1458,7 +1471,8 @@ case STATES.PlayNote:
           </div>
         )}
       </div>
-
+      
+      
       {/* Second line: Conditional rendering based on inputMode */}
       <div style={{ display: 'flex', flexDirection: 'row', marginBottom: '20px', height: '280px' }}>  {/* Uniform height for all second line components */}
         <div style={{
@@ -1487,7 +1501,7 @@ case STATES.PlayNote:
                 flexDirection: 'row', // Arrange side by side
                 alignItems: 'center' // Center items vertically
               }}>
-                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '150px', height: 'auto', marginRight: '20px' }} />
+                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '150px', height: 'auto', marginRight: '20px' }} showTraits={false}/>
                 <MusicalStaff noteRecording={note} />
               </div>
             ) : (
@@ -1547,50 +1561,81 @@ case STATES.PlayNote:
       <>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           {/* Conteneur pour le note-display et ThymioSVG (si applicable) */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '2px solid white', marginRight: '0px', marginTop: '-10px' }}>
-          {note !== null && (
-          <div className='note-display' style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0px', border: '2px solid white', marginTop: '-10px' }}>
-            <button onClick={toggleContinuousRecording} className="toggle-recording-btn" style={{ marginBottom: '2px', borderWidth: '2px', borderColor: "white" }}>
-              {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
-            </button>
-            <p>{t('tone')}: {note} </p>
-            <div style={{ transform: 'scale(0.8)' ,padding: '0px'}}> 
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '2px solid white', marginRight: '0px', marginTop: '-10px', backgroundColor: '#b1b3af' }}>
+            {note !== null && (
+            <div className='note-display' style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0px', border: '2px solid white', marginTop: '-10px' }}>
+              <button onClick={toggleContinuousRecording} className="toggle-recording-btn" style={{ marginBottom: '2px', borderWidth: '2px', borderColor: "white" }}>
+                {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
+              </button>
+              <p>{t('tone')}: {note} </p>
+            </div>
+            )}
+    
+            {/* Conteneur ajusté pour ThymioSVG */}
+            {inputMode === 'CAPTORS_AND_NOTE' && (
+              <div style={{ width: '100%', flex: '2', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ transform: 'rotate(45deg)', width: '180px', height: 'auto', marginTop: '1px' }} showTraits={true} />
+              </div>
+            )}
+    
+            {/* Conteneur réduit pour MusicalStaff */}
+            <div style={{ width: '100%', flex: '1', marginTop: '-30px', transform: 'scale(0.6)' }}>
               <MusicalStaff noteRecording={note} />
             </div>
           </div>
-          )}
-
-
-         
-
-            {inputMode === 'CAPTORS_AND_NOTE' && (
-              <ThymioSVG captors={sensorData} style={{ transform: 'rotate(45deg)', width: '130px', height: 'auto', marginTop: '0px' }} />
-            )}
-          </div>
-
+    
           {/* Conteneur pour NeuralNetworkVisualization */}
           <div style={{ flexGrow: 1 }}>
             <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv={predictions} sensorData={sensorData} currentNote={noteToNumberMapping[note]} />
           </div>
         </div>
+    
+          {inputMode === 'NOTE_ONLY' && (
+            <svg width="800" height="500" style={{ zIndex: 1100 ,position: 'absolute', top: '100%', left: '100%', transform: 'translate(-150%, -95%)' }}>
+              <line x1="170" y1="120" x2="250" y2="120" stroke="blue" strokeWidth="5" markerEnd="url(#arrowhead-note)" />
+              <defs>
+                <marker id="arrowhead-note" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="blue"/>
+                </marker>
+              </defs>
+            </svg>
+          )}
 
-        {inputMode === 'NOTE_ONLY' && (
-              <svg width="800" height="500" style={{ zIndex: 1005 ,position: 'absolute', top: '100%', left: '100%', transform: 'translate(-150%, -95%)' }}>
-                <line x1="120" y1="65" x2="190  " y2="65" stroke="blue" strokeWidth="5" markerEnd="url(#arrowhead-note)" />
-                <defs>
-                  <marker id="arrowhead-note" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
-                    <polygon points="0 0, 10 3.5, 0 7" fill="blue"/>
-                  </marker>
-                </defs>
-              </svg>
-            )}
-        
+
+          {inputMode === 'CAPTORS_AND_NOTE' && (
+  <svg width="800" height="500" 
+      style={{ zIndex: 1005, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', overflow: 'visible' }}
+      viewBox="0 0 800 500">
+    {arrowCoordinates.map((coords, index) => (
+      <line key={index} 
+            x1={coords.x1} 
+            y1={coords.y1} 
+            x2={coords.x2} 
+            y2={coords.y2} 
+            stroke="blue" 
+            strokeWidth="4"  
+            markerEnd="url(#arrowhead-note)" />
+    ))}
+    <defs>
+      <marker id="arrowhead-note" 
+              markerWidth="7"  // Réduction de la largeur du marqueur
+              markerHeight="5"  // Réduction de la hauteur du marqueur
+              refX="0" 
+              refY="2.5"  // Ajustement du point de référence Y pour aligner la flèche
+              orient="auto">
+        <polygon points="0 0, 7 2.5, 0 5" fill="blue"/>  // Points ajustés pour correspondre aux nouvelles dimensions
+      </marker>
+    </defs>
+  </svg>
+)}
+
+    
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
           {/* Conteneur pour le piano */}
           <div style={{ maxWidth: '1000px', flex: 1 }}>
             <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
           </div>
-
+    
           {/* Conteneur pour les boutons */}
           <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '20px' }}>
             <button onClick={stopExecutionAndReset} className="stop-testing-btn" style={{ marginBottom: '10px' }}>
@@ -1606,6 +1651,7 @@ case STATES.PlayNote:
         </div>
       </>
     );
+    
 
 
   

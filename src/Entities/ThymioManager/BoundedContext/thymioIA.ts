@@ -125,7 +125,7 @@ export class ThymioIA implements IThymioIA {
     const ys = tf.oneHot(tf.tensor1d(actionsAsIndices, 'int32'), Object.keys(this.actionMapping).length);
     let previousWeights = null;
     await this.model.fit(xs, ys, {
-      epochs: 50,
+      epochs: 100,
       callbacks: {
         onEpochEnd: (epoch, logs) => {
           const currentWeights = this.model.layers.map(layer => layer.getWeights()[0] ? layer.getWeights()[0].dataSync() : null);

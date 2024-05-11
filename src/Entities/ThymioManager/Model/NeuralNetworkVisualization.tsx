@@ -120,41 +120,49 @@
       return `rgb(${red}, ${green}, 0)`;
   };
   
-
+    
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
       <svg key={updateKey} width={svgWidth} height={svgHeight} style={{ border: '1px solid black' }}>
         {/* Ajout de la couche d'entrée */}
         {inputMode === 'CAPTORS_AND_NOTE' ? (
-            sensorData.map((sensor, index) => (
-              <circle
-                key={`sensor-${index}-${sensor}`} // Ajout de sensor dans la clé pour forcer la mise à jour
-                cx={layerSpacing * 0.5} // Constant x pour simplifier
-                cy={(index + 1) * svgHeight / (inputLayerSize + 1)}
-                r={calculateRadius(sensor)}
-                fill="blue"
-                stroke="black"
-              />
-            )).concat(
-              <circle
-                key="microphone-neuron"
-                cx={layerSpacing * 0.5}
-                cy={(sensorData.length + 1) * svgHeight / (inputLayerSize + 1)}
-                r={calculateMicrophoneRadius(currentNote)}
-                fill="blue"
-                stroke="black"
-              />
-            )
-          ) : (
-            <circle
-              key="microphone-only-neuron"
-              cx={layerSpacing * 0.5}
-              cy={svgHeight / 2}
-              r={calculateMicrophoneRadius(currentNote)}
-              fill="blue"
-              stroke="black"
-            />
-          )}
+  sensorData.map((sensor, index) => {
+    // Déterminer la couleur en fonction de l'état du capteur
+    const isActive = sensor > 0; // Changez cette condition si nécessaire pour correspondre à vos données
+    const fillColor = isActive ? "green" : "red"; // Supposons que `sensor` soit 1 pour actif et 0 pour inactif
+    console.log("SENSORS ",sensor)
+
+    return (
+      <circle
+        key={`sensor-${index}-${sensor}`} // Ajout de sensor dans la clé pour forcer la mise à jour
+        cx={layerSpacing * 0.5} // Position x constante pour simplifier
+        cy={(index + 1) * svgHeight / (inputLayerSize + 1)}
+        r={calculateRadius(sensor)} // Utilisation de calculateRadius pour déterminer le rayon
+        fill={fillColor} // Utilisation de fillColor basée sur l'état du capteur
+        stroke="black"
+      />
+    );
+  }).concat(
+    <circle
+      key="microphone-neuron"
+      cx={layerSpacing * 0.5}
+      cy={(sensorData.length + 1) * svgHeight / (inputLayerSize + 1)}
+      r={calculateMicrophoneRadius(currentNote)}
+      fill="blue"
+      stroke="black"
+    />
+  )
+) : (
+  <circle
+    key="microphone-only-neuron"
+    cx={layerSpacing * 0.5}
+    cy={svgHeight / 2}
+    r={calculateMicrophoneRadius(currentNote)}
+    fill="blue"
+    stroke="black"
+  />
+)}
+
 
 
 {/* Ajout de la couche de sortie */}

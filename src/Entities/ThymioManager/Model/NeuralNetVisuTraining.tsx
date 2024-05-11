@@ -27,6 +27,7 @@
 
     useEffect(() => {
         if (trainingData && trainingData.length > 0 && !isAnimating) {
+            setCurrentEpoch(0);
           startAnimation();  // Démarrer l'animation automatiquement
         }
         
@@ -102,7 +103,7 @@
 
     const startAnimation = () => {
         if (!isAnimating) {
-            animationIntervalId.current = setInterval(handleNextEpoch, 50);
+            animationIntervalId.current = setInterval(handleNextEpoch, 10);
             setIsAnimating(true);
         }
     };

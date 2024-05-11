@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import thymioSvg from '../assets/ThymioSVG.svg';  // Assurez-vous que ce chemin est correct
-
+import thymioSvgTraits from '../assets/ThymioSVG_modif.svg';
 type ThymioSVGProps = {
   captors: number[];  // Un tableau représentant l'état des capteurs (0 ou 1)
   style?: React.CSSProperties;
+  showTraits: boolean;
 };
 
-const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {} }) => {
+const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits }) => {
   const [svgContent, setSvgContent] = useState('');
 
   useEffect(() => {
-    fetch(thymioSvg)
+
+    const svgFile = showTraits ? thymioSvgTraits : thymioSvg;
+
+    fetch(svgFile)
       .then(response => response.text())
       .then(data => {
         const parser = new DOMParser();
@@ -38,9 +42,12 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {} }) => {
           baseLayer.style.visibility = 'visible';
         }
 
+        
+
+
         setSvgContent(new XMLSerializer().serializeToString(svgDoc.documentElement));
       });
-  }, [captors, style]);
+  }, [captors, style, showTraits]);
 
   return (
     <div dangerouslySetInnerHTML={{ __html: svgContent }} style={style} />
