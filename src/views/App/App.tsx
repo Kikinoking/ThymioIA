@@ -1934,6 +1934,9 @@ return (
           <button onClick={() => i18n.changeLanguage('fr')} className="MenuLink" title="Français">
             <span className="fi fi-fr"></span>
           </button>
+          <button onClick={() => i18n.changeLanguage('de')} className="MenuLink" title="Deutsch">
+            <span className="fi fi-de"></span> 
+          </button>
           <button onClick={() => i18n.changeLanguage('en')} className="MenuLink" title="English">
             <span className="fi fi-us"></span>
           </button>
