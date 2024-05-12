@@ -319,6 +319,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 2000;
 }
 
 .popup-content-title {
@@ -330,6 +331,7 @@
   width: 80%;
   max-width: 100px; /* Limite la largeur pour les grands écrans */
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5); /* Ombre pour un effet de profondeur */
+  z-index: 2000;
 }
 
 .spinner-bar {
@@ -361,17 +363,9 @@
   position: relative;
   width: 100px;
   height: 100px;
-  animation: rotate 2s linear infinite;
 }
 
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+
 
 .barchart-container {
   height: 259px; 
@@ -396,6 +390,7 @@
   width: 150px;
   height: auto;
   margin: 20px 0;
+  border-width: 3px;
 }
 
 .visualization-container {
@@ -502,6 +497,7 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  z-index: 2000;
 }
 
 

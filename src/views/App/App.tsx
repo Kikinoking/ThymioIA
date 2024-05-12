@@ -29,8 +29,9 @@ import NeuralNetworkVisualization from '../../Entities/ThymioManager/Model/Neura
 import NeuralNetworkVisualizationTraining from '../../Entities/ThymioManager/Model/NeuralNetVisuTraining'
 import Joyride, { CallBackProps, STATUS } from 'react-joyride';
 import NavigationBar from './NavigationBar';
-import { train } from '@tensorflow/tfjs';
 
+import 'ldrs/momentum';
+import 'ldrs/grid';
 
 
 
@@ -127,6 +128,9 @@ const App = observer(() => {
   const [isMusicalStaffMounted, setIsMusicalStaffMounted] = useState(false);
   const svgRef = useRef(null);
 
+  const [thymioSVGLoaded, setThymioSVGLoaded] = useState(false);
+
+
   const handleRectCoordinates = (coords) => {
     console.log('Rect Coords:', coords);
     setRectCoords(coords);
@@ -148,18 +152,13 @@ const App = observer(() => {
     
 };
 
-useEffect(() => {
-  if (isMusicalStaffMounted && musicalStaffRef.current) {
-    const rect = musicalStaffRef.current.getBoundingClientRect();
-    console.log('MusicalStaff Rect:', rect);
-    setMusicalStaffCoords({
-      x: rect.left,
-      y: rect.top + rect.height / 2
-    });
-  }
-}, [isMusicalStaffMounted]);
+
+
+
   const { t, i18n } = useTranslation();
 
+
+  
   const toggleTestingMode = () => {
     if (mode === 'PREDICT') {
       setMode('TRAIN');  // Arrête le testing et revient à l'entraînement
@@ -358,6 +357,7 @@ const loadTrainerLocally = () => {
     }
   }, [currentState]);
   
+  
 
   useEffect(() => {
     // Vérifiez si l'état actuel est PlayNote
@@ -367,60 +367,98 @@ const loadTrainerLocally = () => {
     }
   }, [currentState]); // Dépendance sur currentState pour réagir à ses changements
  
-  useEffect(() => {
+// Ajustement des coordonnées en fonction du SVG
+useEffect(() => {
   if (rectCoords.length > 0 && neuronCoords.length > 0 && svgRef.current) {
-    const svgBox = svgRef.current.getBoundingClientRect();
+    setTimeout(() => {
+      const svgBox = svgRef.current.getBoundingClientRect();
 
-    // Calcul des décalages en X et en Y
-    
+      const adjustedRectCoords = rectCoords.map(coord => ({
+        x: coord.x - svgBox.left,
+        y: coord.y - svgBox.top
+      }));
 
-    const adjustedRectCoords = rectCoords.map(coord => ({
-      x: coord.x - svgBox.left,
-      y: coord.y - svgBox.top
-    }));
+      const adjustedNeuronCoords = neuronCoords.map(coord => ({
+        x: coord.x - svgBox.left,
+        y: coord.y - svgBox.top
+      }));
 
-    const adjustedNeuronCoords = neuronCoords.map(coord => ({
-      x: coord.x - svgBox.left   , // Ajustement en X avec le décalage
-      y: coord.y - svgBox.top  // Ajustement en Y avec le décalage
-    }));
-
-    setAdjustedRectCoords(adjustedRectCoords);
-    setAdjustedNeuronCoords(adjustedNeuronCoords);
+      setAdjustedRectCoords(adjustedRectCoords);
+      setAdjustedNeuronCoords(adjustedNeuronCoords);
+    }, 100); // Délai de 100 millisecondes
   }
-}, [rectCoords, neuronCoords, svgRef.current]); // Assurez-vous que les dépendances incluent tous les éléments nécessaires
+}, [rectCoords, neuronCoords, svgRef.current]);
 
+// Calcul initial des coordonnées pour MusicalStaff
 useEffect(() => {
   if (musicalStaffRef.current) {
-    const rect = musicalStaffRef.current.getBoundingClientRect();
-    setMusicalStaffCoords({
-      x: rect.right , // right side of the component
-      y: rect.top + (rect.height / 2) // mid-height
-    });
+    setTimeout(() => {
+      const rect = musicalStaffRef.current.getBoundingClientRect();
+      setMusicalStaffCoords({
+        x: rect.right,
+        y: rect.top + (rect.height / 2)
+      });
+    }, 100); // Délai de 100 millisecondes
   }
 }, [isMusicalStaffMounted, musicalStaffRef.current]);
 
-
+// Gestion du redimensionnement de la fenêtre
 useEffect(() => {
   const handleResize = () => {
     if (musicalStaffRef.current) {
       const rect = musicalStaffRef.current.getBoundingClientRect();
       setMusicalStaffCoords({
-        x: rect.right, // Coordonnée X à droite du composant
-        y: rect.top + rect.height / 2 // Coordonnée Y au milieu de la hauteur
+        x: rect.right,
+        y: rect.top + rect.height / 2
       });
     }
   };
 
-  // Écoute l'événement de redimensionnement de la fenêtre
   window.addEventListener('resize', handleResize);
+  handleResize(); // Appel initial pour régler les coordonnées initiales
 
-  // Appel initial pour régler les coordonnées initiales
-  handleResize();
-
-  return () => {
-    window.removeEventListener('resize', handleResize);
-  };
+  return () => window.removeEventListener('resize', handleResize);
 }, [isMusicalStaffMounted, musicalStaffRef.current]);
+
+// Utilisation d'un MutationObserver
+useEffect(() => {
+  const targetNode = musicalStaffRef.current;
+  if (!targetNode) return;
+
+  const observer = new MutationObserver((mutationsList) => {
+    for (let mutation of mutationsList) {
+      if (mutation.type === 'childList' || mutation.type === 'attributes') {
+        setTimeout(() => {
+          const rect = targetNode.getBoundingClientRect();
+          setMusicalStaffCoords({
+            x: rect.right,
+            y: rect.top + rect.height / 2
+          });
+        }, 100); // Délai de 100 millisecondes
+      }
+    }
+  });
+
+  observer.observe(targetNode, { attributes: true, childList: true, subtree: true });
+
+  return () => observer.disconnect();
+}, [musicalStaffRef, thymioSVGLoaded]);
+
+// Vérification lorsque tout est monté et chargé
+useEffect(() => {
+  if (isMusicalStaffMounted && musicalStaffRef.current && thymioSVGLoaded) {
+    setTimeout(() => {
+      const rect = musicalStaffRef.current.getBoundingClientRect();
+      console.log('MusicalStaff Rect:', rect);
+      setMusicalStaffCoords({
+        x: rect.right,
+        y: rect.top + rect.height / 2
+      });
+    }, 100); // Délai de 100 millisecondes
+  }
+}, [isMusicalStaffMounted, thymioSVGLoaded]);
+
+
   const Component = () => {
     const { t } = useTranslation();}
 
@@ -1108,10 +1146,13 @@ const renderCurrentState = () => {
           <div className="popup-content-title">
             <p>{popupMessage}</p>
             <div className="spinner-container">
-            <div style={{ display: 'flex' }}>
-            {Array.from({ length: 12 }).map((_, index) => (
-              <div key={index} className="spinner-bar"></div>
-              ))}
+            <div >
+            
+              <l-momentum
+                size="70"
+                speed="1.1"
+                color="white" 
+              ></l-momentum>
               </div>
             </div>
           </div>
@@ -1245,10 +1286,12 @@ case STATES.PlayNote:
 
       {showPopup && (
         <div className="popup-overlay">
-          <div style={{ display: 'flex' }}>
-            {Array.from({ length: 10 }).map((_, index) => (
-              <div key={index} className="wave-bar"></div>
-            ))}
+          <div style={{ display: 'flex' }} classname = "popup-content-title"> 
+          <l-grid
+            size="80"
+            speed="1.5"
+            color="white" 
+          ></l-grid>
           </div>
           <p style={{ color: 'white', marginTop: '20px' }}>{t('Recording')}</p>
         </div>
@@ -1452,12 +1495,15 @@ case STATES.PlayNote:
         <div className="container" >
             {isExecuting && (
               <div className="popup-overlay">
-                <div className="popup-content">
+                <div className="popup-content-title">
                   <p>{t('processing')}</p>
                   <div className="spinner-container">
-                    {Array.from({ length: 12 }).map((_, index) => (
-                      <div key={index} className="spinner-bar"></div>
-                    ))}
+                  
+                  <l-momentum
+                    size="70"
+                    speed="1.1"
+                    color="white" 
+                  ></l-momentum>
                   </div>
                 </div>
               </div>
@@ -1543,7 +1589,7 @@ case STATES.PlayNote:
           marginRight: inputMode === 'CAPTORS_AND_NOTE' ? '20px' : '0', // No margin on the right in NOTE_ONLY
           display: 'flex',
           flexDirection: 'column'
-        }}>
+        }}  className={!note ? 'blinking-border' : ''}>
           <label style={{ textAlign: 'left', width: '100%' }}><span className="label-text">1) {t('playnote')}</span></label>
           <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
         </div>
@@ -1558,7 +1604,9 @@ case STATES.PlayNote:
             justifyContent: 'space-between'
           }}>
             <button onClick={stopExecutionAndReset} className="stop-testing-btn">{t('stop_testing')}</button>
-            <button onClick={() => handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn">{t('visualize_neural_network')}</button>
+            {note !== null && note !== 0 && note !== 'None' && (
+              <button onClick={() => handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn blinking-border">{t('visualize_neural_network')}</button>
+            )}
             <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">{isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}</button>
             <button onClick={() => { resetModelAndTrainer(); handleSetCurrentState(STATES.ConsigneTraining); }} className="reset-training-btn">{t('reinitialize_the_model')}</button>
           </div>
@@ -1576,10 +1624,10 @@ case STATES.PlayNote:
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between' // Center content vertically
-        }}>
+        }} >
           <label style={{ textAlign: 'left' }}><span className="label-text">2) {inputMode === 'CAPTORS_AND_NOTE' ? t('Input_received') : t('note_recorded')}</span></label>
 
-          <button onClick={toggleContinuousRecording} className="toggle-recording-btn" style={{
+          <button onClick={toggleContinuousRecording} className={`toggle-recording-btn ${!note ? 'blinking-border' : ''}`} style={{
             position: 'relative',  // Adjusted from absolute to relative
             left: '50%',
             transform: 'translateX(-50%)',
@@ -1594,7 +1642,7 @@ case STATES.PlayNote:
                 flexDirection: 'row', // Arrange side by side
                 alignItems: 'center' // Center items vertically
               }}>
-                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '150px', height: 'auto', marginRight: '20px' }} showTraits={false}/>
+                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ width: '150px', height: 'auto', marginRight: '20px' }} showTraits={false} />
                 <MusicalStaff noteRecording={note} />
               </div>
             ) : (
@@ -1624,7 +1672,11 @@ case STATES.PlayNote:
             justifyContent: 'space-between'
           }}>
             <button onClick={stopExecutionAndReset} className="stop-testing-btn">{mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}</button>
-            <button onClick={() => handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn">{t('visualize_neural_network')}</button>
+            {note !== 'None' && note !== 0 && (
+        <button onClick={() => handleSetCurrentState(STATES.Testing)} className="visualize-nn-btn blinking-border" style={{ marginBottom: '10px', padding: '10px 20px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}>
+          {t('visualize_neural_network')}
+        </button>
+            )}
             <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">{isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}</button>
             <button onClick={() => { resetModelAndTrainer(); handleSetCurrentState(STATES.ConsigneTraining); }} className="reset-training-btn">{t('reinitialize_the_model')}</button>
           </div>
@@ -1668,7 +1720,7 @@ case STATES.PlayNote:
             {/* Conteneur ajusté pour ThymioSVG */}
             {inputMode === 'CAPTORS_AND_NOTE' && (
               <div style={{ width: '100%', flex: '2', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ transform: 'rotate(45deg)', width: '180px', height: 'auto', marginTop: '1px' }} showTraits={true} onRectCoordinates={handleRectCoordinates}/>
+                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ transform: 'rotate(45deg)', width: '180px', height: 'auto', marginTop: '1px' }} showTraits={true} onRectCoordinates={handleRectCoordinates} onLoaded={() => setThymioSVGLoaded(true)}/>
               </div>
             )}
     
@@ -1739,7 +1791,7 @@ case STATES.PlayNote:
     </svg>
   )}
 
-{inputMode === 'CAPTORS_AND_NOTE' && neuronCoords[9] && (
+{inputMode === 'CAPTORS_AND_NOTE' && neuronCoords.length > 9 &&(
   <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1100 }}>
     <line
       x1={musicalStaffCoords.x}

@@ -94,11 +94,18 @@
     };
 
     const handleNextEpoch = () => {
-        if (currentEpochRef.current < trainingData.length - 1) {
-            setCurrentEpoch(currentEpochRef.current + 1);
+     
+        const nextEpoch = currentEpochRef.current + 3;
+    
+        
+        if (nextEpoch < trainingData.length) {
+            setCurrentEpoch(nextEpoch);
+            setPreviousWeights(currentWeights);  // Mettre à jour les poids précédents
             animationIntervalId.current = requestAnimationFrame(handleNextEpoch);
         } else {
-            stopAnimation(); // Arrêter automatiquement l'animation à la dernière époque
+           
+            setCurrentEpoch(trainingData.length - 1); // S'assurer de finir sur la dernière époque disponible
+            stopAnimation();
         }
     };
     

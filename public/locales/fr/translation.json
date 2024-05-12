@@ -44,7 +44,7 @@
     "max_frequency": "Fréquence maximale: ",
     "tone": "Note: ",
     "load_other_model": "Charger un autre modèle",
-    "execute": "EXÉCUTER",
+    "execute": "Entraîner le modèle",
     "visualize_neural_network": "Visualiser le Réseau Neuronal",
     "stop_testing": "Arrêter les Tests",
     "switch_decision_mode": "{isWinnerTakesAll ? \"Passer à une décision probabiliste\" : \"Passer à une décision gagnant prend tout\"}",
