@@ -121,6 +121,43 @@ const App = observer(() => {
 
   const [sensorData, setSensorData] = useState([]); //For neural net testing visualisation of the input
 
+  const [rectCoords, setRectCoords] = useState([]);
+  const [neuronCoords, setNeuronCoords] = useState([]);
+
+  const [isMusicalStaffMounted, setIsMusicalStaffMounted] = useState(false);
+  const svgRef = useRef(null);
+
+  const handleRectCoordinates = (coords) => {
+    console.log('Rect Coords:', coords);
+    setRectCoords(coords);
+  };
+
+  useEffect(() => {
+    // Cette fonction peut être appelée du composant MusicalStaff quand il est prêt
+    const handleMusicalStaffReady = () => {
+      setIsMusicalStaffMounted(true);
+    };
+  
+    // Pass this function to MusicalStaff as a prop
+  }, []);
+  
+
+  const handleNeuronCoordinates = (coords) => {
+    console.log('Neuron Coords:', coords);
+    setNeuronCoords(coords);
+    
+};
+
+useEffect(() => {
+  if (isMusicalStaffMounted && musicalStaffRef.current) {
+    const rect = musicalStaffRef.current.getBoundingClientRect();
+    console.log('MusicalStaff Rect:', rect);
+    setMusicalStaffCoords({
+      x: rect.left,
+      y: rect.top + rect.height / 2
+    });
+  }
+}, [isMusicalStaffMounted]);
   const { t, i18n } = useTranslation();
 
   const toggleTestingMode = () => {
@@ -175,7 +212,10 @@ const App = observer(() => {
 
   
 
-
+  const [adjustedRectCoords, setAdjustedRectCoords] = useState([]);
+  const [adjustedNeuronCoords, setAdjustedNeuronCoords] = useState([]);
+  const musicalStaffRef = useRef(null);
+  const [musicalStaffCoords, setMusicalStaffCoords] = useState({x: 0, y: 0});
 
   const [visitedStates, setVisitedStates] = useState({'Title': true });
   const [isExecuteClicked, setIsExecuteClicked] = useState(false);
@@ -326,8 +366,61 @@ const loadTrainerLocally = () => {
       console.log('Note recording reset to zero');
     }
   }, [currentState]); // Dépendance sur currentState pour réagir à ses changements
-  
+ 
+  useEffect(() => {
+  if (rectCoords.length > 0 && neuronCoords.length > 0 && svgRef.current) {
+    const svgBox = svgRef.current.getBoundingClientRect();
 
+    // Calcul des décalages en X et en Y
+    
+
+    const adjustedRectCoords = rectCoords.map(coord => ({
+      x: coord.x - svgBox.left,
+      y: coord.y - svgBox.top
+    }));
+
+    const adjustedNeuronCoords = neuronCoords.map(coord => ({
+      x: coord.x - svgBox.left   , // Ajustement en X avec le décalage
+      y: coord.y - svgBox.top  // Ajustement en Y avec le décalage
+    }));
+
+    setAdjustedRectCoords(adjustedRectCoords);
+    setAdjustedNeuronCoords(adjustedNeuronCoords);
+  }
+}, [rectCoords, neuronCoords, svgRef.current]); // Assurez-vous que les dépendances incluent tous les éléments nécessaires
+
+useEffect(() => {
+  if (musicalStaffRef.current) {
+    const rect = musicalStaffRef.current.getBoundingClientRect();
+    setMusicalStaffCoords({
+      x: rect.right , // right side of the component
+      y: rect.top + (rect.height / 2) // mid-height
+    });
+  }
+}, [isMusicalStaffMounted, musicalStaffRef.current]);
+
+
+useEffect(() => {
+  const handleResize = () => {
+    if (musicalStaffRef.current) {
+      const rect = musicalStaffRef.current.getBoundingClientRect();
+      setMusicalStaffCoords({
+        x: rect.right, // Coordonnée X à droite du composant
+        y: rect.top + rect.height / 2 // Coordonnée Y au milieu de la hauteur
+      });
+    }
+  };
+
+  // Écoute l'événement de redimensionnement de la fenêtre
+  window.addEventListener('resize', handleResize);
+
+  // Appel initial pour régler les coordonnées initiales
+  handleResize();
+
+  return () => {
+    window.removeEventListener('resize', handleResize);
+  };
+}, [isMusicalStaffMounted, musicalStaffRef.current]);
   const Component = () => {
     const { t } = useTranslation();}
 
@@ -1575,56 +1668,91 @@ case STATES.PlayNote:
             {/* Conteneur ajusté pour ThymioSVG */}
             {inputMode === 'CAPTORS_AND_NOTE' && (
               <div style={{ width: '100%', flex: '2', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ transform: 'rotate(45deg)', width: '180px', height: 'auto', marginTop: '1px' }} showTraits={true} />
+                <ThymioSVG captors={user.captors.state[controledRobot]} style={{ transform: 'rotate(45deg)', width: '180px', height: 'auto', marginTop: '1px' }} showTraits={true} onRectCoordinates={handleRectCoordinates}/>
               </div>
             )}
     
             {/* Conteneur réduit pour MusicalStaff */}
-            <div style={{ width: '100%', flex: '1', marginTop: '-30px', transform: 'scale(0.6)' }}>
-              <MusicalStaff noteRecording={note} />
+            <div ref={musicalStaffRef} style={{ width: '100%', flex: '1', marginTop: '-30px', transform: 'scale(0.6)' }}>
+            <MusicalStaff noteRecording={noteRecording} onReady={() => setIsMusicalStaffMounted(true)} />
+
             </div>
           </div>
     
           {/* Conteneur pour NeuralNetworkVisualization */}
-          <div style={{ flexGrow: 1 }}>
-            <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv={predictions} sensorData={sensorData} currentNote={noteToNumberMapping[note]} />
+          <div id="neuralNetworkContainer" style={{ flexGrow: 1 }}>
+            <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv={predictions} sensorData={sensorData} currentNote={noteToNumberMapping[note]} onNeuronCoordinates={handleNeuronCoordinates} />
           </div>
         </div>
     
-          {inputMode === 'NOTE_ONLY' && (
-            <svg width="800" height="500" style={{ zIndex: 1100 ,position: 'absolute', top: '100%', left: '100%', transform: 'translate(-150%, -95%)' }}>
-              <line x1="170" y1="120" x2="250" y2="120" stroke="blue" strokeWidth="5" markerEnd="url(#arrowhead-note)" />
-              <defs>
-                <marker id="arrowhead-note" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
-                  <polygon points="0 0, 10 3.5, 0 7" fill="blue"/>
-                </marker>
-              </defs>
-            </svg>
+          {inputMode === 'NOTE_ONLY' && neuronCoords[0] && (
+            <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1100 }}>
+            <line
+              x1={musicalStaffCoords.x}
+              y1={musicalStaffCoords.y}
+              x2={neuronCoords[0].x}
+              y2={neuronCoords[0].y}
+              stroke="blue"
+              strokeWidth="4"
+              markerEnd="url(#arrowhead-red)"
+            />
+            <defs>
+              <marker id="arrowhead-red" markerWidth="7" markerHeight="5" refX="8" refY="3" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="blue"/>
+              </marker>
+            </defs>
+          </svg>
           )}
 
 
-          {inputMode === 'CAPTORS_AND_NOTE' && (
-  <svg width="800" height="500" 
-      style={{ zIndex: 1005, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', overflow: 'visible' }}
-      viewBox="0 0 800 500">
-    {arrowCoordinates.map((coords, index) => (
-      <line key={index} 
-            x1={coords.x1} 
-            y1={coords.y1} 
-            x2={coords.x2} 
-            y2={coords.y2} 
-            stroke="blue" 
-            strokeWidth="4"  
-            markerEnd="url(#arrowhead-note)" />
-    ))}
+  {inputMode === 'CAPTORS_AND_NOTE' && (
+    <svg ref={svgRef} width="300" height="200" 
+        style={{ zIndex: 1005, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', overflow: 'visible' }}
+        viewBox="0 0 300 200">
+      {adjustedRectCoords.map((rect, index) => {
+        const neuron = adjustedNeuronCoords[index];
+        if (neuron) {
+          return (
+            <><line key={index}
+              x1={rect.x}
+              y1={rect.y}
+              x2={neuron.x}
+              y2={neuron.y}
+              stroke="blue"
+              strokeWidth="4"
+              markerEnd="url(#arrowhead-note)" /><line
+                 /></>
+          );
+        }
+        return null;
+      })}
+      <defs>
+        <marker id="arrowhead-note" 
+                markerWidth="7"
+                markerHeight="5"
+                refX="7"
+                refY="2.5"
+                orient="auto">
+          <polygon points="0 0, 7 2.5, 0 5" fill="blue"/>
+        </marker>
+      </defs>
+    </svg>
+  )}
+
+{inputMode === 'CAPTORS_AND_NOTE' && neuronCoords[9] && (
+  <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1100 }}>
+    <line
+      x1={musicalStaffCoords.x}
+      y1={musicalStaffCoords.y}
+      x2={neuronCoords[9].x}
+      y2={neuronCoords[9].y}
+      stroke="blue"
+      strokeWidth="4"
+      markerEnd="url(#arrowhead-red)"
+    />
     <defs>
-      <marker id="arrowhead-note" 
-              markerWidth="7"  // Réduction de la largeur du marqueur
-              markerHeight="5"  // Réduction de la hauteur du marqueur
-              refX="0" 
-              refY="2.5"  // Ajustement du point de référence Y pour aligner la flèche
-              orient="auto">
-        <polygon points="0 0, 7 2.5, 0 5" fill="blue"/>  // Points ajustés pour correspondre aux nouvelles dimensions
+      <marker id="arrowhead-red" markerWidth="7" markerHeight="5" refX="8" refY="3" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="blue"/>
       </marker>
     </defs>
   </svg>
@@ -1664,7 +1792,7 @@ case STATES.PlayNote:
 
 return (
   <>
-    <NavigationBar states={STATES_ARRAY} currentState={currentState} setCurrentState={setCurrentState} visitedStates={visitedStates} setMode={setMode} user={user}  controledRobot={controledRobot} />
+    <NavigationBar   className="navigation-bar"  states={STATES_ARRAY} currentState={currentState} setCurrentState={setCurrentState} visitedStates={visitedStates} setMode={setMode} user={user}  controledRobot={controledRobot} />
     <div className="App" style={{ marginTop: '40px' }}>
       {renderCurrentState()}
     </div>

@@ -96,23 +96,25 @@
     const handleNextEpoch = () => {
         if (currentEpochRef.current < trainingData.length - 1) {
             setCurrentEpoch(currentEpochRef.current + 1);
+            animationIntervalId.current = requestAnimationFrame(handleNextEpoch);
         } else {
-            stopAnimation(); // Automatically stop animation at the last epoch
+            stopAnimation(); // Arrêter automatiquement l'animation à la dernière époque
         }
     };
-
+    
     const startAnimation = () => {
         if (!isAnimating) {
-            animationIntervalId.current = setInterval(handleNextEpoch, 10);
+            animationIntervalId.current = requestAnimationFrame(handleNextEpoch);
             setIsAnimating(true);
         }
     };
-
+    
     const stopAnimation = () => {
-        clearInterval(animationIntervalId.current);
+        cancelAnimationFrame(animationIntervalId.current);
         animationIntervalId.current = null;
         setIsAnimating(false);
     };
+    
 
     const toggleAnimation = () => {
         if (isAnimating) {

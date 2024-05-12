@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import thymioSvg from '../assets/ThymioSVG.svg';  // Assurez-vous que ce chemin est correct
 import thymioSvgTraits from '../assets/ThymioSVG_modif.svg';
 type ThymioSVGProps = {
   captors: number[];  // Un tableau représentant l'état des capteurs (0 ou 1)
   style?: React.CSSProperties;
   showTraits: boolean;
+  onRectCoordinates: (coordinates: { x: number, y: number }[]) => void;
 };
 
-const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits }) => {
+const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, onRectCoordinates }) => {
   const [svgContent, setSvgContent] = useState('');
+  const svgRef = useRef<HTMLDivElement>(null);
+  
 
   useEffect(() => {
 
@@ -49,8 +52,19 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits }
       });
   }, [captors, style, showTraits]);
 
+  useEffect(() => {
+    if (onRectCoordinates && svgRef.current) { // Vérifier si onRectCoordinates est fourni avant de calculer les coordonnées
+      const rects = svgRef.current.querySelectorAll('g[id^="Group_"] > rect');
+      const rectCoordinates = Array.from(rects).map(rect => {
+        const box = rect.getBoundingClientRect();
+        return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+      });
+      onRectCoordinates(rectCoordinates);
+    }
+  }, [svgContent, onRectCoordinates]);
+
   return (
-    <div dangerouslySetInnerHTML={{ __html: svgContent }} style={style} />
+    <div ref={svgRef} dangerouslySetInnerHTML={{ __html: svgContent }} style={style} />
   );
 };
 

@@ -1,4 +1,4 @@
-  import React, { useEffect, useState } from 'react';
+  import React, { useEffect, useState,useRef } from 'react';
   import * as tf from '@tensorflow/tfjs';
   import './NeuralNetworkVisualization.css';
   import Svgaction1 from '../../../assets/actionsicons/STOPStatic.png'
@@ -7,7 +7,7 @@
   import Svgaction4 from '../../../assets/actionsicons/RightStatic.png';
   import Svgaction5 from '../../../assets/actionsicons/LeftStatic.png';
 
-  const NeuralNetworkVisualization = ({ model, inputMode, activations , outputactiv, sensorData, currentNote }) => {
+  const NeuralNetworkVisualization = ({ model, inputMode, activations , outputactiv, sensorData, currentNote, onNeuronCoordinates }) => {
     const [layers, setLayers] = useState([]);
     const svgWidth = 800; // Largeur du SVG
     const svgHeight = 400; // Hauteur du SVG
@@ -15,7 +15,50 @@
     const inputLayerSize = inputMode === 'NOTE_ONLY' ? 1 : 10; // Taille de la couche d'entrée basée sur le mode
     const [updateKey, setUpdateKey] = useState(0);
     const [maxRadiusIndex, setMaxRadiusIndex] = useState(-1);
-   
+
+    
+    const neuronRefs = useRef([]);
+    
+    useEffect(() => {
+      const neuronCoordinates = neuronRefs.current.map(neuron => {
+        if (neuron) {
+          const box = neuron.getBBox();
+          const svgRect = neuron.ownerSVGElement.getBoundingClientRect();
+          // Calculer les coordonnées du centre en tenant compte du positionnement relatif au SVG
+          return {
+            x: (svgRect.left + box.x + box.width / 2),
+            y: svgRect.top + box.y + box.height / 2
+          };
+        }
+        return null;
+      }).filter(coord => coord !== null); // Filtrer les entrées non valides
+    
+      onNeuronCoordinates(neuronCoordinates);
+    }, [model, neuronRefs.current]);
+    
+    useEffect(() => {
+      function handleResize() {
+        // Recalculer les coordonnées lors du redimensionnement de la fenêtre
+        if (neuronRefs.current) {
+          const neuronCoordinates = neuronRefs.current.map(neuron => {
+            if (neuron) {
+              const box = neuron.getBBox();
+              const svgRect = neuron.ownerSVGElement.getBoundingClientRect();
+              return {
+                x: svgRect.left + box.x + box.width / 2,
+                y: svgRect.top + box.y + box.height / 2
+              };
+            }
+            return null;
+          }).filter(coord => coord !== null);
+          onNeuronCoordinates(neuronCoordinates);
+        }
+      }
+    
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, [neuronRefs.current]);
+    
 
     useEffect(() => {
       setUpdateKey(prevKey => prevKey + 1);  // Incrémente la clé à chaque changement d'activations
@@ -24,6 +67,22 @@
     useEffect(() => {
       setUpdateKey(updateKey + 1); // Force update on sensorData change
     }, [sensorData]); 
+
+    useEffect(() => {
+      if (neuronRefs.current.length > 0) {
+        const coordinates = neuronRefs.current.map(neuron => {
+          if (neuron) {
+            const rect = neuron.getBoundingClientRect();
+            return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+          }
+          return null;
+        }).filter(coord => coord !== null); // Filtrer les entrées non valides
+    
+        // Appeler la fonction passée par les props
+        onNeuronCoordinates(coordinates);
+      }
+    }, [model, neuronRefs.current]); // Dépendance sur le modèle et les références des neurones
+    
 
     const getBiasColor = (bias) => {
       // Normalize bias for visualization purposes
@@ -64,7 +123,31 @@
   };
   
   
-    
+  useEffect(() => {
+    const updateCoordinates = () => {
+      const newCoordinates = neuronRefs.current.map(neuron => {
+        if (neuron) {
+          const rect = neuron.getBoundingClientRect();
+          return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+        }
+        return null;
+      }).filter(coord => coord !== null);
+      onNeuronCoordinates(newCoordinates);
+    };
+  
+    updateCoordinates(); // Appel initial pour configurer
+    const observer = new ResizeObserver(updateCoordinates); // Utilisez ResizeObserver pour suivre les changements de taille
+  
+    if (neuronRefs.current && neuronRefs.current.length > 0) {
+      neuronRefs.current.forEach(neuron => {
+        observer.observe(neuron);
+      });
+    }
+  
+    return () => {
+      observer.disconnect(); // Nettoyer l'observateur
+    };
+  }, [model, neuronRefs.current, svgWidth, svgHeight]);
 
     useEffect(() => {
       if (model) {
@@ -134,7 +217,7 @@
 
     return (
       <circle
-        id={`input-neuron-${index}`}
+        ref={el => neuronRefs.current[index] = el}
         key={`sensor-${index}-${sensor}`} // Ajout de sensor dans la clé pour forcer la mise à jour
         cx={layerSpacing * 0.5} // Position x constante pour simplifier
         cy={(index + 1) * svgHeight / (inputLayerSize + 1)}
@@ -145,6 +228,7 @@
     );
   }).concat(
     <circle
+    ref={el => neuronRefs.current[sensorData.length] = el}
       key="microphone-neuron"
       cx={layerSpacing * 0.5}
       cy={(sensorData.length + 1) * svgHeight / (inputLayerSize + 1)}
@@ -155,6 +239,7 @@
   )
 ) : (
   <circle
+  ref={el => neuronRefs.current[0] = el}
     id="input-neuron-microphone"
     key="microphone-only-neuron"
     cx={layerSpacing * 0.5}
@@ -236,28 +321,30 @@
     {/* Dessiner d'abord les lignes pour les connexions */}
     {layer.weights.map((neuronWeights, neuronIdx) => {
       const y = (neuronIdx + 1) * neuronSpacing;
-
+      let lines = [];
       // Connexions de la couche d'entrée à la première couche dense en tenant compte de l'état des capteurs
-      const lines = (layerIndex === 0) ? sensorData.map((sensor, idx) => {
-        const yInput = (idx + 1) * svgHeight / (sensorData.length + 2);
-        const isActive = sensor > 0;
-        const fillColor = isActive ? "green" : "black";
-        return (
-          <line
-            key={`input-to-layer-link-${idx}-${neuronIdx}`}
-            x1={layerSpacing * 0.5}
-            y1={yInput}
-            x2={x}
-            y2={y}
-            stroke={fillColor}
-            strokeWidth="2"
-          />
-        );
-      }) : [];
+      if (inputMode === 'CAPTORS_AND_NOTE' && layerIndex === 0) {
+        lines = sensorData.map((sensor, idx) => {
+          const yInput = (idx + 1) * svgHeight / (sensorData.length + 2);
+          const isActive = sensor > 0;
+          const fillColor = isActive ? "green" : "black";
+          return (
+            <line
+              key={`input-to-layer-link-${idx}-${neuronIdx}`}
+              x1={layerSpacing * 0.5}
+              y1={yInput}
+              x2={x}
+              y2={y}
+              stroke={fillColor}
+              strokeWidth="2"
+            />
+          );
+        });
+      }
 
       // Ajouter ici la ligne pour le microphone si nécessaire, ajustez comme il faut avec votre logique spécifique pour la couleur
        if (layerIndex === 0) {
-          const yInput = svgHeight - (svgHeight / (sensorData.length + 2)); // Position du microphone
+        const yInput = inputMode === 'NOTE_ONLY' ? svgHeight / 2 : svgHeight - (svgHeight / (sensorData.length + 2)); // Position du microphone
           const microphoneColor = "green"; // Ou toute autre logique pour la couleur
           lines.push(
             <line
