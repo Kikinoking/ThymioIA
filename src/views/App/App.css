@@ -278,22 +278,7 @@
   background-color: transparent; /* S'assure que le fond est transparent */
 }
 
-.wave-bar {
-  width: 20px;
-  height: 40px;
-  background-color: white;
-  margin: 2px;
-  animation: pulse 1s ease-in-out infinite;
-}
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scaleY(0.1);
-  }
-  50% {
-    transform: scaleY(1);
-  }
-}
 
 .popup-overlay {
   position: fixed;

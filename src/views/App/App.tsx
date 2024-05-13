@@ -1081,13 +1081,24 @@ useEffect(() => {
 
   const resetModelAndTrainer = async () => {
     // Réinitialisez le modèle
-    
-  
+        if (model) {
+          await user.reinitializeModel(inputMode);
+          model.dispose(); // Cette méthode libère toutes les ressources utilisées par le modèle
+          setModel(null); // Remet à null l'état du modèle
+
+      }
+      
     // Réinitialisez le trainer
     setTrainer([]);
     stopExecutionAndReset();
     setMode('TRAIN');
     setIsModeSelected(false);
+    setTrainingData([]);
+    setShowInstructions(true);
+    setIsTrainingComplete(false);
+    setIsTrainingComponentLoaded(false);
+    setIsExecuteClicked(false);
+    
   
     // Réinitialiser d'autres états si nécessaire
     // setRobots([]), setControledRobot(''), etc.
@@ -1605,9 +1616,9 @@ case STATES.PlayNote:
           }}>
             <button onClick={stopExecutionAndReset} className="stop-testing-btn">{t('stop_testing')}</button>
             {note !== null && note !== 0 && note !== 'None' && (
-              <button onClick={() => handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn blinking-border">{t('visualize_neural_network')}</button>
+              <button onClick={() => handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn blinking-border">{t('visualize_neural_network')}  style={{ marginBottom: '10px', padding: '10px 20px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}</button>
             )}
-            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">{isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}</button>
+            <button onClick={() => {handleSetCurrentState(STATES.CurrentModelTest), setIsWinnerTakesAll(true)}} className="switch-decision-btn">{isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}</button>
             <button onClick={() => { resetModelAndTrainer(); handleSetCurrentState(STATES.ConsigneTraining); }} className="reset-training-btn">{t('reinitialize_the_model')}</button>
           </div>
         )}
@@ -1673,7 +1684,7 @@ case STATES.PlayNote:
           }}>
             <button onClick={stopExecutionAndReset} className="stop-testing-btn">{mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}</button>
             {note !== 'None' && note !== 0 && (
-        <button onClick={() => handleSetCurrentState(STATES.Testing)} className="visualize-nn-btn blinking-border" style={{ marginBottom: '10px', padding: '10px 20px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}>
+        <button onClick={() => {handleSetCurrentState(STATES.CurrentModelTest), setIsWinnerTakesAll(true)}} className="visualize-nn-btn blinking-border" style={{ marginBottom: '10px', padding: '10px 20px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}>
           {t('visualize_neural_network')}
         </button>
             )}
@@ -1726,7 +1737,7 @@ case STATES.PlayNote:
     
             {/* Conteneur réduit pour MusicalStaff */}
             <div ref={musicalStaffRef} style={{ width: '100%', flex: '1', marginTop: '-30px', transform: 'scale(0.6)' }}>
-            <MusicalStaff noteRecording={noteRecording} onReady={() => setIsMusicalStaffMounted(true)} />
+            <MusicalStaff noteRecording={note} onReady={() => setIsMusicalStaffMounted(true)} />
 
             </div>
           </div>
@@ -1818,16 +1829,14 @@ case STATES.PlayNote:
           </div>
     
           {/* Conteneur pour les boutons */}
-          <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-around', flexDirection: 'column', marginLeft: '20px' }}>
             <button onClick={stopExecutionAndReset} className="stop-testing-btn" style={{ marginBottom: '10px' }}>
               {mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}
             </button>
             <button onClick={() => handleSetCurrentState(STATES.Testing)} style={{ marginBottom: '10px', padding: '10px 20px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}>
               {t('return_to_testing')}
             </button>
-            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">
-              {isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}
-            </button>
+            
           </div>
         </div>
       </>
