@@ -178,9 +178,10 @@
   "start_animation": "Démarrer l'animation",
   "stop_animation": "Arrêter l'animation",
   "current_epoch": "Etape actuelle : ",
-  "epoch_slider": "Changer d'époque"
+  "epoch_slider": "Changer d'époque",
 
-
+  "tooltip_neural_network_visualization": "Ici on peut voir l'état actuel du neural network en cours de prédiction.",
+  "tooltip_control_buttons": "Ici vous pouvez activer/désactiver la phase de test, ou revenir à l'état testing."
 
   }
   

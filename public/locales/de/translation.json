@@ -159,5 +159,9 @@
     "start_animation": "Animation starten",
     "stop_animation": "Animation stoppen",
     "current_epoch": "Aktuelle Epoche: ",
-    "epoch_slider": "Epochenregler ändern"
+    "epoch_slider": "Epochenregler ändern",
+
+    "tooltip_neural_network_visualization_train": "Hier sehen Sie das Training des neuronalen Netzes",
+    "tooltip_neural_network_visualization": "Hier können Sie den aktuellen Status des neuralen Netzwerks sehen, das gerade vorhergesagt wird.",
+    "tooltip_control_buttons": "Hier können Sie die Testphase aktivieren/deaktivieren oder zum Testing-Status zurückkehren."
 }

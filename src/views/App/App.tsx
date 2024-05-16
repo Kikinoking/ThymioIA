@@ -130,6 +130,8 @@ const App = observer(() => {
 
   const [thymioSVGLoaded, setThymioSVGLoaded] = useState(false);
 
+  const [theme, setTheme] = useState('light'); // 'light' is default theme
+  const sliderRef = useRef(null);
 
   const handleRectCoordinates = (coords) => {
     console.log('Rect Coords:', coords);
@@ -212,7 +214,7 @@ const App = observer(() => {
   
 
   const [adjustedRectCoords, setAdjustedRectCoords] = useState([]);
-  const [adjustedNeuronCoords, setAdjustedNeuronCoords] = useState([]);
+  const [adjustedNeuronCoords, setAdjustedNeuronCoords] = useState([]); 
   const musicalStaffRef = useRef(null);
   const [musicalStaffCoords, setMusicalStaffCoords] = useState({x: 0, y: 0});
 
@@ -342,6 +344,25 @@ const loadTrainerLocally = () => {
     setIsExecuting(false)
   };
 
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (slider) {
+      const min = slider.min || 0;
+      const max = slider.max || 100;
+
+      function updateSliderBackground(value) {
+        const percentage = ((value - min) / (max - min)) * 100;
+        slider.style.background = `linear-gradient(to right, #4e48ff ${percentage}%, #0f09bf ${percentage}%)`;
+      }
+
+      slider.addEventListener('input', function() {
+        updateSliderBackground(slider.value);
+      });
+
+      // Initialise le fond au chargement
+      updateSliderBackground(slider.value);
+    }
+  }, []);
 
   useEffect(() => {
     if (isExecuteClicked) {
@@ -350,6 +371,22 @@ const loadTrainerLocally = () => {
       }, 3000);  // Simuler un délai de chargement
     }
   }, [isExecuteClicked]);
+
+  useEffect(() => {
+    document.body.className = theme + '-theme'; // Applique 'light-theme' ou 'dark-theme'
+  }, [theme]);
+  
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
+  }, []);
+  
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+  
 
   useEffect(() => {
     if (currentState === STATES.MapAction) {
@@ -485,6 +522,7 @@ useEffect(() => {
   };
 
   useEffect(() => {
+    
     switch (currentState) {
       case 'Title':
         setSteps([
@@ -605,22 +643,17 @@ useEffect(() => {
           }
         ]);
         break;
-      case 'CurrentModelTrain': 
-        setSteps([
-          
-          {
-            target: '.visualization-container', // Assurez-vous que ce sélecteur cible le conteneur correct
-      content: t('tooltip_neural_network_visualization_train'),
-      placement: 'top',
-      disableBeacon: true,
-      styles: {
-        options: {
-          zIndex: 10000
-        }
+        case 'ConsigneTesting':
+      if (isTrainingComplete) {
+       setSteps([{
+          target: '.visualization-container', 
+          content: t('tooltip_neural_network_visualization_train'),
+          placement: 'left',
+          disableBeacon: true,
+       }
+       ]);
       }
-          }
-        ]);
-        break;
+      break;
         case 'Testing':
         setSteps([
           {
@@ -673,11 +706,48 @@ useEffect(() => {
         ]);
         break;
         case 'CurrentModelTest':
+          if (isTrainingComplete) {
+            setSteps([
+              {
+                target: '.toggle-recording-btn', 
+                content: t('tooltip_toggle_recording_musical_staff'),
+                placement: 'top',
+                disableBeacon: true
+              },
+              {
+                target: '.neural-network-container', 
+                content: t('tooltip_neural_network_visualization'),
+                placement: 'right',
+                styles: {
+                  options: {
+                    zIndex: 10000
+                  }
+                }
+              },
+              {
+                target: '.piano',
+                content: t('tooltip_piano'),
+                placement: 'left',
+                disableBeacon: true
+              },
+              {
+                target: '.control-buttons-container', 
+                content: t('tooltip_control_buttons'),
+                placement: 'left',
+                styles: {
+                  options: {
+                    zIndex: 10000
+                  }
+                }
+              }
+            ]);
+          }
+          break;
           
       
       
     }
-  }, [currentState, t]); 
+  }, [currentState, t, isTrainingComplete]); 
 
   const toggleSettings = () => {
     setShowSettings(prev => !prev);
@@ -711,86 +781,6 @@ useEffect(() => {
 
 
 
-  useEffect(() => {
-    if (chartRef.current && !chart) {
-      const newChart = new Chart(chartRef.current, {
-        type: 'line',
-        data: {
-          labels: [],
-          datasets: [{
-            label: 'Amplitude (dB)',
-            data: [],
-            borderColor: 'rgb(247, 17, 56)',
-            tension: 0.25
-          }]
-        },
-        options: {
-          scales: {
-            x: {
-              type: 'linear', // Assurez-vous que l'axe X est de type linéaire
-              position: 'bottom', // Positionne l'axe en bas
-              min: 200, // Début des graduations à 200 Hz
-              max: 2000,
-              title: {
-                display: true,
-                text: 'Frequency (Hz)',
-                color: '#dfe8e8',
-                font: {
-                  family: 'Roboto',
-                  size: 20,
-                  
-                },
-                
-              },
-              ticks: {
-                stepSize: 200,
-                color: '#dfe8e8', // Couleur des ticks/étiquettes sur l'axe X
-              },
-              grid: {
-                display : true,
-                color: 'rgba(79, 77, 77, 0.2)', // Couleur des lignes de grille pour l'axe X
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: 'Amplitude (dB)',
-                color: '#dfe8e8',
-                font: {
-                  family: 'Roboto',
-                  size: 20,
-                  
-                
-                }
-                
-              },ticks: {
-                color: '#dfe8e8', // Couleur des ticks/étiquettes sur l'axe X
-              },
-              grid: {
-                display : true,
-                color: 'rgba(79, 77, 77, 0.2)', // Couleur des lignes de grille pour l'axe X
-              },
-            }
-          },
-          plugins: {
-            
-            legend: {
-              display: true,
-              labels: {
-          
-                  color: '#dfe8e8', // Couleur du texte des légendes
-                font: {
-                  family: 'Roboto',
-                  size: 20
-                }
-              }
-            }
-          }
-        }
-      });
-      setChart(newChart);
-    }
-  }, [chart, chartRef.current   ]);
 
   const toggleContinuousRecording = () => {
     // Si on démarre l'enregistrement continu, arrête l'enregistrement audio si actif
@@ -1324,171 +1314,171 @@ case STATES.PlayNote:
     
     
     
-  case STATES.MapAction:
-    // Objets pour gérer les sources d'images
-    const gifSources = {
-      STOP: stopGif,
-      FORWARD: forwardGif,
-      BACKWARD: backwardGif,
-      LEFT: rightGif,
-      RIGHT: leftGif
-    };
-  
-    const staticSources = {
-      STOP: stopStatic,
-      FORWARD: forwardStatic,
-      BACKWARD: backwardStatic,
-      LEFT: rightStatic,
-      RIGHT: leftStatic
-    };
-  
-    const handleMouseEnter = (button, action) => {
-      const img = button.getElementsByTagName('img')[0];
-      img.src = gifSources[action];
-    };
-  
-    const handleMouseLeave = (button, action) => {
-      const img = button.getElementsByTagName('img')[0];
-      img.src = staticSources[action];
-    };
+    case STATES.MapAction:
+      // Objets pour gérer les sources d'images
+      const gifSources = {
+        STOP: stopGif,
+        FORWARD: forwardGif,
+        BACKWARD: backwardGif,
+        LEFT: rightGif,
+        RIGHT: leftGif
+      };
+    
+      const staticSources = {
+        STOP: stopStatic,
+        FORWARD: forwardStatic,
+        BACKWARD: backwardStatic,
+        LEFT: rightStatic,
+        RIGHT: leftStatic
+      };
+    
+      const handleMouseEnter = (button, action) => {
+        const img = button.getElementsByTagName('img')[0];
+        img.src = gifSources[action];
+      };
+    
+      const handleMouseLeave = (button, action) => {
+        const img = button.getElementsByTagName('img')[0];
+        img.src = staticSources[action];
+      };
 
-    const handleDelete = (index) => {
-     
-      const newTrainer = trainer.filter((_, i) => i !== index);
-      setTrainer(newTrainer); // Mettez à jour l'état avec le nouveau tableau
-    };
-  
-    const handleAction = (action) => {
-      console.log(action + " action triggered");
-      setActionClicked(true);
-      onAction(action);
-    };
-  
-    return (
-      <>
-        <div className={`actions-container ${!actionClicked ? 'blinking-border' : ''}`} style={{ border: '2px solid #ccc', padding: '10px', marginBottom: '20px' }}>
-          <h2 className="label-text">{t('choose_action')}</h2>
-          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
-            {Object.keys(gifSources).map(action => (
-              <button
-                key={action}
-                onClick={() => handleAction(action)}
-                onMouseEnter={(e) => handleMouseEnter(e.currentTarget, action)}
-                onMouseLeave={(e) => handleMouseLeave(e.currentTarget, action)}
-                style={{
-                  border: '2px solid #ccc',
-                  borderRadius: '5px',
-                  background: 'none',
-                  padding: '10px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <img
-                  src={staticSources[action]}
-                  alt={action}
-                  style={{ width: '150px', height: '150px' }}
-                />
-                {t(action.toLowerCase())}
-              </button>
-            ))}
+      const handleDelete = (index) => {
+      
+        const newTrainer = trainer.filter((_, i) => i !== index);
+        setTrainer(newTrainer); // Mettez à jour l'état avec le nouveau tableau
+      };
+    
+      const handleAction = (action) => {
+        console.log(action + " action triggered");
+        setActionClicked(true);
+        onAction(action);
+      };
+    
+      return (
+        <>
+          <div className={`actions-container ${!actionClicked ? 'blinking-border' : ''}`} style={{ border: '2px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+            <h2 className="label-text actions-header">{t('choose_action')}</h2>
+            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
+              {Object.keys(gifSources).map(action => (
+                <button
+                  key={action}
+                  onClick={() => handleAction(action)}
+                  onMouseEnter={(e) => handleMouseEnter(e.currentTarget, action)}
+                  onMouseLeave={(e) => handleMouseLeave(e.currentTarget, action)}
+                  style={{
+                    border: '2px solid #ccc',
+                    borderRadius: '5px',
+                    background: 'none',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <img
+                    src={staticSources[action]}
+                    alt={action}
+                    style={{ width: '150px', height: '150px' }}
+                  />
+                  {t(action.toLowerCase())}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-        <div style={{ display: 'flex' }}>
-          <div style={{ flex: 3, marginRight: '20px' }}>
-            <div style={{ overflowX: 'auto', maxHeight: '250px' }} className="trainer-table-container">
-              <table className="trainer-table">
-                <thead>
-                  <tr>
-                    <th>{t('Action')}</th>
-                    {inputMode !== 'NOTE_ONLY' && <th>{t('captors_values')}</th>}
-                    <th>{t('note_display')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                {trainer.map(({ action, captors, note }, index) => (
-                  <tr key={index}>
-                    <td>{t(`action_${action.toLowerCase()}`)}</td>
-                    {inputMode !== 'NOTE_ONLY' && (
-                      <td>
-                        <ThymioSVG captors={captors} style={{ width: '100px', height: 'auto', marginLeft: '25px'}} showTraits={false} />
-                      </td>
-                    )}
-                    <td style={{ position: 'relative' }}> {/* Appliquer position relative sur la dernière cellule normale */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <p style={{ margin: '0' }}>{note}</p>
-                        <div style={{ transform: 'scale(0.7)', marginTop: '-20px'}}>
-                          <MusicalStaff noteRecording={note} />
+          <div style={{ display: 'flex' }}>
+            <div style={{ flex: 3, marginRight: '20px' }}>
+              <div style={{ overflowX: 'auto', maxHeight: '250px' }} className="trainer-table-container">
+                <table className="trainer-table">
+                  <thead>
+                    <tr>
+                      <th>{t('Action')}</th>
+                      {inputMode !== 'NOTE_ONLY' && <th>{t('captors_values')}</th>}
+                      <th>{t('note_display')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {trainer.map(({ action, captors, note }, index) => (
+                    <tr key={index}>
+                      <td>{t(`action_${action.toLowerCase()}`)}</td>
+                      {inputMode !== 'NOTE_ONLY' && (
+                        <td>
+                          <ThymioSVG captors={captors} style={{ width: '100px', height: 'auto', marginLeft: '25px'}} showTraits={false} />
+                        </td>
+                      )}
+                      <td style={{ position: 'relative' }}> {/* Appliquer position relative sur la dernière cellule normale */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                          <p style={{ margin: '0' }}>{note}</p>
+                          <div style={{ transform: 'scale(0.7)', marginTop: '-20px'}}>
+                            <MusicalStaff noteRecording={note} />
+                          </div>
                         </div>
-                      </div>
-                      {/* Bouton de suppression positionné en haut à droite */}
-                      <div className="delete-button-container">
-                        <button
-                          className="delete-button"
-                          onClick={() => handleDelete(index)}
-                          aria-label="Delete"
-                        >
-                          &#10005;
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+                        {/* Bouton de suppression positionné en haut à droite */}
+                        <div className="delete-button-container">
+                          <button
+                            className="delete-button"
+                            onClick={() => handleDelete(index)}
+                            aria-label="Delete"
+                          >
+                            &#10005;
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
 
-              </table>
-            </div>
-          </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div className={`map-more-actions-container ${actionClicked ? 'blinking-border' : ''}`} style={{ paddingTop: '0px', border: '2px solid white', marginTop: '0px' }}>
-            <label className="label-text" style={{ position: 'relative', top: '0px', left: '-10px' }}>2)</label>
-              <button onClick={() => handleSetCurrentState(STATES.PlayNote)} className="map-more-actions-button" style={{ marginBottom: '10px' }}>
-                {t('map_more_actions')}
-              </button>
-              <div style={{ paddingTop: '0px', border: 'none', marginBottom: '10px' }}>
-              <label className="label-text" style={{ position: 'relative', top: '0px', left: '-10px' }}>{t('or')}</label>
+                </table>
               </div>
-              <button onClick={() => {
-                if (trainer.length > 0) {
-                  handleSetCurrentState(STATES.ConsigneTesting);
-                } else {
-                  alert(t('no_training_data'));
-                }
-              }} className="test-model-button">
-                {t('test_the_model')}
-              </button>
             </div>
-            <div className="button-container" style={{ padding: '10px', border: '2px solid white' }}>
-              <input
-                  type="text"
-                  className="filename-input"
-                  placeholder={t('enter_filename')}
-                  value={filename}
-                  onChange={e => setFilename(e.target.value)}
-                  
-              />
-              <button onClick={() => saveTrainerToFile(filename)} className="save-model-button">
-                  {t('save_model')}
-              </button>
-              <button onClick={() => document.getElementById('fileInput').click()} className="load-model-button">
-                  {t('load_other_model')}
-              </button>
-              <input
-                  type="file"
-                  id="fileInput"
-                  className="input-file"
-                  onChange={handleFileUpload}
-                  accept=".json"
-                  style={{ display: 'none' }} // This makes sure the file input is not visible but can be triggered by the button
-              />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div className={`map-more-actions-container ${actionClicked ? 'blinking-border' : ''}`} style={{ paddingTop: '0px', border: '2px solid white', marginTop: '0px' }}>
+              <label className="label-text" style={{ position: 'relative', top: '0px', left: '-10px' }}>2)</label>
+                <button onClick={() => handleSetCurrentState(STATES.PlayNote)} className="map-more-actions-button" style={{ marginBottom: '10px' }}>
+                  {t('map_more_actions')}
+                </button>
+                <div style={{ paddingTop: '0px', border: 'none', marginBottom: '10px' }}>
+                <label className="label-text" style={{ position: 'relative', top: '0px', left: '-10px' }}>{t('or')}</label>
+                </div>
+                <button onClick={() => {
+                  if (trainer.length > 0) {
+                    handleSetCurrentState(STATES.ConsigneTesting);
+                  } else {
+                    alert(t('no_training_data'));
+                  }
+                }} className="test-model-button">
+                  {t('test_the_model')}
+                </button>
+              </div>
+              <div className="button-container" style={{ padding: '10px', border: '2px solid white' }}>
+                <input
+                    type="text"
+                    className="filename-input"
+                    placeholder={t('enter_filename')}
+                    value={filename}
+                    onChange={e => setFilename(e.target.value)}
+                    
+                />
+                <button onClick={() => saveTrainerToFile(filename)} style ={{marginBottom: '5px'}} >
+                    {t('save_model')}
+                </button>
+                <button onClick={() => document.getElementById('fileInput').click()} >
+                    {t('load_other_model')}
+                </button>
+                <input
+                    type="file"
+                    id="fileInput"
+                    className="input-file"
+                    onChange={handleFileUpload}
+                    accept=".json"
+                    style={{ display: 'none' }} // This makes sure the file input is not visible but can be triggered by the button
+                />
+            </div>
+            </div>
           </div>
-          </div>
-        </div>
-      </>
-    );
+        </>
+      );
     
   
   
@@ -1571,7 +1561,7 @@ case STATES.PlayNote:
 
           
           {isTrainingComponentLoaded && (
-            <div style={{ border: '2px solid white', padding: '10px', marginTop: '0px' } }className="blinking-border">
+            <div style={{ border: '2px solid white', padding: '10px', marginTop: '0px' } }className=" button-container blinking-border">
               <div>
               <label className="label-text" style={{ position: 'relative', top: '0px', left: '0px' }}>{t('Model_ready')}</label>
               </div>
@@ -1586,7 +1576,7 @@ case STATES.PlayNote:
   return (
     <div>
       {/* First line: Always the Piano for both modes */}
-      <div style={{
+      <div  className="piano-container" style={{
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'stretch',
@@ -1595,7 +1585,7 @@ case STATES.PlayNote:
       }}>
         <div style={{
           border: '1px solid white',
-          padding: '10px',
+          padding: '0px',
           minWidth: inputMode === 'CAPTORS_AND_NOTE' ? '600px' : '100%', // Full width only in NOTE_ONLY
           marginRight: inputMode === 'CAPTORS_AND_NOTE' ? '20px' : '0', // No margin on the right in NOTE_ONLY
           display: 'flex',
@@ -1616,7 +1606,7 @@ case STATES.PlayNote:
           }}>
             <button onClick={stopExecutionAndReset} className="stop-testing-btn">{t('stop_testing')}</button>
             {note !== null && note !== 0 && note !== 'None' && (
-              <button onClick={() => handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn blinking-border">{t('visualize_neural_network')}  style={{ marginBottom: '10px', padding: '10px 20px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}</button>
+              <button onClick={() => handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn blinking-border">{t('visualize_neural_network')} </button>
             )}
             <button onClick={() => {handleSetCurrentState(STATES.CurrentModelTest), setIsWinnerTakesAll(true)}} className="switch-decision-btn">{isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}</button>
             <button onClick={() => { resetModelAndTrainer(); handleSetCurrentState(STATES.ConsigneTraining); }} className="reset-training-btn">{t('reinitialize_the_model')}</button>
@@ -1627,7 +1617,7 @@ case STATES.PlayNote:
       
       {/* Second line: Conditional rendering based on inputMode */}
       <div style={{ display: 'flex', flexDirection: 'row', marginBottom: '20px', height: '280px' }}>  {/* Uniform height for all second line components */}
-        <div style={{
+        <div className = "secondline" style={{
           border: '1px solid white',
           padding: '10px',
           marginRight: '20px',
@@ -1671,10 +1661,10 @@ case STATES.PlayNote:
           justifyContent: 'center' // Center content vertically
         }}>
           <label style={{ textAlign: 'left' }}><span className="label-text">3) {t('action_predicted')}</span></label>
-          <BarChart data={predictions} labels={labels} style={{ flexGrow: 1, overflow: 'hidden' }} />
+          <BarChart data={predictions} labels={labels} theme={theme} style={{ flexGrow: 1, overflow: 'hidden' }} />
         </div>
         {inputMode === 'NOTE_ONLY' && (
-          <div style={{
+          <div  className="control-buttons-container"style={{
             border: '1px solid white',
             padding: '10px',
             flexGrow: 1,
@@ -1718,10 +1708,10 @@ case STATES.PlayNote:
       <>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '0px' }}>
           {/* Conteneur pour le note-display et ThymioSVG (si applicable) */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '2px solid white', marginRight: '0px', marginTop: '-10px', backgroundColor: '#b1b3af' }}>
+          <div className="recording-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '2px solid white', marginRight: '0px', marginTop: '-10px' }}>
             {note !== null && (
             <div className='note-display' style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0px', border: '2px solid white', marginTop: '-10px' }}>
-              <button onClick={toggleContinuousRecording} className="toggle-recording-btn" style={{ marginBottom: '2px', borderWidth: '2px', borderColor: "white" }}>
+              <button onClick={toggleContinuousRecording} className="toggle-recording-btn" style={{ marginBottom: '2px', borderWidth: '3px' }}>
                 {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
               </button>
               <p>{t('tone')}: {note} </p>
@@ -1743,31 +1733,29 @@ case STATES.PlayNote:
           </div>
     
           {/* Conteneur pour NeuralNetworkVisualization */}
-          <div id="neuralNetworkContainer" style={{ flexGrow: 1 }}>
+          <div className="neural-network-container" id="neuralNetworkContainer" style={{ flexGrow: 1 }}>
             <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv={predictions} sensorData={sensorData} currentNote={noteToNumberMapping[note]} onNeuronCoordinates={handleNeuronCoordinates} />
           </div>
         </div>
     
-          {inputMode === 'NOTE_ONLY' && neuronCoords[0] && (
-            <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1100 }}>
-            <line
-              x1={musicalStaffCoords.x}
-              y1={musicalStaffCoords.y}
-              x2={neuronCoords[0].x}
-              y2={neuronCoords[0].y}
-              stroke="blue"
-              strokeWidth="4"
-              markerEnd="url(#arrowhead-red)"
-            />
-            <defs>
-              <marker id="arrowhead-red" markerWidth="7" markerHeight="5" refX="8" refY="3" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" fill="blue"/>
-              </marker>
-            </defs>
-          </svg>
-          )}
-
-
+        {inputMode === 'NOTE_ONLY' && neuronCoords[0] && (
+  <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1100, overflow: 'visible' }}>
+    <line
+      x1={musicalStaffCoords.x}
+      y1={musicalStaffCoords.y}
+      x2={neuronCoords[0].x-5}
+      y2={neuronCoords[0].y}
+      stroke="blue"
+      strokeWidth="4"
+      markerEnd="url(#arrowhead-red)"
+    />
+    <defs>
+      <marker id="arrowhead-red" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto">
+        <polygon points="0 0, 6 2.5, 0 5" fill="blue"/>
+      </marker>
+    </defs>
+  </svg>
+)}
   {inputMode === 'CAPTORS_AND_NOTE' && (
     <svg ref={svgRef} width="300" height="200" 
         style={{ zIndex: 1005, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', overflow: 'visible' }}
@@ -1824,12 +1812,12 @@ case STATES.PlayNote:
     
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px', marginBottom: '-23px' }}>
           {/* Conteneur pour le piano */}
-          <div style={{ maxWidth: '1000px', flex: 1 }}>
+          <div className="piano-container"style={{ maxWidth: '1000px', flex: 1 }}>
             <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
           </div>
     
           {/* Conteneur pour les boutons */}
-          <div style={{ display: 'flex', justifyContent: 'space-around', flexDirection: 'column', marginLeft: '20px' }}>
+          <div className="control-buttons-container" style={{ display: 'flex', justifyContent: 'space-around', flexDirection: 'column', marginLeft: '20px' }}>
             <button onClick={stopExecutionAndReset} className="stop-testing-btn" style={{ marginBottom: '10px' }}>
               {mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}
             </button>
@@ -1883,35 +1871,36 @@ return (
       styles={{
         options: {
           zIndex: 10000,
-          primaryColor: '#d41313',
-          textColor: '#fff',
-          backgroundColor: '#333',
-          arrowColor: '#ab1120',
+          primaryColor: theme === 'light' ? '#4a90e2' : '#d41313', 
+          textColor: theme === 'light' ? '#333' : '#fff',         
+          backgroundColor: theme === 'light' ? '#f7f7f7' : '#333',
+          arrowColor: theme === 'light' ? '#dfe6e9' : '#ab1120',
         },
         buttonNext: {
-          color: '#fff',
-          backgroundColor: '##aaa',
+          color: theme === 'light' ? '#333' : '#fff',
+          backgroundColor: theme === 'light' ? '#e6e6e6' : '#aaa',
         },
         buttonBack: {
-          color: '#fff',
-          backgroundColor: '#aaa',
+          color: theme === 'light' ? '#333' : '#fff',
+          backgroundColor: theme === 'light' ? '#e6e6e6' : '#aaa',
         },
         buttonSkip: {
-          color: '#fff',
-          backgroundColor: '#aaa',
+          color: theme === 'light' ? '#333' : '#fff',
+          backgroundColor: theme === 'light' ? '#e6e6e6' : '#aaa',
         }
       }}
       callback={handleJoyrideCallback}
     />
-    <aside ref={menuRef} className={`DrawerMenu ${showSettings ? 'open' : ''}`} role="menu">
+    <aside ref={menuRef} className={`DrawerMenu ${showSettings ? 'open' : ''} ${theme === 'light' ? 'light-theme' : ''}`}   role="menu">
       <nav className="Menu">
         <h2>{t('settings_panel')}</h2>
         <p>{t('current_input_mode')}: {inputMode === 'NOTE_ONLY' ? t('note_only') : t('captors_and_note')}</p>
         <div>
-          <label htmlFor="recordDuration">
+          <label htmlFor="recordDuration" style={{ fontSize: '14px' }}>
             {t('record_duration')} (s): <span>{recordDuration / 1000}</span>
           </label>
           <input
+            ref={sliderRef}
             id="recordDuration"
             type="range"
             min="1"
@@ -1922,8 +1911,9 @@ return (
           />
         </div>
         <div className="MenuLink">
-          <label htmlFor="thresholdSlider">{t('threshold')}: {getThresholdLabel(threshold)}</label>
+          <label style={{ fontSize: '14px' }} htmlFor="thresholdSlider">{t('threshold')}: {getThresholdLabel(threshold)}</label>
           <input
+            ref={sliderRef}
             id="thresholdSlider"
             type="range"
             min="180"
@@ -1939,6 +1929,11 @@ return (
         <button onClick={() => resetModelAndTrainer()} className="MenuLink">
           {t('reset_model')}
         </button>
+
+        <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+          {theme === 'light' ? 'Passer au thème sombre' : 'Passer au thème clair'}
+        </button>
+
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
           <button onClick={() => i18n.changeLanguage('fr')} className="MenuLink" title="Français">
             <span className="fi fi-fr"></span>

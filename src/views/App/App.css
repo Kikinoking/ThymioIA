@@ -102,7 +102,10 @@
   z-index: 1040; /* S'assure que le volet est au-dessus du contenu de la page mais sous le bouton */
 }
 
-
+.actions-header {
+  margin-top: 0px;  /* Réduit la marge supérieure */
+  margin-bottom: 5px;  /* Réduit la marge inférieure */
+}
 
 .settings-panel h2 {
   padding: 20px; /* Espacement autour du titre pour plus de clarté */
@@ -330,19 +333,8 @@
   border-radius: 5px;
 }
 
-/* Définir des barres autour du cercle */
-.spinner-bar:nth-child(1) { transform: rotate(0deg) translateX(-50%); }
-.spinner-bar:nth-child(2) { transform: rotate(30deg) translateX(-50%); }
-.spinner-bar:nth-child(3) { transform: rotate(60deg) translateX(-50%); }
-.spinner-bar:nth-child(4) { transform: rotate(90deg) translateX(-50%); }
-.spinner-bar:nth-child(5) { transform: rotate(120deg) translateX(-50%); }
-.spinner-bar:nth-child(6) { transform: rotate(150deg) translateX(-50%); }
-.spinner-bar:nth-child(7) { transform: rotate(180deg) translateX(-50%); }
-.spinner-bar:nth-child(8) { transform: rotate(210deg) translateX(-50%); }
-.spinner-bar:nth-child(9) { transform: rotate(240deg) translateX(-50%); }
-.spinner-bar:nth-child(10) { transform: rotate(270deg) translateX(-50%); }
-.spinner-bar:nth-child(11) { transform: rotate(300deg) translateX(-50%); }
-.spinner-bar:nth-child(12) { transform: rotate(330deg) translateX(-50%); }
+
+
 
 .spinner-container {
   position: relative;
@@ -456,6 +448,7 @@
   width: 600px; /* Fixe la largeur à 600px pour le piano */
   margin: auto; /* Centralise le piano */
   z-index: 1200;
+  
 }
 
 .note-recorded-display {
@@ -523,21 +516,7 @@
 }
 
 
-.save-model-button,
-.load-model-button {
-  font-size: 14px; /* Taille de police plus petite pour les boutons */
-  padding: 8px 16px; /* Ajout de padding pour un meilleur aspect visuel */
-  background-color: #1a1a1a;; /* Couleur de fond claire */
-  color: #ffffff; /* Couleur de texte foncée pour contraste */
-  border: 1px solid #1a1a1a;; /* Bordure subtile */
-  border-radius: 4px; /* Bords arrondis pour un look moderne */
-  cursor: pointer; /* Curseur pointeur pour indiquer la possibilité de cliquer */
-  margin-bottom: 10px; /* Marge en bas pour espacer des éléments suivants */
-}
-.save-model-button:hover,
-.load-model-button:hover {
-  border-color: #ffffff /* Changement de couleur de fond au survol */
-}
+
 
 
 .input-file {
@@ -584,4 +563,53 @@
 .piano{
   
   z-index: 1200;
+}
+
+.light-theme .actions-container {
+  background-color: #575555; /* Couleur de fond plus claire */
+}
+
+.light-theme .trainer-table-container {
+  background-color: #ffffff; /* Fond blanc */
+  border-color: #ccc; /* Bordure plus claire */
+}
+
+.light-theme .trainer-table {
+  border-color: #ddd; /* Bordure plus claire pour la table */
+}
+
+.light-theme .button-container,
+.light-theme .map-more-actions-container,
+.light-theme .visualization-container,
+.light-theme .piano-container,
+.light-theme .musical-staff-container,
+.light-theme .barchart-container,
+.light-theme .control-buttons-container,
+.light-theme .secondline,
+.light-theme .input_components,
+.light-theme .neural-network-container, /* Ajout pour le conteneur de visualisation du réseau neuronal */
+.light-theme .note-display-container, /* Ajout pour le conteneur de l'affichage des notes et ThymioSVG */
+.light-theme .piano-container, 
+.light-theme .control-buttons-container,
+.light-theme .record-note-section,
+.light-theme .piano-container,
+.light-theme .note-recorded-section,
+.light-theme .thymio-svg-container,
+.light-theme .note-recorded-section,
+.light-theme .recording-container {
+    background-color: #828080; /* Fond légèrement gris pour distinguer */
+    border-color: #414040; /* Bordure légèrement plus foncée */
+    border-width: '3px';
+    color: #fff; /* Texte blanc pour une meilleure lisibilité */
+}
+
+/* Styles spécifiques au thème clair pour les en-têtes de table */
+.light-theme .trainer-table th {
+  color: #fff; /* Texte blanc */
+  background-color: #575555; /* Fond gris foncé pour contraster avec le texte blanc */
+}
+
+/* Assurez-vous que les lignes de table ont également une couleur de texte appropriée en mode thème clair */
+.light-theme .trainer-table td {
+  color: #fff; /* Texte blanc pour la cohérence avec les en-têtes */
 }

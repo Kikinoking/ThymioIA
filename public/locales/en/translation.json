@@ -168,7 +168,12 @@
   "start_animation": "Start Animation",
   "stop_animation": "Stop Animation",
   "current_epoch": "Current Epoch: ",
-  "epoch_slider": "Change epoch"
+  "epoch_slider": "Change epoch",
+
+
+  "tooltip_neural_network_visualization_train": "Here you can see the training of the neural network",
+  "tooltip_neural_network_visualization": "Here you can see the current state of the neural network being predicted.",
+  "tooltip_control_buttons": "Here you can activate/deactivate the testing phase, or return to the testing state."
 
   
       

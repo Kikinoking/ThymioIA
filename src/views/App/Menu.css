@@ -72,4 +72,68 @@
   .MenuOverlay:not(.open) {
     pointer-events: none;
   }
+  .light-theme .DrawerMenu {
+    background-color: #ffffff00; /* Couleur de fond plus claire pour le thème clair */
+    
+    color: #333; /* Couleur de texte plus foncée pour une meilleure lisibilité */
+}
+
+.light-theme .Menu {
+    background-color: #f7f7f7; /* Un fond légèrement différent pour le menu lui-même */
+    
+    font-family: 'Arial', sans-serif; /* Changement de police pour le thème clair */
+}
+
+.light-theme .MenuLink, .light-theme .Menu p {
+    color: #333; /* Texte plus foncé pour une meilleure lisibilité sur fond clair */
+}
+
+.light-theme .MenuLink:hover {
+    color: #007bff; /* Bleu pour le survol, ajustez selon vos préférences */
+}
+
+/* Styles spécifiques pour les sliders */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 5px; /* Visibilité accrue */
+  background: #6a6df8; /* Fond initial transparent */
+  outline: none;
+  opacity: 0.7;
+  transition: opacity .2s;
+  margin-bottom: 10px;
+  border-radius: 10%;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 10px;
+  border-radius: 50%;
+  background: #6a6df8; /* Couleur initiale pour le thème sombre */
+  cursor: pointer;
+
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background:#9582ff ; /* Couleur initiale pour le thème sombre */
+  cursor: pointer;
   
+}
+
+/* Adaptations pour le thème clair */
+.light-theme input[type="range"]::-webkit-slider-thumb {
+  background:#3707f7 ; /* Couleur pour le thème clair */
+}
+
+.light-theme input[type="range"]::-moz-range-thumb {
+  background: #ffffff; /* Couleur pour le thème clair */
+}
+
+.light-theme .Menu h2,
+.light-theme .Menu label {
+    color: #333; /* Une couleur foncée pour une meilleure visibilité sur fond clair */
+}

@@ -18,8 +18,38 @@
     const currentEpochRef = useRef(0); // Using ref to track the current epoch
     const [cumulativeBiasChanges, setCumulativeBiasChanges] = useState([]);
 
+    const sliderRef = useRef(null); 
+
     const CHANGE_THRESHOLD = 0.01; // for weighs, training visualisation
-    
+    useEffect(() => {
+        const updateSliderBackground = () => {
+            const slider = sliderRef.current;
+            if (slider) {
+                const value = parseInt(slider.value, 10);
+                const percentage = ((value - slider.min) / (slider.max - slider.min)) * 100;
+                slider.style.background = `linear-gradient(to right, #4e48ff ${percentage}%, #0f09bf ${percentage}%)`;
+            }
+        };
+
+        const slider = sliderRef.current;
+        if (slider) {
+            updateSliderBackground(); // Appliquer la mise à jour du style immédiatement
+            slider.addEventListener('input', updateSliderBackground); // Appliquer la mise à jour lors des entrées utilisateur
+        }
+
+        // Nettoyage: retirer l'écouteur quand le composant se démonte ou si le slider change
+        return () => {
+            if (slider) {
+                slider.removeEventListener('input', updateSliderBackground);
+            }
+        };
+    }, [currentEpoch]);
+
+    useEffect(() => {
+        if (sliderRef.current) {
+            sliderRef.current.value = currentEpoch;
+        }
+    }, [currentEpoch]);
 
     useEffect(() => {
         currentEpochRef.current = currentEpoch; // Update ref whenever state changes
@@ -296,6 +326,7 @@
         </svg>
         <div style={{ marginTop: '2px', width: '70%', display: 'flex', justifyContent: 'space-around' }}>
                 <input
+                    ref={sliderRef}
                     type="range"
                     min="0"
                     max={trainingData.length - 1}

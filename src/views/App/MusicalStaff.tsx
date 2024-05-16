@@ -1,19 +1,23 @@
 import React, { useEffect } from 'react';
 import TrebleClef from 'D:/EPFL/Robproj/ThymioIA/src/assets/treble-clef.svg';
 
+// Positions de base des notes de C4 à C6
 const notesPosition: { [key: string]: number } = {
-    'C': 120, // Ajusté pour les positions plus basses
-    'C#': 110,
-    'D': 110,
-    'D#': 90,
-    'E': 100,
-    'F': 90,
-    'F#': 60,
-    'G': 80,
-    'G#': 40,
-    'A': 70,
-    'A#': 20,
-    'B': 60
+    'C4': 130,  'C#4': 130,
+    'D4': 125,  'D#4': 125,
+    'E4': 120,
+    'F4': 110,  'F#4': 110,
+    'G4': 100,   'G#4': 100,
+    'A4': 90,   'A#4': 90,
+    'B4': 80,
+    'C5': 70,   'C#5': 70,
+    'D5': 60,   'D#5': 60,
+    'E5': 50,
+    'F5': 40,   'F#5': 40,
+    'G5': 34,   'G#5': 34,
+    'A5': 27,   'A#5': 27,
+    'B5': 20,
+    'C6': 14,    
 };
 
 interface MusicalStaffProps {
@@ -22,10 +26,8 @@ interface MusicalStaffProps {
 }
 
 const MusicalStaff: React.FC<MusicalStaffProps> = ({ noteRecording, onReady }) => {
-    const note = noteRecording ? noteRecording.slice(0, -1) : 'A';
-    const sharp = note.includes('#');
-    const octave = noteRecording ? noteRecording.slice(-1) : '6';
-    const yPos = notesPosition[note.replace('#', '')] - (parseInt(octave, 10) - 4) * 79;
+    const note = noteRecording || 'A4';
+    const yPos = notesPosition[note];
 
     useEffect(() => {
         if (onReady) {
@@ -33,22 +35,24 @@ const MusicalStaff: React.FC<MusicalStaffProps> = ({ noteRecording, onReady }) =
         }
     }, [onReady]);
 
+    const sharp = note.includes('#');
     const sharpX = 140;
-    const sharpY = yPos + 28;
+    const sharpY = yPos +7;
 
-    const needsBarThrough = (noteRecording === 'A5' || noteRecording === 'C4');
-    const needsBarTangent = (noteRecording === 'B5');
-
+    const needsBarThrough = (note === 'A5' || note === 'C4' || note === 'C6');
+    const needsBarTangent = (note === 'B5');
+    const needsExtraBar = (note === 'C6');
     return (
-        <svg width="200" height="170" style={{ border: '1px solid black', backgroundColor: 'white' }}>
-            {[30, 50, 70, 90, 110].map((y, index) => (
-                <line key={index} x1="10" y1={y + 20} x2="190" y2={y + 20} stroke="black" strokeWidth="1" />
+        <svg width="200" height="150" style={{ border: '1px solid black', backgroundColor: 'white' }}>
+            {[40, 60, 80, 100, 120].map((y, index) => (
+                <line key={index} x1="10" y1={y} x2="190" y2={y} stroke="black" strokeWidth="1" />
             ))}
-            <image href={TrebleClef} x="10" y="48" height="90px" />
-            {sharp && <text x={sharpX} y={sharpY + 20} fontFamily="Arial" fontSize="20px" fill="black">#</text>}
-            <circle cx="130" cy={yPos + 40} r="6" fill="black" />
-            {needsBarThrough && <line x1="120" x2="140" y1={yPos + 40} y2={yPos + 40} stroke="black" strokeWidth="2" />}
-            {needsBarTangent && <line x1="120" x2="140" y1={yPos + 46} y2={yPos + 46} stroke="black" strokeWidth="2" />}
+            <image href={TrebleClef} x="10" y="20" height="90px" />
+            {sharp && <text x={sharpX} y={sharpY} fontFamily="Arial" fontSize="20px" fill="black">#</text>}
+            <circle cx="130" cy={yPos} r="6" fill="black" />
+            {needsBarThrough && <line x1="120" x2="140" y1={yPos} y2={yPos} stroke="black" strokeWidth="2" />}
+            {needsBarTangent && <line x1="120" x2="140" y1={yPos + 6} y2={yPos + 6} stroke="black" strokeWidth="2" />}
+             {needsExtraBar && <line x1="120" x2="140" y1={yPos + 10} y2={yPos + 10} stroke="black" strokeWidth="2" />}
         </svg>
     );
 };
