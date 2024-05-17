@@ -6,7 +6,7 @@
     import Svgaction4 from '../../../assets/actionsicons/RightStatic.png';
     import Svgaction5 from '../../../assets/actionsicons/LeftStatic.png';
 
-    const NeuralNetworkVisualizationTraining = ({ trainingData, inputMode }) => {
+    const NeuralNetworkVisualizationTraining = ({ trainingData, inputMode, showBiases }) => {
         
         const { t } = useTranslation();
     const [currentEpoch, setCurrentEpoch] = useState(0);
@@ -268,7 +268,7 @@
                     <g key={neuronIdx}>
                         {lines}
                         <circle cx={x} cy={y} r={10} fill="white" />
-                        <circle cx={x} cy={y} r={5} fill={biasColor} />  
+                        {showBiases && <circle cx={x} cy={y} r={5} fill={biasColor} />  }
                     </g>
                     );
                 })}
@@ -297,7 +297,7 @@
                     return (
                         <React.Fragment key={`fragment-${neuronIndex}-${outputIdx}`}>
                         <line key={`output-line-${neuronIndex}-${outputIdx}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={getColorFromWeight(weight)} strokeWidth="2" />
-                        <circle cx={x2} cy={y2} r={5} fill={biasColor} />
+                        {showBiases={showBiases} && <circle cx={x2} cy={y2} r={5} fill={biasColor} />}
                         <circle cx={x2} cy={y2} r={10} fill="orange" />
                         
                         <image

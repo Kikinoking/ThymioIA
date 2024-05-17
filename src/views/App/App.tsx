@@ -131,7 +131,12 @@ const App = observer(() => {
   const [thymioSVGLoaded, setThymioSVGLoaded] = useState(false);
 
   const [theme, setTheme] = useState('light'); // 'light' is default theme
-  const sliderRef = useRef(null);
+
+  const [showBiases, setShowBiases] = useState(false); // Par défaut, les biais sont visibles
+
+  const recordDurationRef = useRef(null);
+  const thresholdSliderRef = useRef(null);
+
 
   const handleRectCoordinates = (coords) => {
     console.log('Rect Coords:', coords);
@@ -345,24 +350,28 @@ const loadTrainerLocally = () => {
   };
 
   useEffect(() => {
-    const slider = sliderRef.current;
-    if (slider) {
-      const min = slider.min || 0;
-      const max = slider.max || 100;
-
-      function updateSliderBackground(value) {
-        const percentage = ((value - min) / (max - min)) * 100;
-        slider.style.background = `linear-gradient(to right, #4e48ff ${percentage}%, #0f09bf ${percentage}%)`;
+    const sliders = [recordDurationRef.current, thresholdSliderRef.current];
+    sliders.forEach(slider => {
+      if (slider) {
+        const updateSliderBackground = () => {
+          const min = slider.min || 0;
+          const max = slider.max || 100;
+          const value = slider.value;
+          const percentage = ((value - min) / (max - min)) * 100;
+          slider.style.background = `linear-gradient(to right, #027676 ${percentage}%, #76ABAE ${percentage}%)`;
+        };
+  
+        updateSliderBackground();
+  
+        slider.addEventListener('input', updateSliderBackground);
+  
+        return () => {
+          slider.removeEventListener('input', updateSliderBackground);
+        };
       }
-
-      slider.addEventListener('input', function() {
-        updateSliderBackground(slider.value);
-      });
-
-      // Initialise le fond au chargement
-      updateSliderBackground(slider.value);
-    }
+    });
   }, []);
+  
 
   useEffect(() => {
     if (isExecuteClicked) {
@@ -525,6 +534,7 @@ useEffect(() => {
     
     switch (currentState) {
       case 'Title':
+        if (robots.length > 0) {
         setSteps([
           
           {
@@ -533,13 +543,25 @@ useEffect(() => {
             placement: 'left',
             disableBeacon: true
           },
+          
           {
             target: '.robot-list',
             content: t('tooltip_select_robot'),
             placement: 'bottom',
             disableBeacon: true
-          }
-        ]);
+          
+        }
+        ])
+      }
+      else { setSteps([
+          
+        {
+          target: '.getRobots-button',
+          content: t('tooltip_get_robots'),
+          placement: 'left',
+          disableBeacon: true
+        }
+      ])};
         break;
       case 'ConsigneTraining':
       setSteps([
@@ -747,7 +769,7 @@ useEffect(() => {
       
       
     }
-  }, [currentState, t, isTrainingComplete]); 
+  }, [currentState, t, isTrainingComplete, robots]); 
 
   const toggleSettings = () => {
     setShowSettings(prev => !prev);
@@ -1554,7 +1576,7 @@ case STATES.PlayNote:
       </div>
 
     </div>
-    <NeuralNetworkVisualizationTraining trainingData={trainingData} inputMode={inputMode} />
+    <NeuralNetworkVisualizationTraining showBiases={showBiases} trainingData={trainingData} inputMode={inputMode} />
   </div>
 )}
 
@@ -1734,7 +1756,7 @@ case STATES.PlayNote:
     
           {/* Conteneur pour NeuralNetworkVisualization */}
           <div className="neural-network-container" id="neuralNetworkContainer" style={{ flexGrow: 1 }}>
-            <NeuralNetworkVisualization model={model} inputMode={inputMode} activations={activations} outputactiv={predictions} sensorData={sensorData} currentNote={noteToNumberMapping[note]} onNeuronCoordinates={handleNeuronCoordinates} />
+            <NeuralNetworkVisualization showBiases = {showBiases} model={model} inputMode={inputMode} activations={activations} outputactiv={predictions} sensorData={sensorData} currentNote={noteToNumberMapping[note]} onNeuronCoordinates={handleNeuronCoordinates} />
           </div>
         </div>
     
@@ -1874,19 +1896,19 @@ return (
           primaryColor: theme === 'light' ? '#4a90e2' : '#d41313', 
           textColor: theme === 'light' ? '#333' : '#fff',         
           backgroundColor: theme === 'light' ? '#f7f7f7' : '#333',
-          arrowColor: theme === 'light' ? '#dfe6e9' : '#ab1120',
+          arrowColor: theme === 'light' ? '#dfe6e9' : '#76ABAE',
         },
         buttonNext: {
           color: theme === 'light' ? '#333' : '#fff',
-          backgroundColor: theme === 'light' ? '#e6e6e6' : '#aaa',
+          backgroundColor: theme === 'light' ? '#e6e6e6' : '#76ABAE',
         },
         buttonBack: {
           color: theme === 'light' ? '#333' : '#fff',
-          backgroundColor: theme === 'light' ? '#e6e6e6' : '#aaa',
+          backgroundColor: theme === 'light' ? '#e6e6e6' : '#76ABAE',
         },
         buttonSkip: {
           color: theme === 'light' ? '#333' : '#fff',
-          backgroundColor: theme === 'light' ? '#e6e6e6' : '#aaa',
+          backgroundColor: theme === 'light' ? '#e6e6e6' : '#76ABAE',
         }
       }}
       callback={handleJoyrideCallback}
@@ -1900,7 +1922,7 @@ return (
             {t('record_duration')} (s): <span>{recordDuration / 1000}</span>
           </label>
           <input
-            ref={sliderRef}
+            ref={recordDurationRef}
             id="recordDuration"
             type="range"
             min="1"
@@ -1913,7 +1935,7 @@ return (
         <div className="MenuLink">
           <label style={{ fontSize: '14px' }} htmlFor="thresholdSlider">{t('threshold')}: {getThresholdLabel(threshold)}</label>
           <input
-            ref={sliderRef}
+            ref={thresholdSliderRef}
             id="thresholdSlider"
             type="range"
             min="180"
@@ -1930,9 +1952,20 @@ return (
           {t('reset_model')}
         </button>
 
+        <div>
+        <label htmlFor="toggleBiases">Afficher les biais :</label>
+        <input
+          type="checkbox"
+          id="toggleBiases"
+          checked={showBiases}
+          onChange={() => setShowBiases(!showBiases)} 
+        />
+      </div>
+
         <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
           {theme === 'light' ? 'Passer au thème sombre' : 'Passer au thème clair'}
         </button>
+        
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
           <button onClick={() => i18n.changeLanguage('fr')} className="MenuLink" title="Français">

@@ -7,7 +7,7 @@
   import Svgaction4 from '../../../assets/actionsicons/RightStatic.png';
   import Svgaction5 from '../../../assets/actionsicons/LeftStatic.png';
 
-  const NeuralNetworkVisualization = ({ model, inputMode, activations , outputactiv, sensorData, currentNote, onNeuronCoordinates }) => {
+  const NeuralNetworkVisualization = ({ model, inputMode, activations , outputactiv, sensorData, currentNote, onNeuronCoordinates, showBiases }) => {
     const [layers, setLayers] = useState([]);
     const svgWidth = 800; // Largeur du SVG
     const svgHeight = 400; // Hauteur du SVG
@@ -306,7 +306,7 @@
       return (
         <g key={`output-neuron-${index}`}>
           <circle cx={x} cy={y} r={radiusoutput} fill="orange" />
-          <circle cx={x} cy={y} r={Math.min(5, radiusoutput / 2)} fill={getBiasColor(layers[layers.length - 1].biases[index])} />
+          { showBiases && <circle cx={x} cy={y} r={Math.min(5, radiusoutput / 2)} fill={getBiasColor(layers[layers.length - 1].biases[index])} />}
         </g>
       );
     })}
@@ -390,8 +390,8 @@
 
       return (
         <g key={`neuron-${layerIndex}-${neuronIdx}`}>
-          <circle cx={x} cy={y} r={Math.min(10, radius)} fill="purple" />
-          <circle cx={x} cy={y} r={Math.min(10, radius / 2)} fill={getBiasColor(layer.biases[neuronIdx])} />
+          <circle cx={x} cy={y} r={Math.min(10, radius)} fill="white" />
+          {showBiases && <circle cx={x} cy={y} r={Math.min(10, radius / 2)} fill={getBiasColor(layer.biases[neuronIdx])} />}
         </g>
       );
     })}
@@ -406,8 +406,8 @@
 
         return (
           <g key={`neuron-${layerIndex}-${neuronIdx}`}>
-            <circle cx={x} cy={y} r={Math.min(10, radius)} fill="purple" />
-            <circle cx={x} cy={y} r={Math.min(10, radius / 2)} fill={getBiasColor(layer.biases[neuronIdx])} />
+            <circle cx={x} cy={y} r={Math.min(10, radius)} fill="white" />
+           {showBiases && <circle cx={x} cy={y} r={Math.min(10, radius / 2)} fill={getBiasColor(layer.biases[neuronIdx])} />}
           </g>
         );
       })}

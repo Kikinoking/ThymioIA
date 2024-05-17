@@ -14,7 +14,7 @@
     display: flex; /* Centre l'image SVG à l'intérieur du bouton */
     align-items: center;
     justify-content: center;
-    z-index: 1200; /* S'assure qu'il reste au-dessus des autres éléments */
+    z-index: 1400; /* S'assure qu'il reste au-dessus des autres éléments */
   }
   
   .OpenMenuButton img {
@@ -97,7 +97,7 @@ input[type="range"] {
   -webkit-appearance: none;
   width: 100%;
   height: 5px; /* Visibilité accrue */
-  background: #6a6df8; /* Fond initial transparent */
+  background: #95b7b7; /* Fond initial transparent */
   outline: none;
   opacity: 0.7;
   transition: opacity .2s;
@@ -110,7 +110,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 15px;
   height: 10px;
   border-radius: 50%;
-  background: #6a6df8; /* Couleur initiale pour le thème sombre */
+  background: #76ABAE; /* Couleur initiale pour le thème sombre */
   cursor: pointer;
 
 }

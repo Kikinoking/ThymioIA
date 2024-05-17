@@ -39,7 +39,7 @@ const MusicalStaff: React.FC<MusicalStaffProps> = ({ noteRecording, onReady }) =
     const sharpX = 140;
     const sharpY = yPos +7;
 
-    const needsBarThrough = (note === 'A5' || note === 'C4' || note === 'C6');
+    const needsBarThrough = (note === 'A5' || note === 'C4' || note === 'C6' || note === 'A#5' || note === 'C#4');
     const needsBarTangent = (note === 'B5');
     const needsExtraBar = (note === 'C6');
     return (

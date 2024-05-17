@@ -213,11 +213,11 @@
 }
 
 .instructions-container {
-  border: 2px solid #db2525; 
+  border: 2px solid #76ABAE; 
   border-radius: 8px; /* Coins arrondis */
   padding: 5px 5px 5px 5px; /* Réduit le padding supérieur */
   margin: 2px; /* Marge extérieure */
-  background-color: #f9f9f9; /* Fond légèrement gris */
+  background-color: #EEEEEE; /* Fond légèrement gris */
   width: 600px; /* Largeur fixe */
   box-shadow: 0 4px 8px rgba(163, 160, 160, 0.1); /* Ombre discrète */
 }
