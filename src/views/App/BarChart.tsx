@@ -122,7 +122,7 @@ const BarChart = ({ data, labels, theme }) => {
 
   Chart.register(backgroundPlugin);
 
-  return <Bar data={chartData} options={options} />;
+  return <Bar data={chartData} options={options} />
 };
 
 export default BarChart;
