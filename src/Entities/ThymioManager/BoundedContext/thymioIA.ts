@@ -24,7 +24,7 @@ function selectActionBasedOnProbabilities(predictions) {
   //Check in which interval the number falls in
 
   const selectedIndex = cumulativeProbabilities.findIndex(cumulativeProb => randomNumber <= cumulativeProb);
-  console.log("cumulprobs: ", cumulativeProbabilities)
+  //console.log("cumulprobs: ", cumulativeProbabilities)
   return selectedIndex;
 }
 @BoundedContext({ key: 'ThymioIA', predicate: [] })
@@ -134,13 +134,13 @@ export class ThymioIA implements IThymioIA {
               if (!weights || !previousWeights[i]) return 0;
               return weights.filter((w, idx) => w !== previousWeights[i][idx]).length;
             });
-            console.log(`Weights changed from previous epoch in layer:`, changes);
+            //console.log(`Weights changed from previous epoch in layer:`, changes);
           }
           previousWeights = currentWeights;
         
-            console.log(`Epoch ${epoch}: loss = ${logs.loss}`);
+            //console.log(`Epoch ${epoch}: loss = ${logs.loss}`);
             this.model.layers.forEach((layer, index) => {
-              console.log(`Layer ${index} weights:`, layer.getWeights()[0] ? layer.getWeights()[0].dataSync(): null);
+              //console.log(`Layer ${index} weights:`, layer.getWeights()[0] ? layer.getWeights()[0].dataSync(): null);
             });
           
           const epochData = this.model.layers.map(layer => {
@@ -165,11 +165,11 @@ displayModelWeights() {
   }
 
   this.model.layers.forEach((layer, index) => {
-    console.log(`Weights of layer ${index}:`);
+    //console.log(`Weights of layer ${index}:`);
     layer.getWeights().forEach((tensor, tensorIndex) => {
-      console.log(`Tensor ${tensorIndex}:`);
+      //console.log(`Tensor ${tensorIndex}:`);
       tensor.print(); // Afficher les valeurs du tensor
-      console.log(`Number of elements in Tensor ${tensorIndex}:`, tensor.size); // Afficher le nombre d'éléments dans le tensor
+     // console.log(`Number of elements in Tensor ${tensorIndex}:`, tensor.size); // Afficher le nombre d'éléments dans le tensor
     });
   });
 }
@@ -252,10 +252,10 @@ displayModelWeights() {
       Object.entries(variables).forEach(([variable, value], index) => {
         switch (variable) {
           case 'prox_ground_0':
-            captors[0] = value > 0 ? 1 : 0;
+            captors[0] = value > 2 ? 1 : 0;
             break;
           case 'prox_ground_1':
-            captors[1] = value > 0 ? 1 : 0;
+            captors[1] = value > 2 ? 1 : 0;
             break;
           case 'prox_front_1':
             captors[2] = value > 0 ? 1 : 0;

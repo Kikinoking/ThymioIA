@@ -134,6 +134,9 @@ const App = observer(() => {
 
   const [showBiases, setShowBiases] = useState(false); // Par défaut, les biais sont visibles
 
+  const [showDecisionButton, setShowDecisionButton] = useState(false); // Par défaut, le bouton est visible
+
+
   const recordDurationRef = useRef(null);
   const thresholdSliderRef = useRef(null);
 
@@ -1370,8 +1373,18 @@ case STATES.PlayNote:
         setTrainer(newTrainer); // Mettez à jour l'état avec le nouveau tableau
       };
     
-      const handleAction = (action) => {
+      const handleAction = async (action) => {
         console.log(action + " action triggered");
+        if (model) {
+          await user.reinitializeModel(inputMode);
+          model.dispose(); // Cette méthode libère toutes les ressources utilisées par le modèle
+          setModel(null); // Remet à null l'état du modèle
+
+      }
+        setIsTrainingComplete(false);
+        setIsTrainingComponentLoaded(false);
+        setIsExecuteClicked(false);
+        setShowInstructions(true);
         setActionClicked(true);
         onAction(action);
       };
@@ -1700,8 +1713,8 @@ case STATES.PlayNote:
           {t('visualize_neural_network')}
         </button>
             )}
-            <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">{isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}</button>
-            <button onClick={() => { resetModelAndTrainer(); handleSetCurrentState(STATES.ConsigneTraining); }} className="reset-training-btn">{t('reinitialize_the_model')}</button>
+           {showDecisionButton &&  <button onClick={() => setIsWinnerTakesAll(!isWinnerTakesAll)} className="switch-decision-btn">{isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}</button>
+           }<button onClick={() => { resetModelAndTrainer(); handleSetCurrentState(STATES.ConsigneTraining); }} className="reset-training-btn">{t('reinitialize_the_model')}</button>
           </div>
         )}
       </div>
@@ -1952,8 +1965,8 @@ return (
           {t('reset_model')}
         </button>
 
-        <div>
-        <label htmlFor="toggleBiases">Afficher les biais :</label>
+        <div style={{ fontSize: '14px' }}>
+        <label htmlFor="toggleBiases"> {t('Show_biases')}</label>
         <input
           type="checkbox"
           id="toggleBiases"
@@ -1961,6 +1974,16 @@ return (
           onChange={() => setShowBiases(!showBiases)} 
         />
       </div>
+      <div style={{ fontSize: '14px' }}>
+      <label htmlFor="toggleDecisionButton">{t('show_decision_button')}</label>
+      <input
+        type="checkbox"
+        id="toggleDecisionButton"
+        checked={showDecisionButton}
+        onChange={(e) => setShowDecisionButton(e.target.checked)} 
+      />
+    </div>
+
 
         <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
           {theme === 'light' ? 'Passer au thème sombre' : 'Passer au thème clair'}
