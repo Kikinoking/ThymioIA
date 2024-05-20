@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import './Piano.css';
-import Soundfont from 'soundfont-player';
+import * as Soundfont from 'soundfont-player';
+
+
 
 const getOctave = (index) => {
   return Math.floor(index / 7) + 4;
@@ -13,7 +15,7 @@ interface PianoProps {
 
 const Piano: React.FC<PianoProps> = ({ onNoteChange, silentMode }) => {
   const [instrument, setInstrument] = useState(null);
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const audioContext = new (window.AudioContext || window.AudioContext)();
 
   useEffect(() => {
     Soundfont.instrument(audioContext, 'acoustic_grand_piano').then(piano => {

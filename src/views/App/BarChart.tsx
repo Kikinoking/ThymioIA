@@ -60,7 +60,7 @@ const BarChart = ({ data, labels, theme }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top',
+        position: 'top' as 'top',
         labels: {
           color: theme === 'light' ? '#ffffff' : '#dfe8e8',
           font: {

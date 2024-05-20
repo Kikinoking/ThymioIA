@@ -1,5 +1,5 @@
-  import React, { useEffect, useState,useRef } from 'react';
-  import * as tf from '@tensorflow/tfjs';
+  import { useEffect, useState,useRef } from 'react';
+  import * as React from 'react';
   import './NeuralNetworkVisualization.css';
   import Svgaction1 from '../../../assets/actionsicons/STOPStatic.png'
   import Svgaction2 from '../../../assets/actionsicons/ForwardStatic.png';

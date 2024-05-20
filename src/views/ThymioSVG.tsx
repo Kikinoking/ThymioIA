@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+import  { useEffect, useState, useRef } from 'react';
+import * as React from 'react';
 import thymioSvg from '../assets/ThymioSVG.svg';  // Assurez-vous que ce chemin est correct
 import thymioSvgTraits from '../assets/ThymioSVG_modif.svg';
 type ThymioSVGProps = {
@@ -6,9 +7,10 @@ type ThymioSVGProps = {
   style?: React.CSSProperties;
   showTraits: boolean;
   onRectCoordinates: (coordinates: { x: number, y: number }[]) => void;
+  onLoaded?: () => void;
 };
 
-const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, onRectCoordinates }) => {
+const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, onRectCoordinates , onLoaded}) => {
   const [svgContent, setSvgContent] = useState('');
   const svgRef = useRef<HTMLDivElement>(null);
   
@@ -49,8 +51,12 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, 
 
 
         setSvgContent(new XMLSerializer().serializeToString(svgDoc.documentElement));
+
+        if (onLoaded) {
+          onLoaded();
+        }
       });
-  }, [captors, style, showTraits]);
+  }, [captors, style, showTraits, onLoaded]);
 
   useEffect(() => {
     if (onRectCoordinates && svgRef.current) { // Vérifier si onRectCoordinates est fourni avant de calculer les coordonnées

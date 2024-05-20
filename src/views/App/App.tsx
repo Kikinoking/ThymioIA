@@ -4,7 +4,8 @@ import './App.css';
 import { thymioManagerFactory } from '../../Entities/ThymioManager';
 import { observer } from 'mobx-react';
 import { noteToNumberMapping } from '../../noteMapping';
-import React from 'react';
+import * as React from 'react';
+
 import { useTranslation } from 'react-i18next';
 import '../../i18n';
 import BarChart from './BarChart';
@@ -180,12 +181,7 @@ const App = observer(() => {
     }
   }
   
-  const toggleTutorial = () => {
-    setIsTutorialActive(!isTutorialActive);
-  };
-  const handleNoteChange = (note: string) => {
-    setCurrentNote(note); // Update the note
-  };
+ 
 //For bar chart$
 
   const [predictions, setPredictions] = React.useState([0.2, 0.3, 0.1, 0.15, 0.25]);

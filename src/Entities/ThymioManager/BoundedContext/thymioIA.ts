@@ -62,7 +62,7 @@ export class ThymioIA implements IThymioIA {
     });
   };
 
-  reinitializeModel = async (inputMode: string) => {
+  reinitializeModel = async (inputMode: "CAPTORS_AND_NOTE" | "NOTE_ONLY") => {
     if (this.model) {
       this.model.dispose(); // Dispose the current model if it exists
     }

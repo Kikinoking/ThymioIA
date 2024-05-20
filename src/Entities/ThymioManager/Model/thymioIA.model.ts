@@ -14,7 +14,7 @@ interface IThymioIA {
   trainModel: (data: DataEntry[], inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') => Promise<any[] | undefined>;
   emitAction: (uuid: string, action: string, args: number[]) => Promise<void>;
   emitMotorEvent: (uuid: string, action: string) => Promise<void>;
-  reinitializeModel: (inputMode: string)=> Promise<void>;
+  reinitializeModel: (inputMode: "CAPTORS_AND_NOTE" | "NOTE_ONLY")=> Promise<void>;
   getModel: () => Promise<tf.Sequential | null>;
 }
 

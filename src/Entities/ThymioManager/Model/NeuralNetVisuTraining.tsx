@@ -1,4 +1,5 @@
-    import React, { useState, useEffect, useRef } from 'react';
+    import { useState, useEffect, useRef } from 'react';
+    import * as React from 'react';
     import { useTranslation } from 'react-i18next';
     import Svgaction1 from '../../../assets/actionsicons/STOPStatic.png';
     import Svgaction2 from '../../../assets/actionsicons/ForwardStatic.png';
