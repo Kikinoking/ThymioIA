@@ -449,7 +449,7 @@ useEffect(() => {
       });
     }, 100); // Délai de 100 millisecondes
   }
-}, [isMusicalStaffMounted, musicalStaffRef.current]);
+}, [ musicalStaffRef.current]);
 
 // Gestion du redimensionnement de la fenêtre
 useEffect(() => {
@@ -491,7 +491,7 @@ useEffect(() => {
   observer.observe(targetNode, { attributes: true, childList: true, subtree: true });
 
   return () => observer.disconnect();
-}, [musicalStaffRef, thymioSVGLoaded]);
+}, [isMusicalStaffMounted, thymioSVGLoaded]);
 
 // Vérification lorsque tout est monté et chargé
 useEffect(() => {
@@ -505,7 +505,7 @@ useEffect(() => {
       });
     }, 100); // Délai de 100 millisecondes
   }
-}, [isMusicalStaffMounted, thymioSVGLoaded]);
+}, [thymioSVGLoaded]);
 
 
   const Component = () => {
