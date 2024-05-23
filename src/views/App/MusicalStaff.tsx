@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useEffect} from 'react';
-import TrebleClef from 'D:/EPFL/Robproj/ThymioIA/src/assets/treble-clef.svg';
+import TrebleClef from './../../assets/treble-clef.svg';
 
 // Positions de base des notes de C4 à C6
 const notesPosition: { [key: string]: number } = {

@@ -183,7 +183,8 @@
   "tooltip_neural_network_visualization": "Ici on peut voir l'état actuel du neural network en cours de prédiction.",
   "tooltip_control_buttons": "Ici vous pouvez activer/désactiver la phase de test, ou revenir à l'état testing.",
   "show_decision_button" :"Bouton de décision probabiliste :",
-  "Show_biases": "Afficher les biais :"
+  "Show_biases": "Afficher les biais :",
+  "no_note_recorded": "Aucune note enregistrée! Enregistrez une note d'abord."
 
   }
   

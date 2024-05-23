@@ -165,6 +165,7 @@
     "tooltip_neural_network_visualization": "Hier können Sie den aktuellen Status des neuralen Netzwerks sehen, das gerade vorhergesagt wird.",
     "tooltip_control_buttons": "Hier können Sie die Testphase aktivieren/deaktivieren oder zum Testing-Status zurückkehren.",
     "show_decision_button" : "Schaltfläche für probabilistische Entscheidungen :",
-    "Show_biases": "Bias anzeigen :"
+    "Show_biases": "Bias anzeigen :",
+    "no_note_recorded": "Keine Note gespeichert! Speichern Sie erst eine Note."
 
 }

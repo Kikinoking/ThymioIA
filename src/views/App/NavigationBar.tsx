@@ -3,7 +3,7 @@ import * as React from 'react';
 import './NavigationBar.css'; // Ensure to create this CSS file
 import { useTranslation } from 'react-i18next';
 
-const NavigationBar = ({ currentState, setCurrentState, visitedStates, setMode, user, controledRobot}) => {
+const NavigationBar = ({ currentState,  stopExecutionAndReset,  setCurrentState, visitedStates, setMode, user, controledRobot}) => {
     const { t } = useTranslation();
     
 
@@ -47,7 +47,8 @@ const NavigationBar = ({ currentState, setCurrentState, visitedStates, setMode, 
 
     const handleButtonClick = (stateKey) => {
         setCurrentState(STATES[stateKey.replace('state_', '')]);
-        setMode('TRAIN'); // This will set mode to 'TRAIN' every time a button is clicked
+        
+        setMode('TRAIN');
         if (user && controledRobot) {
             user.emitMotorEvent(controledRobot, 'STOP');  // Stop the robot when navigating
         }

@@ -137,6 +137,7 @@ const App = observer(() => {
 
   const [showDecisionButton, setShowDecisionButton] = useState(false); // Par défaut, le bouton est visible
 
+  const [modelDisposed, setModelDisposed] = useState(false);
 
   const recordDurationRef = useRef(null);
   const thresholdSliderRef = useRef(null);
@@ -508,13 +509,7 @@ useEffect(() => {
     const { t } = useTranslation();}
 
 
-  const switchTab = (tabName) => {
-    // Appeler stopExecutionAndReset si on change vers l'onglet 'Training'
-    if (tabName === 'Training') {
-      stopExecutionAndReset();
-    }
-    setActiveTab(tabName);
-  };
+ 
 
   const handleJoyrideCallback = (data) => {
     const { status } = data;
@@ -841,7 +836,7 @@ useEffect(() => {
     analyserRef.current = audioContextRef.current.createAnalyser();
     source.connect(analyserRef.current);
     
-    analyserRef.current.fftSize = 4096;
+    analyserRef.current.fftSize = 2048;
     setIsContinuousRecording(true);
   };
 
@@ -890,8 +885,10 @@ useEffect(() => {
     }
   
     const maxFrequency = maxIndex * audioContextRef.current.sampleRate / analyserRef.current.fftSize;
+    
    
     if (maxFrequency > 0 && maxValue > threshold) { // Ajout de la vérification de la valeur maximale par rapport au seuil
+      
       setMaxFreq(maxFrequency);
       const noteDetected = frequencyToNoteNumber(maxFrequency);
       setNote(noteDetected);
@@ -973,7 +970,7 @@ useEffect(() => {
     source.buffer = audioBuffer;
 
     source.connect(analyser);
-    analyser.fftSize = 4096;
+    analyser.fftSize = 2048;
 
     // Assurez-vous que start() est appelé une seule fois par instance de source.
     source.start(0);
@@ -1071,7 +1068,7 @@ useEffect(() => {
       console.log("Verifying input sizes:", data.map(d => d.input.length));
       const traindata = await user.trainModel(data, inputMode);
       setTrainingData(traindata);
-      setMode('PREDICT');
+      
     }
   };
 
@@ -1092,9 +1089,9 @@ useEffect(() => {
 
   const resetModelAndTrainer = async () => {
     // Réinitialisez le modèle
-        if (model) {
+        if (model && model != null) {
           await user.reinitializeModel(inputMode);
-          model.dispose(); // Cette méthode libère toutes les ressources utilisées par le modèle
+          
           setModel(null); // Remet à null l'état du modèle
 
       }
@@ -1371,9 +1368,13 @@ case STATES.PlayNote:
     
       const handleAction = async (action) => {
         console.log(action + " action triggered");
-        if (model) {
+        if (noteRecording === 0) {
+          alert(t('no_note_recorded'));  // Alertez l'utilisateur qu'aucune note n'a été enregistrée
+          return;  // Sortez de la fonction pour éviter d'ajouter l'action au trainer
+        }
+        if (model && model != null) {
           await user.reinitializeModel(inputMode);
-          model.dispose(); // Cette méthode libère toutes les ressources utilisées par le modèle
+          
           setModel(null); // Remet à null l'état du modèle
 
       }
@@ -1555,38 +1556,35 @@ case STATES.PlayNote:
           
           {isTrainingComplete && (
   <div className="visualization-container" style={{ border: '2px solid white', padding: '10px', overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '-10px' }}>
-    <label className="label-text" style={{ position: 'absolute', top: '10px', left: '10px' }}>{t('Neuralnet_training')}</label>
-    <div className="legend-container">
-      {/* Légende pour l'activation */}
-      <div className="legend-item">
-        <div className="legend-line" style={{ backgroundColor: 'black' }}></div>
-        <div className="legend-text">{t('no_activation')}</div>
+  <label className="label-text" style={{ position: 'absolute', top: '10px', left: '10px' }}>{t('Neuralnet_training')}</label>
+  <div className="legend-container">
+    {/* Légende pour l'activation */}
+    <div className="legend-item" style={{ display: 'flex', alignItems: 'center', height: '150px' }}>
+      <div style={{ height: '100%', width: '20px', background: 'linear-gradient(to top, red, black 50%, rgb(0,255,0))' }}></div>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', marginLeft: '10px', paddingLeft: '10px' }}>
+        <div className="legend-text" style={{ textAlign: 'left' }}>{t('positive_activation')}</div>
+        <div className="legend-text" style={{ textAlign: 'left' }}>{t('no_activation')}</div>
+        <div className="legend-text" style={{ textAlign: 'left' }}>{t('negative_activation')}</div>
       </div>
-      <div className="legend-item">
-        <div className="legend-line" style={{ backgroundColor: 'green' }}></div>
-        <div className="legend-text">{t('positive_activation')}</div>
-      </div>
-      <div className="legend-item">
-        <div className="legend-line" style={{ backgroundColor: 'red' }}></div>
-        <div className="legend-text">{t('negative_activation')}</div>
-      </div>
-      {/* Légende pour les types de neurones */}
-      <div className="legend-item">
-          <div className="legend-circle" style={{ backgroundColor: 'blue' }}></div>
-          <div className="legend-text">{t('input_neuron')}</div>
-      </div>
-      <div className="legend-item">
-          <div className="legend-circle" style={{ backgroundColor: 'white' }}></div>
-          <div className="legend-text">{t('intermediate_neuron')}</div>
-      </div>
-      <div className="legend-item">
-          <div className="legend-circle" style={{ backgroundColor: 'orange' }}></div>
-          <div className="legend-text">{t('output_neuron')}</div>
-      </div>
-
     </div>
-    <NeuralNetworkVisualizationTraining showBiases={showBiases} trainingData={trainingData} inputMode={inputMode} />
+    <div style={{ height: '90px' }}></div>
+    {/* Légende pour les types de neurones */}
+    <div className="legend-item" style={{ display: 'flex', alignItems: 'center' }}>
+    <div className="legend-circle" style={{ backgroundColor: 'blue' }}></div>
+    <div style={{ marginLeft: '10px' }}><div className="legend-text">{t('input_neuron')}</div></div>
   </div>
+  <div className="legend-item" style={{ display: 'flex', alignItems: 'center' }}>
+    <div className="legend-circle" style={{ backgroundColor: 'white' }}></div>
+    <div style={{ marginLeft: '10px' }}><div className="legend-text">{t('intermediate_neuron')}</div></div>
+  </div>
+  <div className="legend-item" style={{ display: 'flex', alignItems: 'center' }}>
+    <div className="legend-circle" style={{ backgroundColor: 'orange' }}></div>
+    <div style={{ marginLeft: '10px' }}><div className="legend-text">{t('output_neuron')}</div></div>
+  </div>
+</div>
+  <NeuralNetworkVisualizationTraining showBiases={showBiases} trainingData={trainingData} inputMode={inputMode} />
+</div>
+
 )}
 
 
@@ -1596,7 +1594,7 @@ case STATES.PlayNote:
               <div>
               <label className="label-text" style={{ position: 'relative', top: '0px', left: '0px' }}>{t('Model_ready')}</label>
               </div>
-              <button onClick={() => handleSetCurrentState(STATES.Testing)}>{t('testing')}</button>
+              <button onClick={() => {handleSetCurrentState(STATES.Testing), setMode('PREDICT')}}>{t('testing')}</button>
             </div>
           )}
         </div>
@@ -1621,8 +1619,9 @@ case STATES.PlayNote:
           marginRight: inputMode === 'CAPTORS_AND_NOTE' ? '20px' : '0', // No margin on the right in NOTE_ONLY
           display: 'flex',
           flexDirection: 'column'
-        }}  className={!note ? 'blinking-border' : ''}>
+        }}  className={!note ? 'blinking-border' : ''} onClick={stopContinuousRecording}>
           <label style={{ textAlign: 'left', width: '100%' }}><span className="label-text">1) {t('playnote')}</span></label>
+          
           <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
         </div>
 
@@ -1635,9 +1634,10 @@ case STATES.PlayNote:
             flexDirection: 'column',
             justifyContent: 'space-between'
           }}>
-            <button onClick={stopExecutionAndReset} className="stop-testing-btn">{t('stop_testing')}</button>
-            {note !== null && note !== 0 && note !== 'None' && (
-              <button onClick={() => handleSetCurrentState(STATES.CurrentModelTest)} className="visualize-nn-btn blinking-border">{t('visualize_neural_network')} </button>
+            <button onClick={stopExecutionAndReset} className="stop-testing-btn" style={{ marginBottom: '10px' }}>
+              {mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}</button>
+            {note !== null && note !== 0 && (
+              <button onClick={() => {handleSetCurrentState(STATES.CurrentModelTest), setMode('PREDICT')}} className="visualize-nn-btn blinking-border">{t('visualize_neural_network')} </button>
             )}
             <button onClick={() => {handleSetCurrentState(STATES.CurrentModelTest), setIsWinnerTakesAll(true)}} className="switch-decision-btn">{isWinnerTakesAll ? t('switch_to_probabilistic_decision') : t('switch_to_winner_takes_all')}</button>
             <button onClick={() => { resetModelAndTrainer(); handleSetCurrentState(STATES.ConsigneTraining); }} className="reset-training-btn">{t('reinitialize_the_model')}</button>
@@ -1703,8 +1703,10 @@ case STATES.PlayNote:
             flexDirection: 'column',
             justifyContent: 'space-between'
           }}>
-            <button onClick={stopExecutionAndReset} className="stop-testing-btn">{mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}</button>
-            {note !== 'None' && note !== 0 && (
+            <button onClick={stopExecutionAndReset} className="stop-testing-btn" style={{ marginBottom: '10px' }}>
+              {mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}
+              </button>
+            { note !== 0 && (
         <button onClick={() => {handleSetCurrentState(STATES.CurrentModelTest), setIsWinnerTakesAll(true)}} className="visualize-nn-btn blinking-border" style={{ marginBottom: '10px', padding: '10px 20px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}>
           {t('visualize_neural_network')}
         </button>
@@ -1841,7 +1843,7 @@ case STATES.PlayNote:
 )}
 
     
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px', marginBottom: '-23px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px', marginBottom: '-23px' }} onClick={stopContinuousRecording}>
           {/* Conteneur pour le piano */}
           <div className="piano-container"style={{ maxWidth: '1000px', flex: 1 }}>
             <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
@@ -1872,7 +1874,7 @@ case STATES.PlayNote:
 
 return (
   <>
-    <NavigationBar   className="navigation-bar"  states={STATES_ARRAY} currentState={currentState} setCurrentState={setCurrentState} visitedStates={visitedStates} setMode={setMode} user={user}  controledRobot={controledRobot} />
+    <NavigationBar   className="navigation-bar"  states={STATES_ARRAY}   stopExecutionAndReset={stopExecutionAndReset} currentState={currentState} setCurrentState={setCurrentState} visitedStates={visitedStates} setMode={setMode} user={user}  controledRobot={controledRobot} />
     <div className="App" style={{ marginTop: '40px' }}>
       {renderCurrentState()}
     </div>

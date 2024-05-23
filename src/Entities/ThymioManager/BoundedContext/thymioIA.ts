@@ -110,15 +110,29 @@ export class ThymioIA implements IThymioIA {
     const trainingData = []; //training data of each epoch
     // Préparation des tensors pour l'entrainement
     const xs = tf.tensor2d(data.map(item => {
-        if (inputMode === 'NOTE_ONLY') {
-            // Utilise uniquement le dernier élément de item.input comme entrée
-            console.log("input: ",item.input[item.input.length - 1] )
-            return [item.input[item.input.length - 1]]; // La dernière entrée est le numéro de la note
-        } else { // CAPTORS_AND_NOTE
-            // Utilise tout item.input qui inclut déjà le numéro de la note
-            return item.input.map(bit => parseFloat(bit));
-        }
-    }));
+      // Check if inputMode is 'NOTE_ONLY' and handle accordingly
+      if (inputMode === 'NOTE_ONLY') {
+          // Ensure the last element is parsed as a number
+          const lastInput = item.input[item.input.length - 1];
+          const noteValue = parseFloat(lastInput);
+          if (isNaN(noteValue)) {
+              console.error("Invalid input, expected numeric value, received:", lastInput);
+              throw new Error("All inputs must be numeric");
+          }
+          return [noteValue];
+      } else {
+          // For 'CAPTORS_AND_NOTE', ensure all inputs are numbers
+          return item.input.map(bit => {
+              const num = parseFloat(bit);
+              if (isNaN(num)) {
+                  console.error("Invalid input for conversion to number:", bit);
+                  throw new Error("All inputs must be numeric or numeric strings");
+              }
+              return num;
+          });
+      }
+  })); // Specify the dtype if needed
+  
 
     
     const actionsAsIndices = data.map(item => this.actionMapping[item.output as keyof typeof this.actionMapping]);
@@ -203,7 +217,18 @@ displayModelWeights() {
             return subModel;
           });
 
-        const activations = intermediateModels.map(model => model.predict(inputTensor).dataSync()); 
+          const activations = intermediateModels.map(model => {
+            const result = model.predict(inputTensor);
+            if (Array.isArray(result)) {
+                // Handle the case where result is an array of tensors
+                return result.map(tensor => tensor.dataSync());
+            } else {
+                // Handle the case where result is a single tensor
+                return result.dataSync();
+            }
+        });
+        
+        
     
         const prediction = this.model.predict(inputTensor) as tf.Tensor<tf.Rank>;
     
@@ -303,10 +328,10 @@ displayModelWeights() {
         this.emitAction(uuid, 'M_motors', [-100, -100]);
         break;
       case 'RIGHT':
-        this.emitAction(uuid, 'M_motors', [-100, 100]);
+        this.emitAction(uuid, 'M_motors', [-50, 50]);
         break;
       case 'LEFT':
-        this.emitAction(uuid, 'M_motors', [100, -100]);
+        this.emitAction(uuid, 'M_motors', [50, -50]);
         break;
 
       default:
