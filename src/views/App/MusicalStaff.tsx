@@ -37,8 +37,7 @@ interface MusicalStaffProps {
 }
 
 const MusicalStaff: React.FC<MusicalStaffProps> = ({ noteRecording, onReady }) => {
-  const note = noteRecording || 'C5';
-  const yPos = notesPosition[note];
+  const note = noteRecording || '';
 
   useEffect(() => {
     if (onReady) {
@@ -46,6 +45,7 @@ const MusicalStaff: React.FC<MusicalStaffProps> = ({ noteRecording, onReady }) =
     }
   }, [onReady]);
 
+  const yPos = notesPosition[note];
   const sharp = note.includes('#');
   const sharpX = 140;
   const sharpY = yPos + 7;
@@ -53,6 +53,7 @@ const MusicalStaff: React.FC<MusicalStaffProps> = ({ noteRecording, onReady }) =
   const needsBarThrough = note === 'A5' || note === 'C4' || note === 'C6' || note === 'A#5' || note === 'C#4';
   const needsBarTangent = note === 'B5';
   const needsExtraBar = note === 'C6';
+
   return (
     <svg width="200" height="150" style={{ border: '1px solid black', backgroundColor: 'white' }}>
       {[40, 60, 80, 100, 120].map((y, index) => (
@@ -64,10 +65,14 @@ const MusicalStaff: React.FC<MusicalStaffProps> = ({ noteRecording, onReady }) =
           #
         </text>
       )}
-      <circle cx="130" cy={yPos} r="6" fill="black" />
-      {needsBarThrough && <line x1="120" x2="140" y1={yPos} y2={yPos} stroke="black" strokeWidth="2" />}
-      {needsBarTangent && <line x1="120" x2="140" y1={yPos + 6} y2={yPos + 6} stroke="black" strokeWidth="2" />}
-      {needsExtraBar && <line x1="120" x2="140" y1={yPos + 10} y2={yPos + 10} stroke="black" strokeWidth="2" />}
+      {note && (
+        <>
+          <circle cx="130" cy={yPos} r="6" fill="black" />
+          {needsBarThrough && <line x1="120" x2="140" y1={yPos} y2={yPos} stroke="black" strokeWidth="2" />}
+          {needsBarTangent && <line x1="120" x2="140" y1={yPos + 6} y2={yPos + 6} stroke="black" strokeWidth="2" />}
+          {needsExtraBar && <line x1="120" x2="140" y1={yPos + 10} y2={yPos + 10} stroke="black" strokeWidth="2" />}
+        </>
+      )}
     </svg>
   );
 };
