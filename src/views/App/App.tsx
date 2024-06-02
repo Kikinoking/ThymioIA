@@ -30,8 +30,16 @@ import NeuralNetworkVisualizationTraining from '../../Entities/ThymioManager/Mod
 import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
 import NavigationBar from './NavigationBar';
 
-import 'ldrs/momentum';
-import 'ldrs/grid';
+import { momentum } from 'ldrs'
+
+momentum.register()
+
+
+import { grid } from 'ldrs'
+
+grid.register()
+
+
 
 Chart.register(...registerables);
 
@@ -62,8 +70,6 @@ const App = observer(() => {
   const [note, setNote] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
-  const chartRef = useRef(null);
-  const [chart, setChart] = useState(null);
   const [maxFreq, setMaxFreq] = useState(null);
   const [isContinuousRecording, setIsContinuousRecording] = useState(false);
   const [audioContext, setAudioContext] = useState(null);
