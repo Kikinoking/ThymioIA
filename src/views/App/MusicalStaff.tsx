@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import TrebleClef from './../../assets/treble-clef.svg';
 
-// Positions de base des notes de C4 à C6
+// Hardcode positions because no better solution was found
 const notesPosition: { [key: string]: number } = {
   C4: 130,
   'C#4': 130,
@@ -31,7 +31,7 @@ const notesPosition: { [key: string]: number } = {
   C6: 14,
 };
 
-interface MusicalStaffProps {
+interface MusicalStaffProps { //need props
   noteRecording: string | null;
   onReady?: () => void;
 }
@@ -50,6 +50,7 @@ const MusicalStaff: React.FC<MusicalStaffProps> = ({ noteRecording, onReady }) =
   const sharpX = 140;
   const sharpY = yPos + 7;
 
+  //add bars if needed
   const needsBarThrough = note === 'A5' || note === 'C4' || note === 'C6' || note === 'A#5' || note === 'C#4';
   const needsBarTangent = note === 'B5';
   const needsExtraBar = note === 'C6';

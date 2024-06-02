@@ -13,8 +13,8 @@
   -moz-osx-font-smoothing: grayscale;
   --border-color: #ddd;
   --hover-border-color: #cfc1ba;
-  --button-bg: #1a1a1a; /* Couleur de fond des boutons */
-  --bg-color: #242424; /* Couleur de fond globale */
+  --button-bg: #1a1a1a; 
+  --bg-color: #242424; 
   --text-color: #ffffff;
 }
 
@@ -86,7 +86,7 @@ button:focus-visible {
 canvas {
   max-width: 100%;
   height: auto;
-  display: block; /* Pour éviter tout espace blanc en dessous */
+  display: block; 
   background-color: #242424;
 }
 

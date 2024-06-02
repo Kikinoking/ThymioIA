@@ -1,17 +1,17 @@
 import * as React from 'react';
-import './NavigationBar.css'; // Ensure this CSS file exists
+import './NavigationBar.css';
 import { useTranslation } from 'react-i18next';
 
-// Define the props interface including className
+// Define the props interface 
 interface NavigationBarProps {
   currentState: string;
   stopExecutionAndReset: () => void;
   setCurrentState: React.Dispatch<React.SetStateAction<string>>;
   visitedStates: { [key: string]: boolean };
   setMode: React.Dispatch<React.SetStateAction<string>>;
-  user: any; // Define a more specific type if available
+  user: any;//any because it works, should be more specific but meh
   controledRobot: string;
-  className?: string; // Optional className prop
+  className?: string;
 }
 
 const NavigationBar: React.FC<NavigationBarProps> = ({
@@ -22,7 +22,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   setMode,
   user,
   controledRobot,
-  className, // Destructure the className prop
+  className, 
 }) => {
   const { t } = useTranslation();
 
@@ -61,7 +61,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   };
 
   return (
-    <div className={`navigation-bar ${className}`}> {/* Use className here */}
+    <div className={`navigation-bar ${className}`}>
       {stateKeys.map((stateKey, index) => (
         <React.Fragment key={stateKey}>
           {index > 0 && <div className="separator" />}

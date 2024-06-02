@@ -83,3 +83,7 @@ For further customization and advanced configurations, refer to the official Vit
 
 Contributions to this project are welcome! Please refer to the contributing guidelines for more details.
 
+## Deployment
+
+The app has been deployed using Vercel : https://thymio-sed3915qi-kikinokings-projects.vercel.app/
+

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import * as React from 'react';
-import thymioSvg from '../assets/ThymioSVG.svg'; // Assurez-vous que ce chemin est correct
+import thymioSvg from '../assets/ThymioSVG.svg'; 
 import thymioSvgTraits from '../assets/ThymioSVG_modif.svg';
 type ThymioSVGProps = {
   captors: number[]; // Array representing the status of the sensors (0 or 1)
@@ -17,13 +17,13 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, 
   useEffect(() => {
     const svgFile = showTraits ? thymioSvgTraits : thymioSvg;
 
-    fetch(svgFile)
+    fetch(svgFile) //fetches the SVG because 2 svgs are possible. one with arrows (in currentModelTest), and one without (all other instances)
       .then(response => response.text())
       .then(data => {
         const parser = new DOMParser();
         const svgDoc = parser.parseFromString(data, 'image/svg+xml');
 
-        // Ajustez la taille du SVG ici si nécessaire
+        
         const svgElement = svgDoc.querySelector('svg');
         if (svgElement) {
           Object.keys(style).forEach(key => {
@@ -31,15 +31,15 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, 
           });
         }
 
-        // Manipulation des calques en fonction des capteurs
+        // Manipulates layers of svg as a function of sensors
         captors.forEach((status, index) => {
-          const layer = svgDoc.getElementById(`Layer ${index}`); // Assurez-vous que l'indexation est correcte
+          const layer = svgDoc.getElementById(`Layer ${index}`); // indexation is handmade to correspond to layers
           if (layer) {
             layer.style.visibility = status ? 'visible' : 'hidden';
           }
         });
 
-        // Gardez la couche de base toujours visible
+        // always display base layer
         const baseLayer = svgDoc.getElementById('Base');
         if (baseLayer) {
           baseLayer.style.visibility = 'visible';
@@ -55,7 +55,7 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, 
 
   useEffect(() => {
     if (onRectCoordinates && svgRef.current) {
-      // Vérifier si onRectCoordinates est fourni avant de calculer les coordonnées
+      // computes coords of the svg
       const rects = svgRef.current.querySelectorAll('g[id^="Group_"] > rect');
       const rectCoordinates = Array.from(rects).map(rect => {
         const box = rect.getBoundingClientRect();

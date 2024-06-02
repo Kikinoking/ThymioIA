@@ -11,7 +11,7 @@ import '../../i18n';
 import BarChart from './BarChart';
 import ThymioSVG from '../ThymioSVG';
 import Piano from './Piano';
-import MusicalStaff from './MusicalStaff'; // Assurez-vous que le chemin est correct
+import MusicalStaff from './MusicalStaff'; 
 import './Menu.css';
 import SettingsIcon from '../../assets/settings.svg';
 import * as tf from '@tensorflow/tfjs';
@@ -20,7 +20,6 @@ import forwardGif from '../../assets/actionsicons/animForwardV2.gif';
 import backwardGif from '../../assets/actionsicons/animBackward.gif';
 import leftGif from '../../assets/actionsicons/AnimLeft.gif';
 import rightGif from '../../assets/actionsicons/AnimRight.gif';
-import HelpIcon from '../../assets/help.svg';
 import stopStatic from '../../assets/actionsicons/STOPStatic.png';
 import forwardStatic from '../../assets/actionsicons/ForwardStatic.png';
 import backwardStatic from '../../assets/actionsicons/BackStatic.png';
@@ -41,27 +40,24 @@ Chart.register(...registerables);
 //Map tones to a given number so that data is in a good format for NN
 const user = thymioManagerFactory({ user: 'AllUser', activity: 'ThymioIA', hosts: ['localhost'] });
 
-/**
- * Convertit une fréquence en note musicale.
- * @param {number} frequency - La fréquence à convertir en note musicale.
- * @returns {string} La note musicale correspondante à la fréquence donnée.
- */
-function frequencyToNoteNumber(frequency) {
+
+function frequencyToNoteNumber(frequency) { // to convert note to number index for keras
   const A4 = 440;
   const C0 = A4 * Math.pow(2, -4.75);
-  if (frequency === 0) return null; // Gérer le cas zéro
+  if (frequency === 0) return null; // Handle case null
   let h = Math.round(12 * Math.log2(frequency / C0));
   let octave = Math.floor(h / 12);
   const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   let n = h % 12;
-  let note = noteNames[n] + octave; // Assurez-vous de concaténer ici directement
-  //console.log(`Converted frequency ${frequency} to note ${note}`);
+  let note = noteNames[n] + octave; 
   return note;
 }
 
 const App = observer(() => {
   type InputMode = "CAPTORS_AND_NOTE" | "NOTE_ONLY";
 
+
+  const { t, i18n } = useTranslation(); //i18n init.
 
   const [note, setNote] = useState('');
   const [isRecording, setIsRecording] = useState(false);
@@ -89,18 +85,16 @@ const App = observer(() => {
 
   const [isWinnerTakesAll, setIsWinnerTakesAll] = useState(true); //Toggle winner-take-all/probabilistic decision
 
-  const [inputMode, setInputMode] = useState<InputMode>("CAPTORS_AND_NOTE"); // 'CAPTORS_AND_NOTE' ou 'NOTE_ONLY'
+  const [inputMode, setInputMode] = useState<InputMode>("CAPTORS_AND_NOTE"); // 'CAPTORS_AND_NOTE' or 'NOTE_ONLY'
 
-  const [silentMode, setSilentMode] = useState(false); //Toggle visual piano
+  const [silentMode, setSilentMode] = useState(false); //Toggle visual piano sounds
   const [showSettings, setShowSettings] = useState(false);
 
-  const settingsButtonRef = useRef(null); // Référence pour le bouton Settings
+  const settingsButtonRef = useRef(null); // Ref for settings button
 
-  const [showPopup, setShowPopup] = useState(false); //utilisé pour le popup recording
+  const [showPopup, setShowPopup] = useState(false); 
 
-  const menuRef = useRef(null); // Référence pour le menu
-
-  const [isTutorialActive, setIsTutorialActive] = useState(false); //For Tutorial
+  const menuRef = useRef(null); // Ref for Menu
 
   const [trainingData, setTrainingData] = useState([]); //For visualisation of the training
 
@@ -129,78 +123,27 @@ const App = observer(() => {
 
   const [theme, setTheme] = useState('light'); // 'light' is default theme
 
-  const [showBiases, setShowBiases] = useState(false); // Par défaut, les biais sont visibles
+  const [showBiases, setShowBiases] = useState(false); // Default : biases not shown
 
-  const [showDecisionButton, setShowDecisionButton] = useState(false); // Par défaut, le bouton est visible
+  const [showDecisionButton, setShowDecisionButton] = useState(false); // Default: button hidden
 
-
-
-  const recordDurationRef = useRef(null);
-  const thresholdSliderRef = useRef(null);
-
-  const handleRectCoordinates = coords => {
-    console.log('Rect Coords:', coords);
-    setRectCoords(coords);
-  };
-
-  useEffect(() => {
-    // Cette fonction peut être appelée du composant MusicalStaff quand il est prêt
-    const handleMusicalStaffReady = () => {
-      setIsMusicalStaffMounted(true);
-    };
-
-    // Pass this function to MusicalStaff as a prop
-  }, []);
-
-  const handleNeuronCoordinates = coords => {
-    console.log('Neuron Coords:', coords);
-    setNeuronCoords(coords);
-  };
-
-  const { t, i18n } = useTranslation();
-
-  const toggleTestingMode = () => {
-    if (mode === 'PREDICT') {
-      setMode('TRAIN'); // Arrête le testing et revient à l'entraînement
-      if (controledRobot) {
-        user.emitMotorEvent(controledRobot, 'STOP'); // Arrête tout mouvement ou action en cours
-      }
-    } else {
-      setMode('PREDICT'); // Commence le testing
-    }
-  };
-
-  //For bar chart$
+  //For bar chart
 
   const [predictions, setPredictions] = React.useState([0.2, 0.3, 0.1, 0.15, 0.25]);
 
   const labels = [t('action_stop'), t('action_forward'), t('action_backward'), t('action_right'), t('action_left')];
 
-  const arrowCoordinates = [
-    { x1: 85, y1: 60, x2: 175, y2: 26 },
-    { x1: 85, y1: 67, x2: 175, y2: 55 },
-    { x1: 85, y1: 80, x2: 175, y2: 87 },
-    { x1: 85, y1: 121, x2: 175, y2: 122 },
-    { x1: 85, y1: 148, x2: 175, y2: 157 },
-    { x1: 85, y1: 182, x2: 175, y2: 192 },
-    { x1: 85, y1: 214, x2: 175, y2: 230 },
-    { x1: 85, y1: 227, x2: 175, y2: 260 },
-    { x1: 85, y1: 237, x2: 175, y2: 290 },
-    { x1: 60, y1: 285, x2: 175, y2: 335 },
-  ];
 
-  const [activeTab, setActiveTab] = useState('Training');
-
-  const [currentState, setCurrentState] = useState('Title');
+  const [currentState, setCurrentState] = useState('Title'); //Default state = title
 
   const [run, setRun] = useState(false); //Used for tutorial
   const [steps, setSteps] = useState<Step[]>([]);
 
-  const [model, setModel] = useState<tf.Sequential | null>(null);
+  const [model, setModel] = useState<tf.Sequential | null>(null); //Model
   const [loading, setLoading] = useState(false);
 
   const [adjustedRectCoords, setAdjustedRectCoords] = useState([]);
-  const [adjustedNeuronCoords, setAdjustedNeuronCoords] = useState([]);
+  const [adjustedNeuronCoords, setAdjustedNeuronCoords] = useState([]); //need neuroncoords for arrows in currentmodeltest
   const musicalStaffRef = useRef(null);
   const [musicalStaffCoords, setMusicalStaffCoords] = useState({ x: 0, y: 0 });
 
@@ -213,17 +156,37 @@ const App = observer(() => {
 
   const [isModeSelected, setIsModeSelected] = useState(false);
 
-  const handleSetCurrentState = newState => {
-    console.log('Updating state from', currentState, 'to', newState); // Debugging current state update
+
+  const recordDurationRef = useRef(null);
+  const thresholdSliderRef = useRef(null);
+
+  const handleRectCoordinates = coords => {
+   
+    setRectCoords(coords);
+  };
+
+ 
+
+  const handleNeuronCoordinates = coords => {
+   
+    setNeuronCoords(coords);
+  };
+
+  
+
+
+
+  const handleSetCurrentState = newState => { //Handle state change
+   
     setCurrentState(newState);
     setVisitedStates(prev => {
       const updatedVisitedStates = { ...prev, [newState]: true };
-      console.log('Visited States: ', updatedVisitedStates); // Debugging visited states
+
       return updatedVisitedStates;
     });
   };
  
-  // Fonction pour charger le modèle
+  // Function to load model
   const loadModel = async () => {
     if (!loading && !model) {
       setLoading(true);
@@ -258,16 +221,11 @@ const App = observer(() => {
 
   const captureSensorValues = () => {
     const currentCaptors = user.captors.state[controledRobot] || [];
-    // Stockez les valeurs des capteurs dans l'état pour les utiliser plus tard
-    setCaptorsForAction(currentCaptors); // Vous devez ajouter cette nouvelle variable d'état pour stocker les capteurs
-    console.log('Captors captured for action:', currentCaptors);
+    // Store sensor values
+    setCaptorsForAction(currentCaptors);
   };
 
-  const loadTrainerLocally = () => {
-    const data = localStorage.getItem('trainerData');
-    return data ? JSON.parse(data) : null;
-  };
-
+ 
   const STATES = {
     Title: 'Title',
     ConsigneTraining: 'ConsigneTraining',
@@ -277,7 +235,7 @@ const App = observer(() => {
     Testing: 'Testing',
     CurrentModelTest: 'CurrentModelTest',
   };
-  const STATES_ARRAY = Object.keys(STATES).map(key => STATES[key]);
+
   const locale = {
     back: t('joyride.back'),
     close: t('joyride.close'),
@@ -286,7 +244,7 @@ const App = observer(() => {
     skip: t('joyride.skip'),
   };
 
-  const saveTrainerToFile = filename => {
+  const saveTrainerToFile = filename => { //Save as JSON
     const trainerData = JSON.stringify(trainer);
     const blob = new Blob([trainerData], { type: 'application/json' });
     const href = URL.createObjectURL(blob);
@@ -317,7 +275,7 @@ const App = observer(() => {
           const max = slider.max || 100;
           const value = slider.value;
           const percentage = ((value - min) / (max - min)) * 100;
-          slider.style.background = `linear-gradient(to right, #027676 ${percentage}%, #76ABAE ${percentage}%)`;
+          slider.style.background = `linear-gradient(to right, #027676 ${percentage}%, #76ABAE ${percentage}%)`; //slider gradient
         };
 
         updateSliderBackground();
@@ -335,15 +293,15 @@ const App = observer(() => {
     if (isExecuteClicked) {
       setTimeout(() => {
         setIsTrainingComponentLoaded(true);
-      }, 3000); // Simuler un délai de chargement
+      }, 3000); // loading time : 3s
     }
   }, [isExecuteClicked]);
 
   useEffect(() => {
-    document.body.className = theme + '-theme'; // Applique 'light-theme' ou 'dark-theme'
+    document.body.className = theme + '-theme'; // Applies 'light-theme' or 'dark-theme'
   }, [theme]);
 
-  useEffect(() => {
+  useEffect(() => { //Save theme locally
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
       setTheme(savedTheme);
@@ -351,7 +309,7 @@ const App = observer(() => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('theme', theme);
+    localStorage.setItem('theme', theme); 
   }, [theme]);
 
   useEffect(() => {
@@ -361,14 +319,14 @@ const App = observer(() => {
   }, [currentState]);
 
   useEffect(() => {
-    // Vérifiez si l'état actuel est PlayNote
+    // Reset noterecording
     if (currentState === STATES.PlayNote) {
       setNoteRecording('');
       console.log('Note recording reset to zero');
     }
-  }, [currentState]); // Dépendance sur currentState pour réagir à ses changements
+  }, [currentState]); // Depends on currentState
 
-  // Ajustement des coordonnées en fonction du SVG
+  // Ajusts coordinates of arrows depending on svg pos
   useEffect(() => {
     if (rectCoords.length > 0 && neuronCoords.length > 0 && svgRef.current) {
       setTimeout(() => {
@@ -386,11 +344,11 @@ const App = observer(() => {
 
         setAdjustedRectCoords(adjustedRectCoords);
         setAdjustedNeuronCoords(adjustedNeuronCoords);
-      }, 100); // Délai de 100 millisecondes
+      }, 100); // Delay : 100 ms
     }
   }, [rectCoords, neuronCoords, svgRef.current]);
 
-  // Calcul initial des coordonnées pour MusicalStaff
+  // Initial coords for musicalstaff
   useEffect(() => {
     if (musicalStaffRef.current) {
       setTimeout(() => {
@@ -399,7 +357,7 @@ const App = observer(() => {
           x: rect.right,
           y: rect.top + rect.height / 2,
         });
-      }, 100); // Délai de 100 millisecondes
+      }, 100); // Delay : 100 ms
     }
   }, [musicalStaffRef.current]);
 
@@ -416,16 +374,16 @@ const App = observer(() => {
     };
 
     window.addEventListener('resize', handleResize);
-    handleResize(); // Appel initial pour régler les coordonnées initiales
+    handleResize(); // Initial_call to handle init coords
 
     return () => window.removeEventListener('resize', handleResize);
   }, [isMusicalStaffMounted, musicalStaffRef.current]);
 
-  // Utilisation d'un MutationObserver
   useEffect(() => {
     const targetNode = musicalStaffRef.current;
     if (!targetNode) return;
 
+    //Need mutation observer to handle resize,... still wonky but good enough
     const observer = new MutationObserver(mutationsList => {
       for (let mutation of mutationsList) {
         if (mutation.type === 'childList' || mutation.type === 'attributes') {
@@ -435,7 +393,7 @@ const App = observer(() => {
               x: rect.right,
               y: rect.top + rect.height / 2,
             });
-          }, 100); // Délai de 100 millisecondes
+          }, 100); // Delay: 100 ms
         }
       }
     });
@@ -445,7 +403,7 @@ const App = observer(() => {
     return () => observer.disconnect();
   }, [isMusicalStaffMounted, thymioSVGLoaded]);
 
-  // Vérification lorsque tout est monté et chargé
+  // Verifies that everything is loaded
   useEffect(() => {
     if (isMusicalStaffMounted && musicalStaffRef.current && thymioSVGLoaded) {
       setTimeout(() => {
@@ -455,15 +413,13 @@ const App = observer(() => {
           x: rect.right,
           y: rect.top + rect.height / 2,
         });
-      }, 100); // Délai de 100 millisecondes
+      }, 100); // Delay: 100 ms
     }
   }, [thymioSVGLoaded]);
 
-  const Component = () => {
-    const { t } = useTranslation();
-  };
+  
 
-  const handleJoyrideCallback = data => {
+  const handleJoyrideCallback = data => { //Callback joyride to handle state change
     const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
@@ -475,7 +431,7 @@ const App = observer(() => {
     });
   };
 
-  useEffect(() => {
+  useEffect(() => { //Joyride steps for each state
     switch (currentState) {
       case 'Title':
         if (robots.length > 0) {
@@ -508,13 +464,13 @@ const App = observer(() => {
       case 'ConsigneTraining':
         setSteps([
           {
-            target: '.use-captors-and-note-button', // Assurez-vous que le bouton a cette classe
+            target: '.use-captors-and-note-button', 
             content: t('tooltip_use_captors_and_note'),
             placement: 'left',
             disableBeacon: true,
           },
           {
-            target: '.use-note-only-button', // Assurez-vous que le bouton a cette classe
+            target: '.use-note-only-button',
             content: t('tooltip_use_note_only'),
             placement: 'right',
           },
@@ -555,7 +511,7 @@ const App = observer(() => {
       case 'MapAction':
         setSteps([
           {
-            target: '.actions-container', // Conteneur des actions principales
+            target: '.actions-container', 
             content: t('tooltip_map_actions'),
             placement: 'top',
             disableBeacon: true,
@@ -566,7 +522,7 @@ const App = observer(() => {
             },
           },
           {
-            target: '.trainer-table-container', // Assurez-vous que votre tableau a cette classe
+            target: '.trainer-table-container', 
             content: t('tooltip_trainer_table'),
             placement: 'left',
             styles: {
@@ -576,7 +532,7 @@ const App = observer(() => {
             },
           },
           {
-            target: '.map-more-actions-button', // Bouton pour plus d'actions de mappage
+            target: '.map-more-actions-button', 
             content: t('tooltip_map_more_actions'),
             placement: 'right',
             styles: {
@@ -586,7 +542,7 @@ const App = observer(() => {
             },
           },
           {
-            target: '.test-model-button', // Bouton pour tester le modèle
+            target: '.test-model-button', 
             content: t('tooltip_test_model'),
             placement: 'right',
             styles: {
@@ -596,7 +552,7 @@ const App = observer(() => {
             },
           },
           {
-            target: '.button-container', // Conteneur pour les boutons de sauvegarde et de chargement du modèle
+            target: '.button-container', 
             content: t('tooltip_button_container'),
             placement: 'bottom',
             styles: {
@@ -715,10 +671,10 @@ const App = observer(() => {
   };
 
   const toggleSilentMode = () => {
-    setSilentMode(prev => !prev); // Bascule le mode Silent
+    setSilentMode(prev => !prev); //Switch to silent mode (no more sound from piano)
   };
 
-  // Gérer les clics à l'extérieur du menu pour fermer
+  // Handle clicks outside settings panel to close it
   useEffect(() => {
     const handleClickOutside = event => {
       if (
@@ -737,7 +693,6 @@ const App = observer(() => {
   }, []);
 
   const toggleContinuousRecording = () => {
-    // Si on démarre l'enregistrement continu, arrête l'enregistrement audio si actif
     if (!isContinuousRecording && isRecording) {
       setIsRecording(false);
     }
@@ -751,14 +706,14 @@ const App = observer(() => {
     }
   };
 
-  const getThresholdLabel = value => {
+  const getThresholdLabel = value => { //slider infos for mic threshold
     if (value < 198) return t('very_sensitive');
     if (value < 215) return t('sensitive');
     if (value < 232) return t('less_sensitive');
     return t('very_less_sensitive');
   };
 
-  const startContinuousRecording = async () => {
+  const startContinuousRecording = async () => { //Handles continuous recording and freq analysis
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       console.error("getUserMedia n'est pas supporté par ce navigateur.");
       return;
@@ -767,14 +722,14 @@ const App = observer(() => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     setAudioStream(stream);
 
-    // Initialisation et stockage de audioContext dans le ref
+    // Init ans store audiocontext
     audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
     const source = audioContextRef.current.createMediaStreamSource(stream);
 
     analyserRef.current = audioContextRef.current.createAnalyser();
     source.connect(analyserRef.current);
 
-    analyserRef.current.fftSize = 2048;
+    analyserRef.current.fftSize = 2048; //FFT size chosen by trial and error, 2048 seems to work well
     setIsContinuousRecording(true);
   };
 
@@ -791,10 +746,10 @@ const App = observer(() => {
     handleSetCurrentState(STATES.PlayNote);
   };
 
-  useEffect(() => {
-    // Vérifiez que audioContext et analyser sont définis avant de démarrer getFrequencies
+  useEffect(() => { //extract frequencies from audio signal
+    
     if (isContinuousRecording && audioContextRef.current && analyserRef.current) {
-      // Vous pouvez ajuster le seuil comme nécessaire
+      
       getFrequencies();
     }
   }, [isContinuousRecording, audioContextRef.current, analyserRef.current]);
@@ -816,10 +771,10 @@ const App = observer(() => {
       }
     }
 
-    const maxFrequency = (maxIndex * audioContextRef.current.sampleRate) / analyserRef.current.fftSize;
+    const maxFrequency = (maxIndex * audioContextRef.current.sampleRate) / analyserRef.current.fftSize; //maxFreq = freq with highest amplitude
 
     if (maxFrequency > 0 && maxValue > threshold) {
-      // Ajout de la vérification de la valeur maximale par rapport au seuil
+      // check if amplitude is above threshold
 
       setMaxFreq(maxFrequency);
       const noteDetected = frequencyToNoteNumber(maxFrequency);
@@ -827,7 +782,7 @@ const App = observer(() => {
     }
 
     if (isContinuousRecording) {
-      requestAnimationFrame(getFrequencies);
+      requestAnimationFrame(getFrequencies); //update anim. note
     }
   };
 
@@ -854,15 +809,9 @@ const App = observer(() => {
     setMaxFreq(null);
   };
 
-  const updateChart = (frequencies, amplitudes) => {
-    if (chart) {
-      chart.data.labels = frequencies;
-      chart.data.datasets[0].data = amplitudes.map(dB => (dB === -Infinity ? 0 : dB)); // Convertir -Infinity en 0 pour l'affichage
-      chart.update();
-    }
-  };
+ 
 
-  const startRecording = async () => {
+  const startRecording = async () => { 
     if (isContinuousRecording) {
       stopContinuousRecording();
     }
@@ -883,7 +832,7 @@ const App = observer(() => {
 
       mediaRecorder.start();
 
-      mediaRecorder.onstop = async () => {
+      mediaRecorder.onstop = async () => { //handle recording done
         setIsRecording(false);
         setShowPopup(false);
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav; codecs=opus' });
@@ -900,9 +849,9 @@ const App = observer(() => {
         source.buffer = audioBuffer;
 
         source.connect(analyser);
-        analyser.fftSize = 2048;
+        analyser.fftSize = 2048; //FFT size found by trial and error
 
-        // Assurez-vous que start() est appelé une seule fois par instance de source.
+        // start source
         source.start(0);
 
         source.onended = () => {
@@ -912,7 +861,7 @@ const App = observer(() => {
           let frequencies = dataArray.map((_, index) => (index * audioContext.sampleRate) / analyser.fftSize);
           let amplitudes = dataArray.map(value => (value === -Infinity ? 0 : value));
 
-          // Filtrer pour les fréquences entre 200 Hz et 2 kHz
+          // Discard frequencies smaller than 200 and higher than 2000
           let filteredFrequencies = [];
           let filteredAmplitudes = [];
           for (let i = 0; i < frequencies.length; i++) {
@@ -928,9 +877,6 @@ const App = observer(() => {
           const detectedNote = frequencyToNoteNumber(maxFrequency);
 
           setNoteRecording(detectedNote);
-
-          // Mise à jour du graphique avec seulement les fréquences filtrées
-          updateChart(filteredFrequencies, filteredAmplitudes);
         };
       };
 
@@ -938,13 +884,13 @@ const App = observer(() => {
         mediaRecorder.stop();
       }, recordDuration);
     } catch (error) {
-      console.error("Erreur lors de la tentative d'accès au micro:", error);
+      console.error("Error trying to access mic:", error);
       setIsRecording(false);
-      setShowPopup(false); // S'assurer que le popup est masqué en cas d'erreur
-      alert(t('mic_error')); // Informer l'utilisateur
+      setShowPopup(false); // hide popup if error, else user is stuck
+      alert(t('mic_error')); 
     }
   };
-  const onClickGetRobots = async () => {
+  const onClickGetRobots = async () => { //scan for robots
     const _robots = await user.getRobotsUuids();
     setRobots(_robots);
   };
@@ -956,8 +902,8 @@ const App = observer(() => {
     setShowConnectingPopup(true);
     setControledRobot(robotUuid);
     setTimeout(() => {
-      setShowConnectingPopup(false); // Cacher le popup après 3 secondes
-      handleSetCurrentState(STATES.ConsigneTraining); // Changer d'état
+      setShowConnectingPopup(false); // Hide popup after 3 secs
+      handleSetCurrentState(STATES.ConsigneTraining);
     }, 3000);
   };
 
@@ -971,16 +917,13 @@ const App = observer(() => {
       note: currentNoteRecording,
     };
     setTrainer(trainer => [...trainer, newEntry]);
-    //setTrainer([...trainer, { uuid: controledRobot, action, captors: user.captors.state[controledRobot] }]);
+    
     await user.emitMotorEvent(controledRobot, action);
 
     setTimeout(async () => {
-      await user.emitMotorEvent(controledRobot, 'STOP');
+      await user.emitMotorEvent(controledRobot, 'STOP'); //stop motors
     }, 600);
-    //const currentNote = note;
-
-    //setTrainer([...trainer, { uuid: controledRobot, action, captors: user.captors.state[controledRobot], note: currentNote }]);
-    //await user.emitMotorEvent(controledRobot, action);
+   
   };
 
   const onExecute = async () => {
@@ -992,8 +935,7 @@ const App = observer(() => {
       
 
       console.log(
-        'Verifying input sizes:',
-        data.map(d => d.input.length)
+        'Verifying input sizes:', data.map(d => d.input.length)
       );
       const traindata = await user.trainModel(data, inputMode);
       setTrainingData(traindata);
@@ -1002,24 +944,24 @@ const App = observer(() => {
 
   const stopExecutionAndReset = () => {
     if (mode === 'PREDICT') {
-      setMode('TRAIN'); // Arrête le testing et revient à l'entraînement
+      setMode('TRAIN'); // Stop testing, comes back to training
     } else {
-      setMode('PREDICT'); // Commence le testing
+      setMode('PREDICT'); //Start testing mode
     }
     if (controledRobot) {
-      user.emitMotorEvent(controledRobot, 'STOP'); // Arrête tout mouvement ou action en cours
+      user.emitMotorEvent(controledRobot, 'STOP'); // stops motors
     }
   };
 
   const resetModelAndTrainer = async () => {
-    // Réinitialisez le modèle
+    // Reinitialize model
     if (model && model != null) {
       await user.reinitializeModel(inputMode);
 
-      setModel(null); // Remet à null l'état du modèle
+      setModel(null); // reset model State
     }
 
-    // Réinitialisez le trainer
+    // Reinitialize everything...
     setTrainer([]);
     stopExecutionAndReset();
     setMode('TRAIN');
@@ -1030,12 +972,11 @@ const App = observer(() => {
     setIsTrainingComponentLoaded(false);
     setIsExecuteClicked(false);
 
-    // Réinitialiser d'autres états si nécessaire
-    // setRobots([]), setControledRobot(''), etc.
+    
     handleSetCurrentState(STATES.ConsigneTraining);
     const updatedVisitedStates = {
       Title: true,
-      // Mettez le deuxième état ici
+   
       ConsigneTraining: false,
     };
     setVisitedStates(updatedVisitedStates);
@@ -1056,7 +997,7 @@ const App = observer(() => {
             .then(response => {
               setPredictions(response.predictions);
               setActivations(response.activations);
-              console.log('Activations Updated:', response.activations);
+              
             })
             .catch(error => {
               console.error('Error during prediction:', error);
@@ -1076,7 +1017,7 @@ const App = observer(() => {
     }
   };
 
-  const renderCurrentState = () => {
+  const renderCurrentState = () => { //BIG FUNCTION TO RENDER ALL STATES
     switch (currentState) {
       case STATES.Title:
         return (
@@ -1132,7 +1073,7 @@ const App = observer(() => {
             <div className="instructions-container">
               <h4>{t('instructions_title')}</h4>
               <ol>
-                {/* Conditionally display instructions based on mode selection */}
+                {/* Conditionally display instructs */}
                 {isModeSelected ? (
                   <>
                     <li>{t('train_instruction_1')}</li>
@@ -1301,7 +1242,7 @@ const App = observer(() => {
         );
 
       case STATES.MapAction:
-        // Objets pour gérer les sources d'images
+        // item for actions images, gifs and statics
         const gifSources = {
           STOP: stopGif,
           FORWARD: forwardGif,
@@ -1317,7 +1258,8 @@ const App = observer(() => {
           LEFT: rightStatic,
           RIGHT: leftStatic,
         };
-
+        
+        //these handle hovering over images
         const handleMouseEnter = (button, action) => {
           const img = button.getElementsByTagName('img')[0];
           img.src = gifSources[action];
@@ -1330,20 +1272,21 @@ const App = observer(() => {
 
         const handleDelete = index => {
           const newTrainer = trainer.filter((_, i) => i !== index);
-          setTrainer(newTrainer); // Mettez à jour l'état avec le nouveau tableau
+          setTrainer(newTrainer); // Add combination input-action to trainer
         };
 
         const handleAction = async action => {
           console.log(action + ' action triggered');
           if (noteRecording === '') {
-            alert(t('no_note_recorded')); // Alertez l'utilisateur qu'aucune note n'a été enregistrée
-            return; // Sortez de la fonction pour éviter d'ajouter l'action au trainer
+            alert(t('no_note_recorded')); // Alert user, cannot map action without a note
+            return; 
           }
           if (model && model != null) {
             await user.reinitializeModel(inputMode);
 
-            setModel(null); // Remet à null l'état du modèle
+            setModel(null); // Reset to null model state
           }
+          //Reset everything
           setIsTrainingComplete(false);
           setIsTrainingComponentLoaded(false);
           setIsExecuteClicked(false);
@@ -1533,7 +1476,7 @@ const App = observer(() => {
                   {t('Neuralnet_training')}
                 </label>
                 <div className="legend-container">
-                  {/* Légende pour l'activation */}
+                  {/* Legend for activations/weights */}
                   <div className="legend-item" style={{ display: 'flex', alignItems: 'center', height: '150px' }}>
                     <div
                       style={{
@@ -1564,7 +1507,7 @@ const App = observer(() => {
                     </div>
                   </div>
                   <div style={{ height: '90px' }}></div>
-                  {/* Légende pour les types de neurones */}
+                  {/* Légende for neurons*/}
                   <div className="legend-item" style={{ display: 'flex', alignItems: 'center' }}>
                     <div className="legend-circle" style={{ backgroundColor: 'blue' }}></div>
                     <div style={{ marginLeft: '10px' }}>
@@ -1647,7 +1590,7 @@ const App = observer(() => {
                 <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
               </div>
 
-              {/* Control buttons only in CAPTORS_AND_NOTE mode and only on the first line */}
+              {/* Control buttons only in CAPTORS_AND_NOTE mode,  only on the first line */}
               {inputMode === 'CAPTORS_AND_NOTE' && (
                 <div
                   style={{
@@ -1689,10 +1632,10 @@ const App = observer(() => {
               )}
             </div>
 
-            {/* Second line: Conditional rendering based on inputMode */}
+            {/* Second line: Conditional rendering based on inputMode*/}
             <div style={{ display: 'flex', flexDirection: 'row', marginBottom: '20px', height: '280px' }}>
               {' '}
-              {/* Uniform height for all second line components */}
+             
               <div
                 className="secondline"
                 style={{
@@ -1702,7 +1645,7 @@ const App = observer(() => {
                   flexGrow: 1,
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'space-between', // Center content vertically
+                  justifyContent: 'space-between',
                 }}
               >
                 <label style={{ textAlign: 'left' }}>
@@ -1715,23 +1658,23 @@ const App = observer(() => {
                   onClick={toggleContinuousRecording}
                   className={`toggle-recording-btn ${!note ? 'blinking-border' : ''}`}
                   style={{
-                    position: 'relative', // Adjusted from absolute to relative
+                    position: 'relative', 
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    marginBottom: '10px', // More margin to separate from the text below
+                    marginBottom: '10px', 
                   }}
                 >
                   {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
                 </button>
                 <div style={{ flex: 1 }} className="input_components">
                   {' '}
-                  {/* This div wraps the ThymioSVG and MusicalStaff */}
+                  {/*div wraps the ThymioSVG + MusicalStaff */}
                   {inputMode === 'CAPTORS_AND_NOTE' ? (
                     <div
                       style={{
                         display: 'flex',
-                        flexDirection: 'row', // Arrange side by side
-                        alignItems: 'center', // Center items vertically
+                        flexDirection: 'row',
+                        alignItems: 'center',
                       }}
                     >
                       <ThymioSVG
@@ -1831,7 +1774,7 @@ const App = observer(() => {
         return (
           <>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '0px' }}>
-              {/* Conteneur pour le note-display et ThymioSVG (si applicable) */}
+              
               <div
                 className="recording-container"
                 style={{
@@ -1868,7 +1811,7 @@ const App = observer(() => {
                   </div>
                 )}
 
-                {/* Conteneur ajusté pour ThymioSVG */}
+                {/* div adjusted for ThymioSVG */}
                 {inputMode === 'CAPTORS_AND_NOTE' && (
                   <div
                     style={{ width: '100%', flex: '2', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
@@ -1883,7 +1826,7 @@ const App = observer(() => {
                   </div>
                 )}
 
-                {/* Conteneur réduit pour MusicalStaff */}
+                {/* div for musicalstaff*/}
                 <div
                   ref={musicalStaffRef}
                   style={{ width: '100%', flex: '1', marginTop: '-30px', transform: 'scale(0.6)' }}
@@ -1892,7 +1835,7 @@ const App = observer(() => {
                 </div>
               </div>
 
-              {/* Conteneur pour NeuralNetworkVisualization */}
+              {/* div for NeuralNetworkVisualization */}
               <div className="neural-network-container" id="neuralNetworkContainer" style={{ flexGrow: 1 }}>
                 <NeuralNetworkVisualization
                   showBiases={showBiases}
@@ -2002,12 +1945,12 @@ const App = observer(() => {
               style={{ display: 'flex', justifyContent: 'center', marginTop: '0px', marginBottom: '-23px' }}
               onClick={stopContinuousRecording}
             >
-              {/* Conteneur pour le piano */}
+              {/* Div for piano */}
               <div className="piano-container" style={{ maxWidth: '1000px', flex: 1 }}>
                 <Piano onNoteChange={setNote} silentMode={silentMode} className="piano" />
               </div>
 
-              {/* Conteneur pour les boutons */}
+              {/*Div for buttons  */}
               <div
                 className="control-buttons-container"
                 style={{ display: 'flex', justifyContent: 'space-around', flexDirection: 'column', marginLeft: '20px' }}
@@ -2039,7 +1982,7 @@ const App = observer(() => {
     }
   };
 
-  return (
+  return (// NavigationBar, joyride, settings button
     <>
       <NavigationBar
         className="navigation-bar"

@@ -3,11 +3,11 @@ import { BoundedContext, Container, Observable, createObservable, subscribe } fr
 import { Activity, DataEntry, Robot, TdmController, Thymio } from '../Model';
 import type IThymioIA from '../Model/thymioIA.model';
 import * as tf from '@tensorflow/tfjs';
-import { noteToNumberMapping } from '../../../noteMapping';
 
-import * as tfvis from '@tensorflow/tfjs-vis';
 
-function selectActionBasedOnProbabilities(predictions) {
+
+
+function selectActionBasedOnProbabilities(predictions) { //for probabilistic decisions, produces an index proportional to probabilities
   const cumulativeProbabilities = predictions.reduce((acc, prob, i) => {
     if (i === 0) {
       acc.push(prob);
@@ -48,7 +48,7 @@ export class ThymioIA implements IThymioIA {
     this.tdmController = tdmController;
   }
 
-  getModel = (): Promise<tf.Sequential | null> => {
+  getModel = (): Promise<tf.Sequential | null> => { //return the model
     return new Promise(resolve => {
       resolve(this.model);
     });
@@ -63,7 +63,7 @@ export class ThymioIA implements IThymioIA {
   };
 
   initModel = async (inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') =>
-    new Promise<tf.Sequential>((resolve, reject) => {
+    new Promise<tf.Sequential>((resolve, reject) => { //intialises the model, with structure depending on inputMode
       try {
         const model = tf.sequential();
 
@@ -118,7 +118,7 @@ export class ThymioIA implements IThymioIA {
       })
     );
 
-    const actionsAsIndices = data.map(item => this.actionMapping[item.output as keyof typeof this.actionMapping]);
+    const actionsAsIndices = data.map(item => this.actionMapping[item.output as keyof typeof this.actionMapping]); //Trains, and sends weights/biases
     const ys = tf.oneHot(tf.tensor1d(actionsAsIndices, 'int32'), Object.keys(this.actionMapping).length);
     let previousWeights = null;
     await this.model.fit(xs, ys, {
@@ -206,7 +206,7 @@ export class ThymioIA implements IThymioIA {
         }
       });
 
-      const prediction = this.model.predict(inputTensor) as tf.Tensor<tf.Rank>;
+      const prediction = this.model.predict(inputTensor) as tf.Tensor<tf.Rank>; //Makes predictions
 
       prediction
         .array()
@@ -254,7 +254,7 @@ export class ThymioIA implements IThymioIA {
       onVariableChange(uuid, variables);
       let captors = toJS(this.captors.state)[uuid] || [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-      Object.entries(variables).forEach(([variable, value], index) => {
+      Object.entries(variables).forEach(([variable, value], index) => { //Ground values threshold is not 0 but 2, else no line following possible
         switch (variable) {
           case 'prox_ground_0':
             captors[0] = value > 2 ? 1 : 0;
@@ -296,7 +296,7 @@ export class ThymioIA implements IThymioIA {
     return this.tdmController.emitAction(uuid, action, args);
   };
 
-  emitMotorEvent = async (uuid: string, action: string) => {
+  emitMotorEvent = async (uuid: string, action: string) => {//Fixed speeds, intentionally slow
     switch (action) {
       case 'STOP':
         this.emitAction(uuid, 'M_motors', [0, 0]);

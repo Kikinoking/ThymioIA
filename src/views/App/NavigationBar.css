@@ -2,15 +2,15 @@
   flex-grow: 0;
   flex: 0;
   text-align: center;
-  color: white; /* Text color */
-  padding: 20px 20px; /* Padding */
+  color: white;
+  padding: 20px 20px;
   border: 20pt;
   border-color: rgb(236, 236, 236);
-  border-width: 10px; /* No border */
-  /* No focus outline */
-  transition: background-color 0.3s; /* Color transition */
+  border-width: 10px; 
+  
+  transition: background-color 0.3s;
   cursor: pointer;
-  position: relative; /* Needed for shaping */
+  position: relative; 
   clip-path: polygon(
     0% 0%,
 
@@ -19,19 +19,19 @@
     80% 100%,
     0% 100%,
     20% 50%
-  ); /* Double-chevron */
-  border-radius: 0; /* Ensure corners are not rounded */
+  ); /* Double-chevron shape  */
+  border-radius: 0; 
   height: 60px;
   width: 130px;
 }
 .state-item:not(:first-child) {
-  margin-left: -20px; /* Vous pouvez ajuster la valeur selon vos besoins */
+  margin-left: -20px; 
 }
 .state-item span {
   display: inline-block;
   vertical-align: middle;
-  line-height: 1.2; /* Espacement entre les lignes */
-  max-width: 100%; /* Ajuster la largeur du texte */
+  line-height: 1.2; 
+  max-width: 100%; 
 }
 
 /* Ensure the first and last items match the overall style */
@@ -67,11 +67,11 @@
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 100%; /* Assurez-vous que la barre de navigation occupe toute la largeur de l'écran */
+  width: 100%; 
 }
 
 .separator {
-  display: none; /* Remove if you no longer want the separator */
+  display: none; 
 }
 
 /* Pseudo-elements for creating angled sides */
@@ -93,20 +93,20 @@
   right: -10px;
 }
 .state-item {
-  /* Vos styles existants */
-  position: relative; /* Position relative pour que les éléments internes soient positionnés par rapport à ce bouton */
+ 
+  position: relative;
 }
 
 .button-text {
-  position: absolute; /* Position absolue pour positionner le texte à l'intérieur du bouton */
-  top: 50%; /* Aligner le haut du texte au milieu du bouton */
-  left: 50%; /* Aligner le côté gauche du texte au milieu du bouton */
-  transform: translate(
+  position: absolute; 
+  top: 50%; 
+  left: 50%; 
+  transform: translate( /*translate text to center it  */
     -50%,
     -50%
-  ); /* Déplacer le texte de moitié de sa propre taille vers le haut et vers la gauche pour le centrer */
-  white-space: normal; /* Permettre au texte de passer à la ligne si nécessaire */
-  text-align: center; /* Centrer le texte horizontalement */
+  ); 
+  white-space: normal; 
+  text-align: center; 
 }
 
 /* Color classes */

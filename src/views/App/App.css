@@ -18,8 +18,8 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 .thymio-svg-component {
-  width: 100px; /* Remplacez par la largeur appropriée */
-  height: 100px; /* Remplacez par la hauteur appropriée */
+  width: 100px; 
+  height: 100px; 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -69,61 +69,61 @@
 
 .settings-button {
   position: fixed;
-  top: 10px; /* Ajustez cette valeur pour positionner le bouton selon vos besoins */
-  left: 10px; /* Ajustez cette valeur pour positionner le bouton selon vos besoins */
-  z-index: 1050; /* S'assure que le bouton reste au-dessus du volet */
+  top: 10px; 
+  left: 10px; 
+  z-index: 1050; /* Makes sure button is above the rest */
   cursor: pointer;
   padding: 8px 12px;
-  background-color: #007bff; /* Couleur de fond du bouton */
-  color: white; /* Couleur du texte du bouton */
+  background-color: #007bff;  
+  color: white; 
   border: none;
-  border-radius: 4px; /* Arrondi les angles du bouton */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Ombre pour un effet de relief */
+  border-radius: 4px; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .settings-panel {
   position: fixed;
   top: 0;
   left: 0;
-  width: 250px; /* Largeur du volet */
-  height: 100%; /* Hauteur totale de la vue */
-  background-color: #4d4545; /* Couleur de fond du volet */
-  border-right: 1px solid #ccc; /* Bordure droite pour séparer du reste de la page */
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Ombre pour un effet de profondeur */
-  transform: translateX(-100%); /* Démarre hors du cadre de la vue */
+  width: 250px; 
+  height: 100%; 
+  background-color: #4d4545;
+  border-right: 1px solid #ccc; 
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); 
+  transform: translateX(-100%); /* Starts outside view */
   transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.83, 0.67), visibility 0s 0.5s;
   will-change: transform;
-  z-index: 1040; /* S'assure que le volet est au-dessus du contenu de la page mais sous le bouton */
+  z-index: 1040; /*Under button but over the rest of the page*/
 }
 
 .actions-header {
-  margin-top: 0px; /* Réduit la marge supérieure */
-  margin-bottom: 5px; /* Réduit la marge inférieure */
+  margin-top: 0px; 
+  margin-bottom: 5px;
 }
 
 .settings-panel h2 {
-  padding: 20px; /* Espacement autour du titre pour plus de clarté */
+  padding: 20px; /* Spacing around title */
 }
 
 .settings-panel button {
-  display: block; /* Assure que les boutons prennent toute la largeur */
-  width: 100%; /* Maximise la largeur des boutons pour faciliter le clic */
-  padding: 10px; /* Padding pour confort de clic */
-  margin: 10px 0; /* Marge entre les boutons */
-  background-color: #000000; /* Fond blanc pour les boutons */
-  border: 1px solid #ddd; /* Légère bordure pour définir les boutons */
+  display: block;
+  width: 100%; 
+  padding: 10px; 
+  margin: 10px 0; 
+  background-color: #000000; 
+  border: 1px solid #ddd; 
   cursor: pointer;
 }
 
 .settings-panel label {
-  display: block; /* Permet au label d'être sur sa propre ligne */
-  margin: 20px 0 10px; /* Espacement autour du label */
+  display: block; 
+  margin: 20px 0 10px; 
 }
 
 .settings-panel input[type='range'] {
-  width: 90%; /* Largeur du slider pour s'adapter au conteneur */
-  margin: auto; /* Centre le slider */
-  display: block; /* Assure que le slider est sur sa propre ligne */
+  width: 90%; 
+  margin: auto; 
+  display: block; 
 }
 .settings-panel {
   position: fixed;
@@ -149,13 +149,13 @@
 .settings-panel.open {
   transform: translateX(0);
   background-color: red;
-  transition-delay: 0s; /* Ceci devrait rendre le changement évident */
+  transition-delay: 0s; 
 }
 
 .tooltip {
   position: relative;
   display: inline-block;
-  border-bottom: 1px dotted black; /* Style souligné pour indiquer qu'il s'agit d'un tooltip */
+  border-bottom: 1px dotted black; 
 }
 
 .tooltip .tooltip-text {
@@ -167,14 +167,14 @@
   border-radius: 6px;
   padding: 5px 0;
 
-  /* Positionnement */
+  /* Positioning */
   position: absolute;
   z-index: 1;
   bottom: 125%;
   left: 50%;
   margin-left: -60px;
 
-  /* Effets */
+  /* Effects */
 
   opacity: 0;
   transition: visibility 0s, opacity 0.3s ease-in-out;
@@ -183,54 +183,54 @@
 .tooltip:hover .tooltip-text {
   visibility: visible;
   opacity: 1;
-  transition-delay: 0s; /* Pas de délai lors du passage à visible */
+  transition-delay: 0s; /*no delay*/
 }
 .getRobots-button {
   padding: 10px 10px;
-  background-color: #4caf50; /* Couleur de fond verte */
-  color: white; /* Texte blanc */
-  border: none; /* Pas de bordure */
-  border-radius: 5px; /* Bords arrondis */
-  cursor: pointer; /* Curseur en forme de pointeur */
-  transition: background-color 0.3s; /* Transition douce pour le hover */
+  background-color: #4caf50; 
+  color: white;
+  border: none; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  transition: background-color 0.3s; 
 }
 .button-hover-animate {
   transition: background-color 0.3s ease;
-  will-change: background-color; /* Indiquer au navigateur que cette propriété sera animée */
+  will-change: background-color; 
 }
 
 .getRobots-button:hover {
-  background-color: #45a049; /* Couleur plus foncée au survol */
+  background-color: #45a049;
   will-change: background-color;
 }
 
 .instructions-container {
   border: 2px solid #76abae;
-  border-radius: 8px; /* Coins arrondis */
-  padding: 5px 5px 5px 5px; /* Réduit le padding supérieur */
-  margin: 2px; /* Marge extérieure */
-  background-color: #eeeeee; /* Fond légèrement gris */
-  width: 600px; /* Largeur fixe */
-  box-shadow: 0 4px 8px rgba(163, 160, 160, 0.1); /* Ombre discrète */
+  border-radius: 8px; 
+  padding: 5px 5px 5px 5px; 
+  margin: 2px;
+  background-color: #eeeeee; 
+  width: 600px; 
+  box-shadow: 0 4px 8px rgba(163, 160, 160, 0.1); 
 }
 
 .instructions-container h4 {
-  color: #333; /* Titre en couleur plus sombre */
-  margin-top: 3px; /* Réduit l'espace au-dessus du titre */
-  margin-bottom: 3px; /* Espace réduit après le titre */
-  font-size: 26px; /* Taille de la police */
+  color: #333; 
+  margin-top: 3px;
+  margin-bottom: 3px; 
+  font-size: 26px; 
 }
 
 .instructions-container ol {
-  padding-left: 20px; /* Alignement des numéros à l'intérieur du bloc */
-  font-size: 30px; /* Taille de la police pour les listes */
-  margin-top: 3px; /* Réduit l'espace au-dessus de la liste */
+  padding-left: 20px; 
+  font-size: 30px; 
+  margin-top: 3px; 
 }
 
 .instructions-container li {
-  margin-bottom: 3px; /* Espace entre les lignes */
+  margin-bottom: 3px;
   color: #000000;
-  font-size: 20px; /* Taille de la police pour les éléments de liste */
+  font-size: 20px; 
   text-align: left;
 }
 .trainer-table {
@@ -262,14 +262,14 @@
   position: fixed;
   top: 10px;
   right: 10px;
-  width: 40px; /* Largeur du SVG */
-  height: 40px; /* Hauteur du SVG */
-  background: url('../../assets/help.svg') no-repeat center center / cover; /* Assurez-vous que le chemin d'accès est correct */
+  width: 40px; 
+  height: 40px; 
+  background: url('../../assets/help.svg') no-repeat center center / cover; 
   border: none;
   cursor: pointer;
   padding: 8px 12px;
   outline: none;
-  background-color: transparent; /* S'assure que le fond est transparent */
+  background-color: transparent; /* Bg transparent */
 }
 
 .popup-overlay {
@@ -283,7 +283,7 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  z-index: 100; /* Assurez-vous que ce z-index est supérieur à tout autre z-index dans l'application */
+  z-index: 100; 
 }
 
 .popup-overlay-title {
@@ -292,7 +292,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8); /* Assombrir l'arrière-plan pour mettre en évidence le popup */
+  background-color: rgba(0, 0, 0, 0.8); 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -302,12 +302,12 @@
 .popup-content-title {
   padding: 20px;
   border-radius: 5px;
-  background-color: #1a1a1a; /* Fond sombre pour le contraste */
-  color: white; /* Texte en blanc pour une meilleure lisibilité */
+  background-color: #1a1a1a;
+  color: white; 
   text-align: center;
   width: 80%;
-  max-width: 100px; /* Limite la largeur pour les grands écrans */
-  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5); /* Ombre pour un effet de profondeur */
+  max-width: 100px; 
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5); 
   z-index: 2000;
 }
 
@@ -333,16 +333,16 @@
   overflow: hidden;
 }
 
-/* App.css */
+
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Aligner les éléments au début du conteneur */
+  justify-content: flex-start; 
   width: 80vw;
   height: 83vh;
-  overflow: auto; /* Permettre le défilement vertical si nécessaire */
-  padding: 10px 0; /* Ajouter un peu d'espace en haut et en bas */
+  overflow: auto; 
+  padding: 10px 0; 
 }
 
 .execute-btn {
@@ -383,7 +383,7 @@
   left: 10px;
   font-weight: bold;
   color: white;
-  background-color: rgba(0, 0, 0, 0.5); /* Pour rendre le texte plus lisible sur un fond potentiellement clair */
+  background-color: rgba(0, 0, 0, 0.5); 
   padding: 2px 5px;
 }
 .record-note-section {
@@ -423,9 +423,9 @@
 }
 
 .piano-container {
-  margin-top: 50px; /* Espace pour le bouton au-dessus */
-  width: 600px; /* Fixe la largeur à 600px pour le piano */
-  margin: auto; /* Centralise le piano */
+  margin-top: 50px; 
+  width: 600px; /* Fixed piano length*/
+  margin: auto; 
   z-index: 1200;
 }
 
@@ -484,24 +484,24 @@
   color: #fff;
 }
 .legend-circle {
-  width: 20px; /* Taille du cercle */
-  height: 20px; /* Taille du cercle */
-  border-radius: 50%; /* Arrondit les angles pour former un cercle */
-  margin-right: 8px; /* Espace à droite du cercle pour séparation avec le texte */
-  display: inline-block; /* Affichage en ligne pour aligner avec le texte */
-  vertical-align: middle; /* Alignement vertical pour que le cercle soit centré avec le texte */
+  width: 20px; 
+  height: 20px; 
+  border-radius: 50%; 
+  margin-right: 8px;
+  display: inline-block; 
+  vertical-align: middle; 
 }
 
 .input-file {
-  display: none; /* Cache l'élément input de type file */
+  display: none; /* Hides input element of type file */
 }
 .filename-input {
-  width: 100%; /* Makes the input field take the full width of its container */
-  padding: 0px; /* Adds padding inside the input box for better text visibility */
-  margin-bottom: 10px; /* Adds space below the input field */
+  width: 100%; 
+  padding: 0px;
+  margin-bottom: 10px; 
   border: 2px solid #ccc; /* Gives a solid border with a light grey color */
-  border-radius: 2px; /* Rounds the corners of the input field */
-  font-size: 14px; /* Sets a readable font size */
+  border-radius: 2px; 
+  font-size: 14px; 
 }
 
 /*delete button of trainer table */
@@ -524,7 +524,7 @@
   outline: none;
   padding: 0;
 
-  border: 4px solid white; /* Bordure blanche comme spécifié */
+  border: 4px solid white; 
 }
 
 .navigation-bar {
@@ -535,19 +535,19 @@
 }
 
 .light-theme .actions-container {
-  background-color: #575555; /* Couleur de fond plus claire */
+  background-color: #575555; 
 }
 
 .light-theme .trainer-table-container {
-  background-color: #ffffff; /* Fond blanc */
-  border-color: #ccc; /* Bordure plus claire */
+  background-color: #ffffff;
+  border-color: #ccc; 
 }
 
 .light-theme .trainer-table {
-  border-color: #ddd; /* Bordure plus claire pour la table */
+  border-color: #ddd; 
 }
 
-.light-theme .button-container,
+.light-theme .button-container, /* All these components share the same css style in light-theme */
 .light-theme .map-more-actions-container,
 .light-theme .visualization-container,
 .light-theme .piano-container,
@@ -556,8 +556,8 @@
 .light-theme .control-buttons-container,
 .light-theme .secondline,
 .light-theme .input_components,
-.light-theme .neural-network-container, /* Ajout pour le conteneur de visualisation du réseau neuronal */
-.light-theme .note-display-container, /* Ajout pour le conteneur de l'affichage des notes et ThymioSVG */
+.light-theme .neural-network-container,
+.light-theme .note-display-container, 
 .light-theme .piano-container, 
 .light-theme .control-buttons-container,
 .light-theme .record-note-section,
@@ -566,19 +566,19 @@
 .light-theme .thymio-svg-container,
 .light-theme .note-recorded-section,
 .light-theme .recording-container {
-  background-color: #828080; /* Fond légèrement gris pour distinguer */
-  border-color: #414040; /* Bordure légèrement plus foncée */
+  background-color: #828080; 
+  border-color: #414040;
   border-width: '3px';
-  color: #fff; /* Texte blanc pour une meilleure lisibilité */
+  color: #fff; 
 }
 
-/* Styles spécifiques au thème clair pour les en-têtes de table */
+
 .light-theme .trainer-table th {
-  color: #fff; /* Texte blanc */
-  background-color: #575555; /* Fond gris foncé pour contraster avec le texte blanc */
+  color: #fff; 
+  background-color: #575555;
 }
 
-/* Assurez-vous que les lignes de table ont également une couleur de texte appropriée en mode thème clair */
+
 .light-theme .trainer-table td {
-  color: #fff; /* Texte blanc pour la cohérence avec les en-têtes */
+  color: #fff; 
 }

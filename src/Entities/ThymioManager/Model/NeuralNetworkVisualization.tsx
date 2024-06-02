@@ -18,10 +18,10 @@ const NeuralNetworkVisualization = ({
   showBiases,
 }) => {
   const [layers, setLayers] = useState([]);
-  const svgWidth = 800; // Largeur du SVG
-  const svgHeight = 400; // Hauteur du SVG
-  const outputLayerSize = 5; // Taille prédéfinie de la couche de sortie pour cet exemple
-  const inputLayerSize = inputMode === 'NOTE_ONLY' ? 1 : 10; // Taille de la couche d'entrée basée sur le mode
+  const svgWidth = 800; 
+  const svgHeight = 400; 
+  const outputLayerSize = 5; // predefined output layer size
+  const inputLayerSize = inputMode === 'NOTE_ONLY' ? 1 : 10; 
   const [updateKey, setUpdateKey] = useState(0);
   const [maxRadiusIndex, setMaxRadiusIndex] = useState(-1);
 
@@ -33,7 +33,7 @@ const NeuralNetworkVisualization = ({
         if (neuron) {
           const box = neuron.getBBox();
           const svgRect = neuron.ownerSVGElement.getBoundingClientRect();
-          // Calculer les coordonnées du centre en tenant compte du positionnement relatif au SVG
+          
           return {
             x: svgRect.left + box.x + box.width / 2,
             y: svgRect.top + box.y + box.height / 2,
@@ -41,14 +41,14 @@ const NeuralNetworkVisualization = ({
         }
         return null;
       })
-      .filter(coord => coord !== null); // Filtrer les entrées non valides
+      .filter(coord => coord !== null); //filter non-valid entries
 
     onNeuronCoordinates(neuronCoordinates);
   }, [model, neuronRefs.current]);
 
   useEffect(() => {
     function handleResize() {
-      // Recalculer les coordonnées lors du redimensionnement de la fenêtre
+      // Recompute coords if resize happened
       if (neuronRefs.current) {
         const neuronCoordinates = neuronRefs.current
           .map(neuron => {
@@ -72,7 +72,7 @@ const NeuralNetworkVisualization = ({
   }, [neuronRefs.current]);
 
   useEffect(() => {
-    setUpdateKey(prevKey => prevKey + 1); // Incrémente la clé à chaque changement d'activations
+    setUpdateKey(prevKey => prevKey + 1); //inc key
   }, [activations]);
 
   useEffect(() => {
@@ -89,12 +89,12 @@ const NeuralNetworkVisualization = ({
           }
           return null;
         })
-        .filter(coord => coord !== null); // Filtrer les entrées non valides
+        .filter(coord => coord !== null); //filter entries
 
-      // Appeler la fonction passée par les props
+   
       onNeuronCoordinates(coordinates);
     }
-  }, [model, neuronRefs.current]); // Dépendance sur le modèle et les références des neurones
+  }, [model, neuronRefs.current]); // Dependency on model, and neurons
 
   const getBiasColor = bias => {
     // Normalize bias for visualization purposes
@@ -102,20 +102,20 @@ const NeuralNetworkVisualization = ({
     return getColorFromWeight(normalizedBias);
   };
   const calculateMicrophoneRadius = noteValue => {
-    const minRadius = 5; // Rayon minimum pour le neurone du microphone
-    const maxRadius = 10; // Rayon maximum pour le neurone du microphone
-    const maxValue = 60; // Supposons que la valeur maximale pour noteValue soit 100
+    const minRadius = 5; // min radius for mic neuron
+    const maxRadius = 10; // Max radius for mic neuron
+    const maxValue = 60; 
 
     return Math.min(maxRadius, minRadius + (noteValue / maxValue) * (maxRadius - minRadius));
   };
 
   const calculateRadius = activationValue => {
-    const minActivation = -1; // Minimum d'activation
-    const maxActivation = 1; // Maximum d'activation ajusté
-    const minRadius = 4; // Rayon minimum pour garantir la visibilité
-    const maxRadius = 10; // Plafond pour le rayon maximal
+    const minActivation = -1; // Minimum activation
+    const maxActivation = 1; // Maximum activation
+    const minRadius = 4; // min radius, else neuron is not visible because too small
+    const maxRadius = 10; // ceiling for max radius
 
-    // Traiter spécifiquement le cas où activationValue est 0 ou très proche de zéro
+    // If activation close to zero, to avoid 0 divisin
     if (Math.abs(activationValue) < 0.0001) {
       return minRadius;
     }
@@ -125,7 +125,7 @@ const NeuralNetworkVisualization = ({
     } else if (activationValue > maxActivation) {
       return maxRadius;
     } else {
-      // Interpolation linéaire entre minRadius et maxRadius
+      // Interp linear for radii
       const normalized = (activationValue - minActivation) / (maxActivation - minActivation);
       return normalized * (maxRadius - minRadius) + minRadius;
     }
@@ -145,8 +145,8 @@ const NeuralNetworkVisualization = ({
       onNeuronCoordinates(newCoordinates);
     };
 
-    updateCoordinates(); // Appel initial pour configurer
-    const observer = new ResizeObserver(updateCoordinates); // Utilisez ResizeObserver pour suivre les changements de taille
+    updateCoordinates(); 
+    const observer = new ResizeObserver(updateCoordinates); // Use observer to look for changes
 
     if (neuronRefs.current && neuronRefs.current.length > 0) {
       neuronRefs.current.forEach(neuron => {
@@ -155,13 +155,13 @@ const NeuralNetworkVisualization = ({
     }
 
     return () => {
-      observer.disconnect(); // Nettoyer l'observateur
+      observer.disconnect(); //cleanup obs
     };
   }, [model, neuronRefs.current, svgWidth, svgHeight]);
 
   useEffect(() => {
     if (model) {
-      // Récupérer et filtrer les couches à partir de la deuxième couche dense (après l'embedding)
+      // get layers from layer 2 onwards
       const modelLayers = model.layers
         .slice(2)
         .map((layer, index) => {
@@ -180,25 +180,25 @@ const NeuralNetworkVisualization = ({
     }
   }, [model, activations]);
 
-  const layerSpacing = svgWidth / (layers.length + 3); // Espacement pour inclure la couche d'entrée et de sortie
+  const layerSpacing = svgWidth / (layers.length + 3); //spacing adjusted for input layer
 
   useEffect(() => {
     if (outputactiv) {
-      // Calculer les rayons basés directement sur outputactiv
+      // Compute output radii and update them
       const outputRadii = outputactiv.map(activation => calculateRadius(activation));
       const newMaxRadiusIndex = outputRadii.indexOf(Math.max(...outputRadii));
 
       setMaxRadiusIndex(newMaxRadiusIndex);
     }
-  }, [outputactiv]); // Dépendance uniquement sur outputactiv
+  }, [outputactiv]);
 
   const getColorFromWeight = weight => {
     if (weight === undefined) {
-      return 'rgba(255, 255, 255, 0.5)'; // Couleur par défaut pour les poids non définis
+      return 'rgba(255, 255, 255, 0.5)'; //Should never happen
     }
-    // Calcul de l'intensité des couleurs en amplifiant les variations
-    const red = Math.min(255, Math.floor(255 * Math.max(0, -weight) * 1.5)); // Amplifie les poids négatifs
-    const green = Math.min(255, Math.floor(255 * Math.max(0, weight) * 1.5)); // Amplifie les poids positifs
+    // computes intensity colors, same as visu training component
+    const red = Math.min(255, Math.floor(255 * Math.max(0, -weight) * 1.5)); // Amplifies positive w.
+    const green = Math.min(255, Math.floor(255 * Math.max(0, weight) * 1.5)); // Amplifies neg w.
 
     return `rgb(${red}, ${green}, 0)`;
   };
@@ -206,22 +206,22 @@ const NeuralNetworkVisualization = ({
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
       <svg key={updateKey} width={svgWidth} height={svgHeight} style={{ border: '1px solid black' }}>
-        {/* Ajout de la couche d'entrée */}
+        {/*Adds input layer */}
         {inputMode === 'CAPTORS_AND_NOTE' ? (
           sensorData
             .map((sensor, index) => {
-              // Déterminer la couleur en fonction de l'état du capteur
-              const isActive = sensor > 0; // Changez cette condition si nécessaire pour correspondre à vos données
-              const fillColor = isActive ? 'green' : 'black'; // Supposons que `sensor` soit 1 pour actif et 0 pour inactif
+              // Changes color to green if sensor is active
+              const isActive = sensor > 0; 
+              const fillColor = isActive ? 'green' : 'black'; 
 
               return (
                 <circle
                   ref={el => (neuronRefs.current[index] = el)}
-                  key={`sensor-${index}-${sensor}`} // Ajout de sensor dans la clé pour forcer la mise à jour
-                  cx={layerSpacing * 0.5} // Position x constante pour simplifier
+                  key={`sensor-${index}-${sensor}`} 
+                  cx={layerSpacing * 0.5} 
                   cy={((index + 1) * svgHeight) / (inputLayerSize + 1)}
-                  r={calculateRadius(sensor)} // Utilisation de calculateRadius pour déterminer le rayon
-                  fill={fillColor} // Utilisation de fillColor basée sur l'état du capteur
+                  r={calculateRadius(sensor)} 
+                  fill={fillColor} 
                   stroke="black"
                 />
               );
@@ -250,7 +250,7 @@ const NeuralNetworkVisualization = ({
           />
         )}
 
-        {/* Ajout de la couche de sortie */}
+        {/* Output layer */}
         <g>
           {layers.length > 0 &&
             layers[layers.length - 1] &&
@@ -259,10 +259,10 @@ const NeuralNetworkVisualization = ({
               const y1 = ((neuronIndex + 1) * svgHeight) / (layers[layers.length - 1].weights.length + 1);
               return neuronWeights.map((weight, outputIdx) => {
                 const y2 = ((outputIdx + 1) * svgHeight) / (outputLayerSize + 1);
-                const x1 = (layers.length + 1) * layerSpacing; // Ajusté pour l'emplacement correct
+                const x1 = (layers.length + 1) * layerSpacing;
                 const x2 = svgWidth - layerSpacing;
-                const svgX = x2 + 20; // Ajoute un petit espace
-                const svgSize = 60; // Taille ajustable du SVG
+                const svgX = x2 + 20; 
+                const svgSize = 60;
                 const svgImages = [Svgaction1, Svgaction2, Svgaction3, Svgaction4, Svgaction5];
                 const svgSrc = svgImages[outputIdx % svgImages.length];
                 return (
@@ -276,7 +276,7 @@ const NeuralNetworkVisualization = ({
                       stroke={getColorFromWeight(weight)}
                       strokeWidth="2"
                     />
-                    {/* Charger l'image SVG */}
+                    
                     <image
                       key={`svg-image-${outputIdx}`}
                       href={svgSrc}
@@ -303,7 +303,7 @@ const NeuralNetworkVisualization = ({
             layers[layers.length - 1].biases &&
             new Array(outputLayerSize).fill(0).map((_, index) => {
               const y = ((index + 1) * svgHeight) / (outputLayerSize + 1);
-              const x = svgWidth - layerSpacing; // Position X ajustée pour la couche de sortie
+              const x = svgWidth - layerSpacing; 
               const radiusoutput = outputactiv ? calculateRadius(outputactiv[index]) : 10;
               return (
                 <g key={`output-neuron-${index}`}>
@@ -320,18 +320,18 @@ const NeuralNetworkVisualization = ({
               );
             })}
         </g>
-        {/* Dessiner les couches existantes et leurs connexions */}
+        {/* Draw all other layers */}
         {layers.map((layer, layerIndex) => {
-          const x = (layerIndex + 2) * layerSpacing; // Décalage pour la nouvelle couche d'entrée
+          const x = (layerIndex + 2) * layerSpacing;
           const neuronSpacing = svgHeight / (layer.weights.length + 1);
 
           return (
             <g key={layerIndex}>
-              {/* Dessiner d'abord les lignes pour les connexions */}
+              {/* draw first lines*/}
               {layer.weights.map((neuronWeights, neuronIdx) => {
                 const y = (neuronIdx + 1) * neuronSpacing;
                 let lines = [];
-                // Connexions de la couche d'entrée à la première couche dense en tenant compte de l'état des capteurs
+                
                 if (inputMode === 'CAPTORS_AND_NOTE' && layerIndex === 0) {
                   lines = sensorData.map((sensor, idx) => {
                     const yInput = ((idx + 1) * svgHeight) / (sensorData.length + 2);
@@ -351,11 +351,11 @@ const NeuralNetworkVisualization = ({
                   });
                 }
 
-                // Ajouter ici la ligne pour le microphone si nécessaire, ajustez comme il faut avec votre logique spécifique pour la couleur
+                
                 if (layerIndex === 0) {
                   const yInput =
-                    inputMode === 'NOTE_ONLY' ? svgHeight / 2 : svgHeight - svgHeight / (sensorData.length + 2); // Position du microphone
-                  const microphoneColor = 'green'; // Ou toute autre logique pour la couleur
+                    inputMode === 'NOTE_ONLY' ? svgHeight / 2 : svgHeight - svgHeight / (sensorData.length + 2); //mic pos
+                  const microphoneColor = 'green'; 
                   lines.push(
                     <line
                       key={`input-to-layer-link-mic-${neuronIdx}`}
@@ -368,7 +368,7 @@ const NeuralNetworkVisualization = ({
                     />
                   );
                 }
-                // Connexions entre les couches intermédiaires avec coloration basée sur les poids
+                
                 if (layerIndex < layers.length - 1) {
                   const nextLayer = layers[layerIndex + 1];
                   const nextX = (layerIndex + 3) * layerSpacing;
@@ -389,11 +389,11 @@ const NeuralNetworkVisualization = ({
                   });
                 }
 
-                // Rendu des lignes de connexion
+                
                 return lines;
               })}
 
-              {/* Ensuite, dessiner les cercles pour les neurones */}
+              {/* Draw neuron circles*/}
               {layer.weights.map((_, neuronIdx) => {
                 const y = (neuronIdx + 1) * neuronSpacing;
                 const radius =
@@ -411,7 +411,7 @@ const NeuralNetworkVisualization = ({
                 );
               })}
 
-              {/* Ensuite, dessiner les cercles pour les neurones */}
+              {/*neuron circles again*/}
               {layer.weights.map((_, neuronIdx) => {
                 const y = (neuronIdx + 1) * neuronSpacing;
                 const radius =

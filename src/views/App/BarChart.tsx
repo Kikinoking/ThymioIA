@@ -28,11 +28,11 @@ const BarChart: React.FC<BarChartProps> = ({ data, labels, theme, style }) => {
 
   // Define more vivid colors for light theme
   const lightThemeColors = [
-    'rgba(255, 50, 102, 1)', // More opaque and brighter red
-    'rgba(13, 10, 235, 1)', // Brighter blue
-    'rgba(255, 230, 56, 1)', // Brighter yellow
-    'rgba(30, 220, 220, 1)', // Brighter cyan
-    'rgba(80, 242, 40, 1)', // Brighter purple
+    'rgba(255, 50, 102, 1)', 
+    'rgba(13, 10, 235, 1)', 
+    'rgba(255, 230, 56, 1)', 
+    'rgba(30, 220, 220, 1)',
+    'rgba(80, 242, 40, 1)',
   ];
 
   const darkThemeColors = [
@@ -62,7 +62,7 @@ const BarChart: React.FC<BarChartProps> = ({ data, labels, theme, style }) => {
     ],
   };
 
-  const options = {
+  const options = { //all the options, in inline style
     responsive: true,
     maintainAspectRatio: false,
     plugins: {

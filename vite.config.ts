@@ -6,7 +6,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgrPlugin from 'vite-plugin-svgr';
 
 export default defineConfig({
-  base: '/', // Utilisez '/' si vous hébergez à la racine
+  base: '/', 
   plugins: [
     nodePolyfills(),
     react({
@@ -21,7 +21,7 @@ export default defineConfig({
     svgrPlugin()
   ],
   build: {
-    outDir: 'dist', // Assurez-vous que cela correspond à votre configuration Vercel
-    assetsDir: 'assets', // Répertoire pour les actifs
+    outDir: 'dist', 
+    assetsDir: 'assets', 
   },
 });
