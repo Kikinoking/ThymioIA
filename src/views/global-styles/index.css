@@ -1,5 +1,5 @@
 :root {
-  font-family: Raleway , sans-serif , system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Raleway, sans-serif, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -11,11 +11,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --border-color: #ddd;       
+  --border-color: #ddd;
   --hover-border-color: #cfc1ba;
-  --button-bg: #1a1a1a;                   /* Couleur de fond des boutons */
-  --bg-color: #242424;                    /* Couleur de fond globale */
-  --text-color: #ffffff;  
+  --button-bg: #1a1a1a; /* Couleur de fond des boutons */
+  --bg-color: #242424; /* Couleur de fond globale */
+  --text-color: #ffffff;
 }
 
 a {
@@ -61,7 +61,6 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
   z-index: 1200;
-  
 }
 button:hover {
   border-color: var(--hover-border-color);
@@ -84,7 +83,6 @@ button:focus-visible {
   }
 }
 
-
 canvas {
   max-width: 100%;
   height: auto;
@@ -98,8 +96,6 @@ canvas {
   background-color: #1a1a1a;
   border: 1px solid #ddd;
   text-align: center;
-
-  
 }
 .note-display {
   padding: 10px;
@@ -108,7 +104,6 @@ canvas {
   border: 1px solid #ddd;
   text-align: center;
 }
-
 
 .light-theme {
   --bg-color: #dcdcdc;
@@ -119,7 +114,7 @@ canvas {
 
 .dark-theme {
   --bg-color: #242424;
-  --text-color: #ffffff;                              
+  --text-color: #ffffff;
   --button-bg: #1a1a1a;
   --hover-border-color: #666;
 }
@@ -129,6 +124,7 @@ body {
   color: var(--text-color);
 }
 
-.settings-button, .settings-panel {
+.settings-button,
+.settings-panel {
   background-color: var(--button-bg);
 }

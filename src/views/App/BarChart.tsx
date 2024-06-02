@@ -1,31 +1,38 @@
 import { Bar } from 'react-chartjs-2';
 import { useTranslation } from 'react-i18next';
 import Chart from 'chart.js/auto';
+import * as React from 'react';
 
-
+// Define the interface for the component props
+interface BarChartProps {
+  data: number[];
+  labels: string[];
+  theme: string;
+  style?: React.CSSProperties;  // Optional style prop
+}
 
 const backgroundPlugin = {
   id: 'customCanvasBackground',
-  beforeDraw: (chart) => {
+  beforeDraw: (chart: any) => {
     const ctx = chart.ctx;
     const canvas = chart.canvas;
     ctx.save();
     ctx.fillStyle = chart.options.plugins.customCanvasBackground.color;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.restore();
-  }
+  },
 };
 
-const BarChart = ({ data, labels, theme }) => {
+const BarChart: React.FC<BarChartProps> = ({ data, labels, theme, style }) => {
   const { t } = useTranslation();
 
   // Define more vivid colors for light theme
   const lightThemeColors = [
-    'rgba(255, 50, 102, 1)',   // More opaque and brighter red
-    'rgba(13, 10, 235, 1)',   // Brighter blue
-    'rgba(255, 230, 56, 1)',   // Brighter yellow
-    'rgba(30, 220, 220, 1)',   // Brighter cyan
-    'rgba(80, 242, 40, 1)'   // Brighter purple
+    'rgba(255, 50, 102, 1)', // More opaque and brighter red
+    'rgba(13, 10, 235, 1)', // Brighter blue
+    'rgba(255, 230, 56, 1)', // Brighter yellow
+    'rgba(30, 220, 220, 1)', // Brighter cyan
+    'rgba(80, 242, 40, 1)', // Brighter purple
   ];
 
   const darkThemeColors = [
@@ -66,12 +73,12 @@ const BarChart = ({ data, labels, theme }) => {
           font: {
             family: 'Roboto',
             size: 18,
-          }
+          },
         },
       },
       customCanvasBackground: {
         color: theme === 'light' ? '#828080' : 'transparent',
-      }
+      },
     },
     scales: {
       x: {
@@ -80,7 +87,7 @@ const BarChart = ({ data, labels, theme }) => {
           font: {
             family: 'Roboto',
             size: 14,
-          }
+          },
         },
         grid: {
           drawBorder: false,
@@ -93,7 +100,7 @@ const BarChart = ({ data, labels, theme }) => {
           font: {
             family: 'Roboto',
             size: 16,
-          }
+          },
         },
       },
       y: {
@@ -103,7 +110,7 @@ const BarChart = ({ data, labels, theme }) => {
           font: {
             family: 'Roboto',
             size: 14,
-          }
+          },
         },
         grid: {
           drawBorder: false,
@@ -116,7 +123,7 @@ const BarChart = ({ data, labels, theme }) => {
           font: {
             family: 'Roboto',
             size: 16,
-          }
+          },
         },
       },
     },
@@ -124,7 +131,7 @@ const BarChart = ({ data, labels, theme }) => {
 
   Chart.register(backgroundPlugin);
 
-  return <Bar data={chartData} options={options} />
+  return <Bar data={chartData} options={options} style={style} />;
 };
 
 export default BarChart;

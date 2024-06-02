@@ -39,13 +39,13 @@ export class Container {
   };
 
   static factoryFromInjectable = <T>(role: Role, key: string, predicate: Predicate, args?: Object): T | undefined => {
-    const injectable = Container.injectables[role].get(key)?.find((i) => samePredicate(i.predicate, predicate));
+    const injectable = Container.injectables[role].get(key)?.find(i => samePredicate(i.predicate, predicate));
 
     if (!injectable) {
       console.error(`No injectable found for ${role} ${key} with predicate ${predicate} because it is not registered`);
 
       throw new Error(
-        `No injectable found for ${role} ${key} with predicate ${predicate} because it is not registered`,
+        `No injectable found for ${role} ${key} with predicate ${predicate} because it is not registered`
       );
     }
 

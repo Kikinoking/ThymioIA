@@ -1,139 +1,135 @@
 .OpenMenuButton {
-    cursor: pointer;
-    position: fixed; /* Maintient le bouton en position fixe */
-    top: 10px; /* Espacement du haut */
-    left: 10px; /* Espacement de gauche */
-    width: 40px; /* Taille du bouton */
-    height: 40px; /* Taille du bouton */
-    background-color: #007bff; /* Couleur de fond */
-    color: white;
-    border: none;
-    border-radius: 50%; /* Rend le bouton circulaire */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    padding: 0; /* Ajustez si nécessaire */
-    display: flex; /* Centre l'image SVG à l'intérieur du bouton */
-    align-items: center;
-    justify-content: center;
-    z-index: 1400; /* S'assure qu'il reste au-dessus des autres éléments */
-  }
-  
-  .OpenMenuButton img {
-    width: 70%; /* Ajustez la taille de l'image SVG */
-    height: auto; /* Garde l'aspect ratio de l'image */
-  }
-  
-  
-  .DrawerMenu {
-    position: fixed;
-    z-index: 1201;
-    width: 250px; /* Largeur du menu, ajustez selon vos besoins */
-    height: 100vh;
-    top: 0;
-    left: 0;
-    transform: translateX(-100%);
-    transition: transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
-    grid-template-areas: "MENU";
-    
-  }
-  
-  
-  .DrawerMenu.open {
-    transform: translateX(0);
-  }
-  
-  .Menu {
-    grid-area: MENU;
-    background-color: #333;
-    padding: 24px;
-    color: white;
-    overflow: auto;
-  }
-  
-  .MenuLink, .Menu p {
-    display: block;
-    padding: 16px;
-    color: #fff;
-    text-decoration: none;
-    background: none;
-    border: none;
-    text-align: left;
-    font-size: 1rem;
-  }
-  
-  .MenuLink:hover {
-    color: #69F0AE;
-  }
-  
-  .MenuOverlay {
-    display: none; /* Désactivez l'affichage de l'overlay */
-  }
-  
-  
-  .MenuOverlay:not(.open) {
-    pointer-events: none;
-  }
-  .light-theme .DrawerMenu {
-    background-color: #ffffff00; /* Couleur de fond plus claire pour le thème clair */
-    
-    color: #333; /* Couleur de texte plus foncée pour une meilleure lisibilité */
+  cursor: pointer;
+  position: fixed; /* Maintient le bouton en position fixe */
+  top: 10px; /* Espacement du haut */
+  left: 10px; /* Espacement de gauche */
+  width: 40px; /* Taille du bouton */
+  height: 40px; /* Taille du bouton */
+  background-color: #007bff; /* Couleur de fond */
+  color: white;
+  border: none;
+  border-radius: 50%; /* Rend le bouton circulaire */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  padding: 0; /* Ajustez si nécessaire */
+  display: flex; /* Centre l'image SVG à l'intérieur du bouton */
+  align-items: center;
+  justify-content: center;
+  z-index: 1400; /* S'assure qu'il reste au-dessus des autres éléments */
+}
+
+.OpenMenuButton img {
+  width: 70%; /* Ajustez la taille de l'image SVG */
+  height: auto; /* Garde l'aspect ratio de l'image */
+}
+
+.DrawerMenu {
+  position: fixed;
+  z-index: 1201;
+  width: 250px; /* Largeur du menu, ajustez selon vos besoins */
+  height: 100vh;
+  top: 0;
+  left: 0;
+  transform: translateX(-100%);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  grid-template-areas: 'MENU';
+}
+
+.DrawerMenu.open {
+  transform: translateX(0);
+}
+
+.Menu {
+  grid-area: MENU;
+  background-color: #333;
+  padding: 24px;
+  color: white;
+  overflow: auto;
+}
+
+.MenuLink,
+.Menu p {
+  display: block;
+  padding: 16px;
+  color: #fff;
+  text-decoration: none;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.MenuLink:hover {
+  color: #69f0ae;
+}
+
+.MenuOverlay {
+  display: none; /* Désactivez l'affichage de l'overlay */
+}
+
+.MenuOverlay:not(.open) {
+  pointer-events: none;
+}
+.light-theme .DrawerMenu {
+  background-color: #ffffff00; /* Couleur de fond plus claire pour le thème clair */
+
+  color: #333; /* Couleur de texte plus foncée pour une meilleure lisibilité */
 }
 
 .light-theme .Menu {
-    background-color: #f7f7f7; /* Un fond légèrement différent pour le menu lui-même */
-    
-    font-family: 'Arial', sans-serif; /* Changement de police pour le thème clair */
+  background-color: #f7f7f7; /* Un fond légèrement différent pour le menu lui-même */
+
+  font-family: 'Arial', sans-serif; /* Changement de police pour le thème clair */
 }
 
-.light-theme .MenuLink, .light-theme .Menu p {
-    color: #333; /* Texte plus foncé pour une meilleure lisibilité sur fond clair */
+.light-theme .MenuLink,
+.light-theme .Menu p {
+  color: #333; /* Texte plus foncé pour une meilleure lisibilité sur fond clair */
 }
 
 .light-theme .MenuLink:hover {
-    color: #007bff; /* Bleu pour le survol, ajustez selon vos préférences */
+  color: #007bff; /* Bleu pour le survol, ajustez selon vos préférences */
 }
 
 /* Styles spécifiques pour les sliders */
-input[type="range"] {
+input[type='range'] {
   -webkit-appearance: none;
   width: 100%;
   height: 5px; /* Visibilité accrue */
   background: #027676; /* Fond initial transparent */
   outline: none;
   opacity: 0.7;
-  transition: opacity .2s;
+  transition: opacity 0.2s;
   margin-bottom: 10px;
   border-radius: 10%;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 15px;
   height: 10px;
   border-radius: 50%;
-  background: #76ABAE; /* Couleur initiale pour le thème sombre */
+  background: #76abae; /* Couleur initiale pour le thème sombre */
   cursor: pointer;
-
 }
 
-input[type="range"]::-moz-range-thumb {
+input[type='range']::-moz-range-thumb {
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  background:#9582ff ; /* Couleur initiale pour le thème sombre */
+  background: #9582ff; /* Couleur initiale pour le thème sombre */
   cursor: pointer;
-  
 }
 
 /* Adaptations pour le thème clair */
-.light-theme input[type="range"]::-webkit-slider-thumb {
-  background:#3707f7 ; /* Couleur pour le thème clair */
+.light-theme input[type='range']::-webkit-slider-thumb {
+  background: #3707f7; /* Couleur pour le thème clair */
 }
 
-.light-theme input[type="range"]::-moz-range-thumb {
+.light-theme input[type='range']::-moz-range-thumb {
   background: #ffffff; /* Couleur pour le thème clair */
 }
 
 .light-theme .Menu h2,
 .light-theme .Menu label {
-    color: #333; /* Une couleur foncée pour une meilleure visibilité sur fond clair */
+  color: #333; /* Une couleur foncée pour une meilleure visibilité sur fond clair */
 }

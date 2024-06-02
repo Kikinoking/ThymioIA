@@ -1,37 +1,36 @@
 .network {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-  
-  .layer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .neuron {
-    position: relative;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: grey;
-    margin: 5px;
-  }
-  
-  .link {
-    width: 2px;
-    height: 20px;
-    background-color: blue;
-    position: absolute;
-    top: -10px;
-  }
-  
-  .bias {
-    width: 10px;
-    height: 5px;
-    background-color: red;
-    position: absolute;
-    top: -15px;
-  }
-  
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.layer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.neuron {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: grey;
+  margin: 5px;
+}
+
+.link {
+  width: 2px;
+  height: 20px;
+  background-color: blue;
+  position: absolute;
+  top: -10px;
+}
+
+.bias {
+  width: 10px;
+  height: 5px;
+  background-color: red;
+  position: absolute;
+  top: -15px;
+}

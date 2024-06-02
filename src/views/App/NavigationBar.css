@@ -1,92 +1,96 @@
 .state-item {
-    flex-grow: 0;
-    flex:0;
-    text-align: center;
-    color: white; /* Text color */
-    padding: 20px 20px; /* Padding */
-    border: 20pt;
-    border-color: rgb(236, 236, 236); 
-    border-width: 10px;/* No border */
-     /* No focus outline */
-    transition: background-color 0.3s; /* Color transition */
-    cursor: pointer;
-    position: relative; /* Needed for shaping */
-    clip-path: polygon(0% 0%,
-                  
-    80% 0%,
-   100% 50%,
-    80% 100%,
-    0% 100%,
-     20% 50%); /* Double-chevron */
-    border-radius: 0; /* Ensure corners are not rounded */
-    height: 60px;
-    width: 130px;
-  }
-  .state-item:not(:first-child) {
-    margin-left: -20px; /* Vous pouvez ajuster la valeur selon vos besoins */
-}
-  .state-item span {
-    display: inline-block;
-    vertical-align: middle;
-    line-height: 1.2; /* Espacement entre les lignes */
-    max-width: 100%; /* Ajuster la largeur du texte */
-}
-  
-  /* Ensure the first and last items match the overall style */
-  .navigation-bar > .state-item:first-child {
-    flex:0;
-    clip-path: polygon(0% 0%,
-                  
-    80% 0%,
-   100% 50%,
-    80% 100%,
-    0% 100%,
-     20% 50%);
-  }
-  
-  .navigation-bar > .state-item:last-child {
-    flex: 0;
-    clip-path: polygon(0% 0%,
-                  
+  flex-grow: 0;
+  flex: 0;
+  text-align: center;
+  color: white; /* Text color */
+  padding: 20px 20px; /* Padding */
+  border: 20pt;
+  border-color: rgb(236, 236, 236);
+  border-width: 10px; /* No border */
+  /* No focus outline */
+  transition: background-color 0.3s; /* Color transition */
+  cursor: pointer;
+  position: relative; /* Needed for shaping */
+  clip-path: polygon(
     0% 0%,
-                  
+
     80% 0%,
-   100% 50%,
+    100% 50%,
     80% 100%,
     0% 100%,
-     20% 50%);
-  }
-  .navigation-bar {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%; /* Assurez-vous que la barre de navigation occupe toute la largeur de l'écran */
+    20% 50%
+  ); /* Double-chevron */
+  border-radius: 0; /* Ensure corners are not rounded */
+  height: 60px;
+  width: 130px;
 }
-  
-  .separator {
-    display: none; /* Remove if you no longer want the separator */
-  }
-  
-  
-  
-  /* Pseudo-elements for creating angled sides */
-  .state-item::before,
+.state-item:not(:first-child) {
+  margin-left: -20px; /* Vous pouvez ajuster la valeur selon vos besoins */
+}
+.state-item span {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1.2; /* Espacement entre les lignes */
+  max-width: 100%; /* Ajuster la largeur du texte */
+}
+
+/* Ensure the first and last items match the overall style */
+.navigation-bar > .state-item:first-child {
+  flex: 0;
+  clip-path: polygon(
+    0% 0%,
+
+    80% 0%,
+    100% 50%,
+    80% 100%,
+    0% 100%,
+    20% 50%
+  );
+}
+
+.navigation-bar > .state-item:last-child {
+  flex: 0;
+  clip-path: polygon(
+    0% 0%,
+
+    0% 0%,
+
+    80% 0%,
+    100% 50%,
+    80% 100%,
+    0% 100%,
+    20% 50%
+  );
+}
+.navigation-bar {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%; /* Assurez-vous que la barre de navigation occupe toute la largeur de l'écran */
+}
+
+.separator {
+  display: none; /* Remove if you no longer want the separator */
+}
+
+/* Pseudo-elements for creating angled sides */
+.state-item::before,
 .state-item::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 10px;
-    background: inherit;
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  background: inherit;
 }
 
 .state-item::before {
-    left: -10px;
+  left: -10px;
 }
 
 .state-item::after {
-    right: -10px;
+  right: -10px;
 }
 .state-item {
   /* Vos styles existants */
@@ -97,22 +101,23 @@
   position: absolute; /* Position absolue pour positionner le texte à l'intérieur du bouton */
   top: 50%; /* Aligner le haut du texte au milieu du bouton */
   left: 50%; /* Aligner le côté gauche du texte au milieu du bouton */
-  transform: translate(-50%, -50%); /* Déplacer le texte de moitié de sa propre taille vers le haut et vers la gauche pour le centrer */
+  transform: translate(
+    -50%,
+    -50%
+  ); /* Déplacer le texte de moitié de sa propre taille vers le haut et vers la gauche pour le centrer */
   white-space: normal; /* Permettre au texte de passer à la ligne si nécessaire */
   text-align: center; /* Centrer le texte horizontalement */
 }
 
-  
-  /* Color classes */
-  .green {
-    background-color: green;
-  }
-  
-  .orange {
-    background-color: orange;
-  }
-  
-  .red {
-    background-color: red;
-  }
-  
+/* Color classes */
+.green {
+  background-color: green;
+}
+
+.orange {
+  background-color: orange;
+}
+
+.red {
+  background-color: red;
+}

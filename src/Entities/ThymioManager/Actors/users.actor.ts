@@ -7,7 +7,7 @@ import * as tf from '@tensorflow/tfjs';
 @Actor({ key: 'User', predicate: ['AllUser'] })
 export class AllUser implements Users {
   captors: Observable<{ [uuid: string]: number[] }>;
-  
+
   getRobotsUuids;
   takeControl;
   predict;
@@ -32,6 +32,5 @@ export class AllUser implements Users {
     this.emitMotorEvent = thymioIA.emitMotorEvent;
     this.reinitializeModel = thymioIA.reinitializeModel;
     this.getModel = thymioIA.getModel;
-    
   }
 }

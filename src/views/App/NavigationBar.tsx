@@ -1,79 +1,82 @@
 import * as React from 'react';
-
-import './NavigationBar.css'; // Ensure to create this CSS file
+import './NavigationBar.css'; // Ensure this CSS file exists
 import { useTranslation } from 'react-i18next';
 
-const NavigationBar = ({ currentState,  stopExecutionAndReset,  setCurrentState, visitedStates, setMode, user, controledRobot}) => {
-    const { t } = useTranslation();
-    
+// Define the props interface including className
+interface NavigationBarProps {
+  currentState: string;
+  stopExecutionAndReset: () => void;
+  setCurrentState: React.Dispatch<React.SetStateAction<string>>;
+  visitedStates: { [key: string]: boolean };
+  setMode: React.Dispatch<React.SetStateAction<string>>;
+  user: any; // Define a more specific type if available
+  controledRobot: string;
+  className?: string; // Optional className prop
+}
 
-    const stateColors = {
-        past: 'green',
-        current: 'orange',
-        future: 'red'
-    };
+const NavigationBar: React.FC<NavigationBarProps> = ({
+  currentState,
+  stopExecutionAndReset,
+  setCurrentState,
+  visitedStates,
+  setMode,
+  user,
+  controledRobot,
+  className, // Destructure the className prop
+}) => {
+  const { t } = useTranslation();
 
-    // Map your state keys for translation purposes
-    const stateKeys = [
-        'state_Title',
-        'state_ConsigneTraining',
-        'state_PlayNote',
-        "state_MapAction",
-        "state_ConsigneTesting",
-        "state_Testing",
-        "state_CurrentModelTest"
-    ];
+  const stateColors = {
+    past: 'green',
+    current: 'orange',
+    future: 'red',
+  };
 
-    // These are the keys from app.tsx STATES
-    const STATES = {
-        Title: 'Title',
-        ConsigneTraining: 'ConsigneTraining',
-        PlayNote: 'PlayNote',
-        MapAction: 'MapAction',
-        ConsigneTesting: 'ConsigneTesting',
-        Testing: 'Testing',
-        CurrentModelTest: 'CurrentModelTest'
-    };
+  const stateKeys = [
+    'state_Title',
+    'state_ConsigneTraining',
+    'state_PlayNote',
+    'state_MapAction',
+    'state_ConsigneTesting',
+    'state_Testing',
+    'state_CurrentModelTest',
+  ];
 
-    const getColor = (state) => {
-        const originalStateKey = STATES[state.replace('state_', '')]; // Converts stateKey to original key
-        if (originalStateKey === currentState) {
-            return stateColors.current; // Current state is orange
-        } else if (visitedStates[originalStateKey]) {
-            return stateColors.past; // Visited states are green
-        }
-        return stateColors.future; // Unvisited states are red
-    };
+  const getColor = (state: string) => {
+    const originalStateKey = state.replace('state_', ''); 
+    if (originalStateKey === currentState) {
+      return stateColors.current; 
+    } else if (visitedStates[originalStateKey]) {
+      return stateColors.past; 
+    }
+    return stateColors.future; 
+  };
 
-    const handleButtonClick = (stateKey) => {
-        setCurrentState(STATES[stateKey.replace('state_', '')]);
-        
-        setMode('TRAIN');
-        if (user && controledRobot) {
-            user.emitMotorEvent(controledRobot, 'STOP');  // Stop the robot when navigating
-        }
-    };
-    
+  const handleButtonClick = (stateKey: string) => {
+    setCurrentState(stateKey.replace('state_', ''));
+    setMode('TRAIN');
+    if (user && controledRobot) {
+      user.emitMotorEvent(controledRobot, 'STOP');
+    }
+  };
 
-    return (
-        <div className="navigation-bar">
-            {stateKeys.map((stateKey, index) => (
-                <React.Fragment key={stateKey}>
-                    {index > 0 && <div className="separator" />}
-                    <button
-                        style={{ backgroundColor: getColor(stateKey) }} // Apply background color
-                        onClick={() => handleButtonClick(stateKey)} 
-                        className={`state-item ${getColor(stateKey)}`}
-                        disabled={!visitedStates[STATES[stateKey.replace('state_', '')]]}
-                    >
-                        <div className="button-text">
-        {t(stateKey)}
-                        </div>
-                    </button>
-                </React.Fragment>
-            ))}
-        </div>
-    );
+  return (
+    <div className={`navigation-bar ${className}`}> {/* Use className here */}
+      {stateKeys.map((stateKey, index) => (
+        <React.Fragment key={stateKey}>
+          {index > 0 && <div className="separator" />}
+          <button
+            style={{ backgroundColor: getColor(stateKey) }}
+            onClick={() => handleButtonClick(stateKey)}
+            className={`state-item ${getColor(stateKey)}`}
+            disabled={!visitedStates[stateKey.replace('state_', '')]}
+          >
+            <div className="button-text">{t(stateKey)}</div>
+          </button>
+        </React.Fragment>
+      ))}
+    </div>
+  );
 };
 
 export default NavigationBar;

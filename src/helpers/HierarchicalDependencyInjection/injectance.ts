@@ -23,7 +23,6 @@ export const injectance = (constructor: any, options: LayerOption, role: Role, r
 
   return class extends constructor {
     constructor(...args: any[]) {
-
       // get injections from class; previously created by @inject()
       const injections = constructor.injections as Injection[];
       const injectedArgs: any[] =

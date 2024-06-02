@@ -1,29 +1,27 @@
-import  { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import * as React from 'react';
-import thymioSvg from '../assets/ThymioSVG.svg';  // Assurez-vous que ce chemin est correct
+import thymioSvg from '../assets/ThymioSVG.svg'; // Assurez-vous que ce chemin est correct
 import thymioSvgTraits from '../assets/ThymioSVG_modif.svg';
 type ThymioSVGProps = {
-  captors: number[];  // Un tableau représentant l'état des capteurs (0 ou 1)
+  captors: number[]; // Array representing the status of the sensors (0 or 1)
   style?: React.CSSProperties;
   showTraits: boolean;
-  onRectCoordinates: (coordinates: { x: number, y: number }[]) => void;
+  onRectCoordinates?: (coordinates: { x: number; y: number }[]) => void;
   onLoaded?: () => void;
 };
 
-const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, onRectCoordinates , onLoaded}) => {
+const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, onRectCoordinates, onLoaded }) => {
   const [svgContent, setSvgContent] = useState('');
   const svgRef = useRef<HTMLDivElement>(null);
-  
 
   useEffect(() => {
-
     const svgFile = showTraits ? thymioSvgTraits : thymioSvg;
 
     fetch(svgFile)
       .then(response => response.text())
       .then(data => {
         const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(data, "image/svg+xml");
+        const svgDoc = parser.parseFromString(data, 'image/svg+xml');
 
         // Ajustez la taille du SVG ici si nécessaire
         const svgElement = svgDoc.querySelector('svg');
@@ -35,7 +33,7 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, 
 
         // Manipulation des calques en fonction des capteurs
         captors.forEach((status, index) => {
-          const layer = svgDoc.getElementById(`Layer ${index}`);  // Assurez-vous que l'indexation est correcte
+          const layer = svgDoc.getElementById(`Layer ${index}`); // Assurez-vous que l'indexation est correcte
           if (layer) {
             layer.style.visibility = status ? 'visible' : 'hidden';
           }
@@ -47,9 +45,6 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, 
           baseLayer.style.visibility = 'visible';
         }
 
-        
-
-
         setSvgContent(new XMLSerializer().serializeToString(svgDoc.documentElement));
 
         if (onLoaded) {
@@ -59,7 +54,8 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, 
   }, [captors, style, showTraits, onLoaded]);
 
   useEffect(() => {
-    if (onRectCoordinates && svgRef.current) { // Vérifier si onRectCoordinates est fourni avant de calculer les coordonnées
+    if (onRectCoordinates && svgRef.current) {
+      // Vérifier si onRectCoordinates est fourni avant de calculer les coordonnées
       const rects = svgRef.current.querySelectorAll('g[id^="Group_"] > rect');
       const rectCoordinates = Array.from(rects).map(rect => {
         const box = rect.getBoundingClientRect();
@@ -69,9 +65,7 @@ const ThymioSVG: React.FC<ThymioSVGProps> = ({ captors, style = {}, showTraits, 
     }
   }, [svgContent, onRectCoordinates]);
 
-  return (
-    <div ref={svgRef} dangerouslySetInnerHTML={{ __html: svgContent }} style={style} />
-  );
+  return <div ref={svgRef} dangerouslySetInnerHTML={{ __html: svgContent }} style={style} />;
 };
 
 export default ThymioSVG;

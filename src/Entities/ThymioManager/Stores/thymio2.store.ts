@@ -11,8 +11,8 @@ type Queque = {
   ack: boolean;
   i: number;
 };
-async function executeWithDelay(functions: Array<()=>Promise<void>>) {
-  for (const func of functions){
+async function executeWithDelay(functions: Array<() => Promise<void>>) {
+  for (const func of functions) {
     await func();
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
@@ -99,10 +99,10 @@ export class Thymio2EventVariable implements Thymio {
       await this.node.lock();
       await this.node.setEventsDescriptions(eventsDefinition);
       executeWithDelay([
-        async ()=> await this.node.sendAsebaProgram(asebaScript, false),
-        async ()=> await this.node.runProgram(),
-        async ()=>  await this.emitAction('Inizializer'),
-      ])
+        async () => await this.node.sendAsebaProgram(asebaScript, false),
+        async () => await this.node.runProgram(),
+        async () => await this.emitAction('Inizializer'),
+      ]);
       this.last_mic_detect = new Date();
     } catch (error) {
       console.error('Error during node initialization', error);
