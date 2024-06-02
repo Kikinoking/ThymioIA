@@ -5,11 +5,9 @@ import jotaiReactRefresh from 'jotai/babel/plugin-react-refresh';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgrPlugin from 'vite-plugin-svgr';
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  base: './',
+  base: '/', // Utilisez '/' si vous hébergez à la racine
   plugins: [
-    
     nodePolyfills(),
     react({
       babel: {
@@ -20,5 +18,10 @@ export default defineConfig({
         ],
       },
     }),
+    svgrPlugin()
   ],
+  build: {
+    outDir: 'dist', // Assurez-vous que cela correspond à votre configuration Vercel
+    assetsDir: 'assets', // Répertoire pour les actifs
+  },
 });
