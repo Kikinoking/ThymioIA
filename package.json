@@ -10,8 +10,8 @@
     "preview": "vite preview",
     "format": "prettier \"src/**/*.{js,jsx,ts,tsx,css,scss}\" --write",
     "commit": "cz"
-
-  },
+  }
+  ,
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@mobsya-association/thymio-api": "^0.11.1",
