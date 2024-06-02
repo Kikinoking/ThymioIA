@@ -10,8 +10,7 @@
     "preview": "vite preview",
     "format": "prettier \"src/**/*.{js,jsx,ts,tsx,css,scss}\" --write",
     "commit": "cz"
-  }
-  ,
+  },
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@mobsya-association/thymio-api": "^0.11.1",
@@ -25,7 +24,7 @@
     "i18next-http-backend": "^2.5.1",
     "jotai": "^2.7.0",
     "jotai-devtools": "^0.8.0",
-    "ldrs": "^1.0.1",
+    "ldrs": "^1.0.2",
     "mobx": "^6.12.0",
     "mobx-react": "^9.1.0",
     "react": "^18.2.0",
