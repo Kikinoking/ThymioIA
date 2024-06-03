@@ -85,5 +85,5 @@ Contributions to this project are welcome! Please refer to the contributing guid
 
 ## Deployment
 
-The app has been deployed using Vercel : https://thymio-sed3915qi-kikinokings-projects.vercel.app/
+The app has been deployed using Vercel : https://thymio-ia.vercel.app/
 
