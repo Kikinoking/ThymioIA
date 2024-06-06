@@ -3,6 +3,7 @@
  * 
  * Renders a musical staff component that displays notes graphically using SVG.
  * It adjusts note positions based on a hardcoded mapping (bcs reasons) and supports the display of sharps lines.
+ * TrebleClef from (SVG Repo) : https://www.svgrepo.com/svg/98269/treble-clef
  */
 
 

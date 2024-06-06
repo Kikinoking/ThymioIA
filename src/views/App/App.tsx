@@ -6,6 +6,11 @@
  * Uses dynamic elements (thymioSVG, Chart.js,...)
  * Translation using i18n
  * Tour using Joyride
+ * Help Icon from (bytedance): https://www.svgrepo.com/svg/387779/help
+ * ThymioSVG extracted and reworked from Mobile robotics course, EPFL, F.Mondada : 
+ * https://moodle.epfl.ch/pluginfile.php/2706097/mod_resource/content/1/ThymioCheatSheet.pdf
+ * Setting Icon from (Mary Akveo): https://www.svgrepo.com/svg/469755/settings 
+ * Loading animations from ldrs: https://uiball.com/ldrs/
  */
 
 
