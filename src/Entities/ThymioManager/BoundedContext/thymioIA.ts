@@ -1,3 +1,13 @@
+/**
+ * ThymioIA.ts
+ *
+ * This handles the interaction with Thymio robots, managing the neural network model for action prediction,
+ * training, and real-time execution. It includes functionalities to initialize, train, and use the model to predict 
+ * robot actions based on sensor data. 
+ * Class integrates with tf.js, and uses Mobx
+ * Was made by Mobsya for the most part, has been adapted for the models used in the app 
+ */
+
 import { toJS } from 'mobx';
 import { BoundedContext, Container, Observable, createObservable, subscribe } from '../../../helpers';
 import { Activity, DataEntry, Robot, TdmController, Thymio } from '../Model';
@@ -30,7 +40,7 @@ export class ThymioIA implements IThymioIA {
     initialValue: {},
   });
 
-  actionMapping: Record<string, number> = {
+  actionMapping: Record<string, number> = {//5 actions possible
     STOP: 0,
     FORWARD: 1,
     BACKWARD: 2,
@@ -54,7 +64,7 @@ export class ThymioIA implements IThymioIA {
     });
   };
 
-  reinitializeModel = async (inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') => {
+  reinitializeModel = async (inputMode: 'CAPTORS_AND_NOTE' | 'NOTE_ONLY') => {//Reinitialize the model, using await
     if (this.model) {
       this.model.dispose();
     }
@@ -151,7 +161,7 @@ export class ThymioIA implements IThymioIA {
     return trainingData;
   };
 
-  displayModelWeights() {
+  displayModelWeights() { //Just used for debugging but I keep it bcs might still be useful 
     if (!this.model) {
       console.error('No model to display weights for');
       return;
@@ -164,7 +174,7 @@ export class ThymioIA implements IThymioIA {
     });
   }
 
-  predict = (
+  predict = (   //Predicts next action to take
     uuid: string,
     captors: number[],
     currentNote: number,
@@ -185,7 +195,7 @@ export class ThymioIA implements IThymioIA {
         inputTensor = tf.tensor2d([[noteValue]]);
       } else {
         const noteValue = currentNote || 0;
-        const captorsNumeric = captors.map(c => Number(c)); // Assurez-vous que tous les éléments sont des nombres
+        const captorsNumeric = captors.map(c => Number(c)); 
         inputTensor = tf.tensor2d([captorsNumeric.concat(noteValue)], [1, captorsNumeric.length + 1]);
       }
 

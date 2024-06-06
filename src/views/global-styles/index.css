@@ -1,3 +1,10 @@
+/* 
+  *Global Stylesheet
+  *
+  * Defines base styles, color schemes, typography, and responsive behavior.
+  * Includes global CSS variables for theme consistency.
+*/
+
 :root {
   font-family: Raleway, sans-serif, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

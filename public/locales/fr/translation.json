@@ -184,7 +184,9 @@
   "tooltip_control_buttons": "Ici vous pouvez activer/désactiver la phase de test, ou revenir à l'état testing.",
   "show_decision_button" :"Bouton de décision probabiliste :",
   "Show_biases": "Afficher les biais :",
-  "no_note_recorded": "Aucune note enregistrée! Enregistrez une note d'abord."
+  "no_note_recorded": "Aucune note enregistrée! Enregistrez une note d'abord.",
+  "dark_theme": "Passer au thème sombre",
+  "light_theme": "Passer au thème clair"
 
   }
   

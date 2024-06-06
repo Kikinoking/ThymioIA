@@ -1,3 +1,12 @@
+/**
+ * Styles for the main application layout and components.
+ * Includes styles for logos, buttons, panels, and animations.
+ * Provides responsive design settings for various device sizes.
+ * Clearly messy but ctrl+f gets the job done
+ * NB: light or dark theme for most classes
+ */
+
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -207,11 +216,49 @@
 .instructions-container {
   border: 2px solid #76abae;
   border-radius: 8px; 
-  padding: 5px 5px 5px 5px; 
-  margin: 2px;
+  padding: 10px 10px 10px 10px; 
+  margin: 40px auto;
   background-color: #eeeeee; 
-  width: 600px; 
+  width:70%; 
   box-shadow: 0 4px 8px rgba(163, 160, 160, 0.1); 
+  
+}
+@media (max-width: 768px) {/* any @media means its adjusting for smaller screen sizes*/
+  .instructions-container {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .instructions-container h4 {
+    font-size: 14px;
+  }
+
+  .instructions-container ol {
+    font-size: 12px;
+  }
+
+  .instructions-container li {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .instructions-container {
+    width: 100%;
+    padding: 5px;
+  }
+
+  .instructions-container h4 {
+    font-size: 13px;
+  }
+
+  .instructions-container ol {
+    font-size: 10px;
+  }
+
+  .instructions-container li {
+    font-size: 10px;
+  }
 }
 
 .instructions-container h4 {
@@ -329,7 +376,7 @@
 }
 
 .barchart-container {
-  height: 259px;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -339,9 +386,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start; 
-  width: 80vw;
-  height: 83vh;
-  overflow: auto; 
+  min-width: 50vw; /* Minimum width, adjust as needed */
+  width: auto;
+  
+  height: 87vh;
+  overflow:  hidden; 
   padding: 10px 0; 
 }
 
@@ -358,11 +407,144 @@
   max-height: 125vh;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   margin-top: 2px;
   border: transparent;
+  position: relative;
 }
+
+.neural-net-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.legend-gradient-container {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.legend-neuron-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+.legend-gradient {
+  height: 150px;
+  width: 20px;
+  background: linear-gradient(to top, red, black 50%, rgb(0,255,0));
+  margin-top: 30px;
+}
+
+.legend-text-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  margin-left: 10px;
+  padding-left: 10px;
+}
+
+.neural-net-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  transform:scale(0.95) translateX(-30px);
+}
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px solid white;
+  padding: 10px;
+  margin-top: 0px;
+}
+
+.button-container .label-text {
+  margin-bottom: 10px;
+}
+
+.button-container button {
+  margin-top: 10px;
+}
+@media (max-width: 820px) {/* any @media means its adjusting for smaller screen sizes*/
+  .visualization-container {
+    width: 90vw;
+  }
+
+  .legend-gradient-container {
+    flex-direction: column;
+    top: 10px;
+    left: 10px;
+  }
+
+
+  .legend-item {
+    flex-direction: column;
+    align-items: flex-start;
+    white-space: nowrap;
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+
+  .legend-text-container {
+    margin-left: 30px;
+    padding-left: 5px;
+    margin-top: -90px
+  }
+
+  .legend-neuron-container {
+    top: 10px;
+    right: 10px;
+    margin-right: 20px;
+  }
+}
+
+@media (max-width: 480px) {/* any @media means its adjusting for smaller screen sizes*/
+  .visualization-container {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .legend-gradient-container {
+    flex-direction: column;
+    top: 10px;
+    left: 10px;
+  }
+
+  .legend-item {
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  .legend-gradient {
+    height: 50px; 
+  }
+
+  .legend-neuron-container {
+    top: 10px;
+    right: 10px;
+  }
+}
+
 
 .note-container {
   display: flex;
@@ -428,6 +610,12 @@
   margin: auto; 
   z-index: 1200;
 }
+.piano-container-original{
+  margin-top: 50px; 
+  width: 600px; /* Fixed piano length*/
+  margin: auto; 
+  z-index: 1200;
+}
 
 .note-recorded-display {
   display: flex;
@@ -473,6 +661,48 @@
   margin-top: 5px;
 }
 
+.actions-container button.action-button {
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background: none;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.actions-container img.action-image {
+  width: 150px; 
+  height: 150px; 
+}
+
+@media (max-width: 820px) { /* any @media means its adjusting for smaller screen sizes*/
+  .actions-container button.action-button {
+    width: 110px; 
+    height: 110px; 
+  }
+
+  .actions-container img.action-image {
+    width: 80px;
+    height: 80px; 
+  }
+}
+
+@media (max-width: 480px) {
+  .actions-container button.action-button {
+    width: 100px; 
+    height: 100px; 
+  }
+
+  .actions-container img.action-image {
+    width: 100px; 
+    height: 100px; 
+  }
+}
+
+
 .legend-line {
   width: 30px;
   height: 3px;
@@ -482,6 +712,8 @@
 .legend-text {
   font-size: 14px;
   color: #fff;
+  white-space: nowrap; 
+  overflow: hidden;
 }
 .legend-circle {
   width: 20px; 
@@ -499,7 +731,7 @@
   width: 100%; 
   padding: 0px;
   margin-bottom: 10px; 
-  border: 2px solid #ccc; /* Gives a solid border with a light grey color */
+  border: 2px solid #ccc; 
   border-radius: 2px; 
   font-size: 14px; 
 }
@@ -508,6 +740,11 @@
 .delete-button-container {
   position: relative;
   padding: 0;
+}
+.neural-network-container, .control-buttons-container {
+  background-color: #6b6b6b;  
+  color: #fff;  
+ 
 }
 
 .delete-button {
@@ -526,6 +763,77 @@
 
   border: 4px solid white; 
 }
+@media (min-width: 820px) {
+  .note-only .control-buttons-container {
+    flex-grow: 1; 
+    border: 1px solid white;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: 'space-between';
+    
+  }
+
+  .note-only .barchart-container {
+    flex-grow: 5;
+    border: 1px solid white;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: 'center';
+  }
+}
+@media (max-width: 820px) {
+   .neural-network-container {
+    flex-direction: column; 
+    align-items: center; 
+    transform: scale(0.7)translateX(-100px); 
+    transform-origin: top left; 
+  }
+  .recording-container{
+    flex-direction: column; 
+    align-items: center; 
+    transform: scale(0.7)translateY(10px); 
+    transform-origin: top left; 
+    z-index: 3000;
+
+  }
+  .note-display, .musical-staff-container {
+    transform: scale(0.9) translateX(0px);
+    margin-bottom: 20px; 
+
+  }
+
+  @media (max-width: 768px) {
+    .TutorialButton {
+      width: 55px;
+      height: 55px;
+      margin-top: -10px;
+      margin-right: -15px;
+      background-size: 60%;
+    }
+  }
+
+  .piano-container  {
+    padding: 10px 0; 
+    margin-bottom: 10px; 
+  }
+  .control-buttons-container{
+    max-width: 100%; 
+    transform: scale(0.7) translateX(-410px);
+    z-index: 3000;
+  }
+
+  .piano-container {
+    max-width: 100%;
+    transform: scale(0.75) translateX(-180px); 
+    
+  }
+  
+}
+.recording-container{
+  font-size: 12px;
+}
 
 .navigation-bar {
   z-index: 1200;
@@ -534,9 +842,15 @@
   z-index: 1200;
 }
 
+.dark-theme .actions-container{
+  background-color: #575555; 
+}
+
 .light-theme .actions-container {
   background-color: #575555; 
 }
+
+
 
 .light-theme .trainer-table-container {
   background-color: #ffffff;
@@ -551,6 +865,7 @@
 .light-theme .map-more-actions-container,
 .light-theme .visualization-container,
 .light-theme .piano-container,
+.light-theme .piano-container-original,
 .light-theme .musical-staff-container,
 .light-theme .barchart-container,
 .light-theme .control-buttons-container,
@@ -560,6 +875,7 @@
 .light-theme .note-display-container, 
 .light-theme .piano-container, 
 .light-theme .control-buttons-container,
+.light-theme .control-buttons-container-original,
 .light-theme .record-note-section,
 .light-theme .piano-container,
 .light-theme .note-recorded-section,
@@ -571,7 +887,31 @@
   border-width: '3px';
   color: #fff; 
 }
-
+.dark-theme .button-container, /* All these components share the same css style in dark-theme */
+.dark-theme .map-more-actions-container,
+.dark-theme .visualization-container,
+.dark-theme .piano-container,
+.dark-theme .piano-container-original,
+.dark-theme .musical-staff-container,
+.dark-theme .barchart-container,
+.dark-theme .control-buttons-container,
+.dark-theme .secondline,
+.dark-theme .input_components,
+.dark-theme .neural-network-container,
+.dark-theme .note-display-container, 
+.dark-theme .piano-container, 
+.dark-theme .control-buttons-container,
+.dark-theme .control-buttons-container-original,
+.dark-theme .record-note-section,
+.dark-theme .piano-container,
+.dark-theme .note-recorded-section,
+.dark-theme .thymio-svg-container,
+.dark-theme .note-recorded-section,
+.dark-theme .recording-container {
+  background-color: #828080; 
+  border-color: #414040;
+  border-width: '3px';
+  color: #fff; }
 
 .light-theme .trainer-table th {
   color: #fff; 

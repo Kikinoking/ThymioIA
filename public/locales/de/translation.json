@@ -166,6 +166,8 @@
     "tooltip_control_buttons": "Hier können Sie die Testphase aktivieren/deaktivieren oder zum Testing-Status zurückkehren.",
     "show_decision_button" : "Schaltfläche für probabilistische Entscheidungen :",
     "Show_biases": "Bias anzeigen :",
-    "no_note_recorded": "Keine Note gespeichert! Speichern Sie erst eine Note."
+    "no_note_recorded": "Keine Note gespeichert! Speichern Sie erst eine Note.",
+    "dark_theme": "Zum dunklen Design wechseln",
+    "light_theme": "Zum hellen Design wechseln"
 
 }

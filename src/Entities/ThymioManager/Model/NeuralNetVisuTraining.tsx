@@ -59,7 +59,7 @@
     useEffect(() => {
         if (trainingData && trainingData.length > 0 && !isAnimating) {
             setCurrentEpoch(0);
-          startAnimation(); //start animation auto.
+          //startAnimation(); //start animation auto.
         }
         
         //stop anim when component deleted

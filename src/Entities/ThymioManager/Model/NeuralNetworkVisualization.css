@@ -1,3 +1,10 @@
+/**
+ * NeuralNetworkVisualization.css
+ *
+ * Styles for the visualization of the neural network.  
+ * Adjustments are made for smaller screens to ensure good display.
+ */
+
 .network {
   display: flex;
   flex-direction: row;

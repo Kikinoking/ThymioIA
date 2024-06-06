@@ -1,3 +1,11 @@
+/**
+ * MusicalStaff.tsx
+ * 
+ * Renders a musical staff component that displays notes graphically using SVG.
+ * It adjusts note positions based on a hardcoded mapping (bcs reasons) and supports the display of sharps lines.
+ */
+
+
 import * as React from 'react';
 import { useEffect } from 'react';
 import TrebleClef from './../../assets/treble-clef.svg';
@@ -39,7 +47,7 @@ interface MusicalStaffProps { //need props
 const MusicalStaff: React.FC<MusicalStaffProps> = ({ noteRecording, onReady }) => {
   const note = noteRecording || '';
 
-  useEffect(() => {
+  useEffect(() => { //To transmit when ready to app.tsx, to render elements in right order
     if (onReady) {
       onReady();
     }
@@ -54,7 +62,7 @@ const MusicalStaff: React.FC<MusicalStaffProps> = ({ noteRecording, onReady }) =
   const needsBarThrough = note === 'A5' || note === 'C4' || note === 'C6' || note === 'A#5' || note === 'C#4';
   const needsBarTangent = note === 'B5';
   const needsExtraBar = note === 'C6';
-
+  //draw lines and circle
   return (
     <svg width="200" height="150" style={{ border: '1px solid black', backgroundColor: 'white' }}>
       {[40, 60, 80, 100, 120].map((y, index) => (

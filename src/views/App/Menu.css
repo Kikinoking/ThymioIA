@@ -1,3 +1,9 @@
+/**
+ * Menu.css
+ *
+ * Styles for the application's navigation drawer and menu.
+ */
+
 .OpenMenuButton {
   cursor: pointer;
   position: fixed; 
@@ -132,4 +138,29 @@ input[type='range']::-moz-range-thumb {
 .light-theme .Menu h2,
 .light-theme .Menu label {
   color: #333; 
+}
+
+@media (max-width: 768px) { /* Adjustments for small screen*/
+  .DrawerMenu {
+    width: 200px; 
+  }
+
+  .Menu {
+    padding: 16px; 
+  }
+
+  .MenuLink, .Menu p {
+    padding: 12px; 
+    font-size: 0.8rem;
+  }
+
+  .OpenMenuButton {
+    width: 35px;
+    height: 35px;
+    margin-left: -5px;
+  }
+
+  .OpenMenuButton img {
+    width: 60%; 
+  }
 }

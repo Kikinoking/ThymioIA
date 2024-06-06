@@ -1,3 +1,14 @@
+/**
+ * App.tsx
+ * 
+ * This TypeScript file defines the main React component for the Thymio-based neural network training interface.
+ * Contains a lot of elements, its the core of the app
+ * Uses dynamic elements (thymioSVG, Chart.js,...)
+ * Translation using i18n
+ * Tour using Joyride
+ */
+
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Chart, registerables } from 'chart.js';
 import './App.css';
@@ -9,7 +20,7 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import '../../i18n';
 import BarChart from './BarChart';
-import ThymioSVG from '../ThymioSVG';
+import ThymioSVG from './ThymioSVG';
 import Piano from './Piano';
 import MusicalStaff from './MusicalStaff'; 
 import './Menu.css';
@@ -30,6 +41,7 @@ import NeuralNetworkVisualizationTraining from '../../Entities/ThymioManager/Mod
 import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
 import NavigationBar from './NavigationBar';
 
+//Custom animations from ldrs for loading
 import { momentum } from 'ldrs'
 
 momentum.register()
@@ -70,17 +82,17 @@ const App = observer(() => {
   const [note, setNote] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
-  const [maxFreq, setMaxFreq] = useState(null);
+  const [maxFreq, setMaxFreq] = useState(null); //To find max frequency
   const [isContinuousRecording, setIsContinuousRecording] = useState(false);
   const [audioContext, setAudioContext] = useState(null);
   const [audioStream, setAudioStream] = useState(null);
-  const analyserRef = useRef(null);
-  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null); //Need ref for audio analyser
+  const audioContextRef = useRef(null); 
 
   const [maxDetectedFreq, setMaxDetectedFreq] = useState(null); //USed when recording not continuous
-  const [noteRecording, setNoteRecording] = useState('');
+  const [noteRecording, setNoteRecording] = useState(''); //State storing recorded note
 
-  const [threshold, setThreshold] = useState(200);
+  const [threshold, setThreshold] = useState(200);  //sound threshold detection
 
   const [recordDuration, setRecordDuration] = useState(3000); //Record duration
 
@@ -119,10 +131,10 @@ const App = observer(() => {
 
   const [sensorData, setSensorData] = useState([]); //For neural net testing visualisation of the input
 
-  const [rectCoords, setRectCoords] = useState([]);
-  const [neuronCoords, setNeuronCoords] = useState([]);
+  const [rectCoords, setRectCoords] = useState([]);   //To draw arrows
+  const [neuronCoords, setNeuronCoords] = useState([]); //idem
 
-  const [isMusicalStaffMounted, setIsMusicalStaffMounted] = useState(false);
+  const [isMusicalStaffMounted, setIsMusicalStaffMounted] = useState(false);   
   const svgRef = useRef(null);
 
   const [thymioSVGLoaded, setThymioSVGLoaded] = useState(false);
@@ -164,7 +176,7 @@ const App = observer(() => {
 
 
   const recordDurationRef = useRef(null);
-  const thresholdSliderRef = useRef(null);
+  const thresholdSliderRef = useRef(null);  //need ref for slider animation coloring
 
   const handleRectCoordinates = coords => {
    
@@ -202,6 +214,7 @@ const App = observer(() => {
     }
   };
 
+  //To upload file and load it 
   const handleFileUpload = event => {
     const file = event.target.files[0];
     if (file) {
@@ -232,6 +245,7 @@ const App = observer(() => {
   };
 
  
+  //List of states
   const STATES = {
     Title: 'Title',
     ConsigneTraining: 'ConsigneTraining',
@@ -242,6 +256,7 @@ const App = observer(() => {
     CurrentModelTest: 'CurrentModelTest',
   };
 
+  //Locale for joyride, apply i18n translation to tour
   const locale = {
     back: t('joyride.back'),
     close: t('joyride.close'),
@@ -263,6 +278,7 @@ const App = observer(() => {
     URL.revokeObjectURL(href);
   };
 
+  //When training is launched by clicking the execute button
   const handleExecute = async () => {
     setIsExecuting(true);
     await onExecute();
@@ -272,6 +288,7 @@ const App = observer(() => {
     setIsExecuting(false);
   };
 
+  //Slider coloring animation
   useEffect(() => {
     const sliders = [recordDurationRef.current, thresholdSliderRef.current];
     sliders.forEach(slider => {
@@ -295,6 +312,7 @@ const App = observer(() => {
     });
   }, []);
 
+  //Loading time, its intentionnal
   useEffect(() => {
     if (isExecuteClicked) {
       setTimeout(() => {
@@ -328,7 +346,6 @@ const App = observer(() => {
     // Reset noterecording
     if (currentState === STATES.PlayNote) {
       setNoteRecording('');
-      console.log('Note recording reset to zero');
     }
   }, [currentState]); // Depends on currentState
 
@@ -352,7 +369,7 @@ const App = observer(() => {
         setAdjustedNeuronCoords(adjustedNeuronCoords);
       }, 100); // Delay : 100 ms
     }
-  }, [rectCoords, neuronCoords, svgRef.current]);
+  }, [rectCoords, neuronCoords, svgRef.current, mode]);
 
   // Initial coords for musicalstaff
   useEffect(() => {
@@ -365,9 +382,9 @@ const App = observer(() => {
         });
       }, 100); // Delay : 100 ms
     }
-  }, [musicalStaffRef.current]);
+  }, [musicalStaffRef.current, mode]);
 
-  // Gestion du redimensionnement de la fenêtre
+  // Handles resizing
   useEffect(() => {
     const handleResize = () => {
       if (musicalStaffRef.current) {
@@ -383,7 +400,7 @@ const App = observer(() => {
     handleResize(); // Initial_call to handle init coords
 
     return () => window.removeEventListener('resize', handleResize);
-  }, [isMusicalStaffMounted, musicalStaffRef.current]);
+  }, [isMusicalStaffMounted, musicalStaffRef.current, mode]);
 
   useEffect(() => {
     const targetNode = musicalStaffRef.current;
@@ -414,7 +431,6 @@ const App = observer(() => {
     if (isMusicalStaffMounted && musicalStaffRef.current && thymioSVGLoaded) {
       setTimeout(() => {
         const rect = musicalStaffRef.current.getBoundingClientRect();
-        console.log('MusicalStaff Rect:', rect);
         setMusicalStaffCoords({
           x: rect.right,
           y: rect.top + rect.height / 2,
@@ -431,7 +447,7 @@ const App = observer(() => {
       setRun(false);
     }
   };
-  const startTour = () => {
+  const startTour = () => { //Function to Start joyride tour
     requestAnimationFrame(() => {
       setRun(true);
     });
@@ -698,7 +714,7 @@ const App = observer(() => {
     };
   }, []);
 
-  const toggleContinuousRecording = () => {
+  const toggleContinuousRecording = () => {//Starts continuous recording 
     if (!isContinuousRecording && isRecording) {
       setIsRecording(false);
     }
@@ -728,7 +744,7 @@ const App = observer(() => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     setAudioStream(stream);
 
-    // Init ans store audiocontext
+    // Init and store audiocontext
     audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
     const source = audioContextRef.current.createMediaStreamSource(stream);
 
@@ -770,7 +786,7 @@ const App = observer(() => {
 
     let maxIndex = 0;
     let maxValue = 0;
-    for (let i = 0; i < dataArray.length; i++) {
+    for (let i = 0; i < dataArray.length; i++) {//Finds max value in array, i think I should just use built-in fct but whatever
       if (dataArray[i] > maxValue) {
         maxValue = dataArray[i];
         maxIndex = i;
@@ -792,14 +808,13 @@ const App = observer(() => {
     }
   };
 
-  useEffect(() => {
+  useEffect(() => {//While continuous recording, analyze freq.
     if (isContinuousRecording && analyserRef.current) {
       getFrequencies();
     }
   }, [isContinuousRecording]);
 
   const stopContinuousRecording = () => {
-    console.log("Arrêt de l'enregistrement continu.");
     setIsContinuousRecording(false);
 
     if (audioStream) {
@@ -817,7 +832,7 @@ const App = observer(() => {
 
  
 
-  const startRecording = async () => { 
+  const startRecording = async () => { //Start recording, but not continuous, then analyze with fft
     if (isContinuousRecording) {
       stopContinuousRecording();
     }
@@ -901,7 +916,7 @@ const App = observer(() => {
     setRobots(_robots);
   };
 
-  const onSelectRobot = async (robotUuid: string) => {
+  const onSelectRobot = async (robotUuid: string) => {//When robot selected, need 3s wait time to synchro if connection via dongle
     user.takeControl(robotUuid);
 
     setPopupMessage(t('connecting_robot'));
@@ -913,7 +928,7 @@ const App = observer(() => {
     }, 3000);
   };
 
-  const onAction = async (action: string) => {
+  const onAction = async (action: string) => {//explicit
     const currentNoteRecording = noteRecording;
 
     const newEntry = {
@@ -932,7 +947,7 @@ const App = observer(() => {
    
   };
 
-  const onExecute = async () => {
+  const onExecute = async () => { //Send training data
     if (mode === 'TRAIN') {
       const data = trainer.map(({ action, captors, note }) => ({
         input: [...captors.map(captor => captor.toString()), note && noteToNumberMapping[note] ? noteToNumberMapping[note].toString() : '0'],
@@ -940,9 +955,7 @@ const App = observer(() => {
       }));
       
 
-      console.log(
-        'Verifying input sizes:', data.map(d => d.input.length)
-      );
+     
       const traindata = await user.trainModel(data, inputMode);
       setTrainingData(traindata);
     }
@@ -983,20 +996,18 @@ const App = observer(() => {
     const updatedVisitedStates = {
       Title: true,
    
-      ConsigneTraining: false,
+      ConsigneTraining: true
     };
     setVisitedStates(updatedVisitedStates);
   };
 
-  useEffect(() => {
+  useEffect(() => { // Predicts at regular intervals
     if (mode === 'PREDICT') {
       const interval = setInterval(() => {
         const data = user.captors.state[controledRobot].map(captor => captor.toString());
         if (typeof note === 'string') {
           const noteNumber = noteToNumberMapping[note] || 0; // Fallback to 0 if note is not found
-          console.log('note: ', note);
-          console.log('notemapped ', noteToNumberMapping[note]);
-          console.log('input data du modèle: ', data, ' + ', noteNumber);
+          
           setSensorData(data);
           user
             .predict(controledRobot, data, noteToNumberMapping[note], isWinnerTakesAll, inputMode)
@@ -1023,7 +1034,8 @@ const App = observer(() => {
     }
   };
 
-  const renderCurrentState = () => { //BIG FUNCTION TO RENDER ALL STATES
+  const renderCurrentState = () => { //BIG FUNCTION TO RENDER ALL STATES,
+    // its mostly putting elements in place with instyle formatting
     switch (currentState) {
       case STATES.Title:
         return (
@@ -1153,7 +1165,7 @@ const App = observer(() => {
                 {t('start_recording')}
               </button>
               {audioUrl && <button onClick={() => new Audio(audioUrl).play()}>{t('playback')}</button>}
-              <div className="piano-container">
+              <div className="piano-container-original">
                 <Piano onNoteChange={setNoteRecording} silentMode={silentMode} className="piano" />
               </div>
             </div>
@@ -1282,7 +1294,6 @@ const App = observer(() => {
         };
 
         const handleAction = async action => {
-          console.log(action + ' action triggered');
           if (noteRecording === '') {
             alert(t('no_note_recorded')); // Alert user, cannot map action without a note
             return; 
@@ -1315,6 +1326,7 @@ const App = observer(() => {
                     onClick={() => handleAction(action)}
                     onMouseEnter={e => handleMouseEnter(e.currentTarget, action)}
                     onMouseLeave={e => handleMouseLeave(e.currentTarget, action)}
+                    className="action-button"
                     style={{
                       border: '2px solid #ccc',
                       borderRadius: '5px',
@@ -1327,7 +1339,7 @@ const App = observer(() => {
                       justifyContent: 'center',
                     }}
                   >
-                    <img src={staticSources[action]} alt={action} style={{ width: '150px', height: '150px' }} />
+                    <img src={staticSources[action]} alt={action} className="action-image" />
                     {t(action.toLowerCase())}
                   </button>
                 ))}
@@ -1352,7 +1364,7 @@ const App = observer(() => {
                             <td>
                               <ThymioSVG
                                 captors={captors}
-                                style={{ width: '100px', height: 'auto', marginLeft: '25px' }}
+                                style={{ width: '100px', height: 'auto', marginLeft: '20px' }}
                                 showTraits={false}
                               />
                             </td>
@@ -1439,136 +1451,86 @@ const App = observer(() => {
         );
 
       case STATES.ConsigneTesting:
-        return (
-          <div className="container">
-            {isExecuting && (
-              <div className="popup-overlay">
-                <div className="popup-content-title">
-                  <p>{t('processing')}</p>
-                  <div className="spinner-container">
-                    <l-momentum size="70" speed="1.1" color="white"></l-momentum>
-                  </div>
-                </div>
-              </div>
-            )}
-            {showInstructions && (
-              <div className="instructions-container">
-                <h4>{t('testing_instructions_title')}</h4>
-                <ol>
-                  <li>{t('testing_instruction_step1')}</li>
-                  <li>{t('testing_instruction_step2')}</li>
-                </ol>
-                <button onClick={handleExecute} className="execute-btn blinking-border">
-                  {t('execute')}
-                </button>
-              </div>
-            )}
-
-            {isTrainingComplete && (
-              <div
-                className="visualization-container"
-                style={{
-                  border: '2px solid white',
-                  padding: '10px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  marginTop: '-10px',
-                }}
-              >
-                <label className="label-text" style={{ position: 'absolute', top: '10px', left: '10px' }}>
-                  {t('Neuralnet_training')}
-                </label>
-                <div className="legend-container">
-                  {/* Legend for activations/weights */}
-                  <div className="legend-item" style={{ display: 'flex', alignItems: 'center', height: '150px' }}>
-                    <div
-                      style={{
-                        height: '100%',
-                        width: '20px',
-                        background: 'linear-gradient(to top, red, black 50%, rgb(0,255,0))',
-                      }}
-                    ></div>
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        height: '100%',
-                        marginLeft: '10px',
-                        paddingLeft: '10px',
-                      }}
-                    >
-                      <div className="legend-text" style={{ textAlign: 'left' }}>
-                        {t('positive_activation')}
-                      </div>
-                      <div className="legend-text" style={{ textAlign: 'left' }}>
-                        {t('no_activation')}
-                      </div>
-                      <div className="legend-text" style={{ textAlign: 'left' }}>
-                        {t('negative_activation')}
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ height: '90px' }}></div>
-                  {/* Légende for neurons*/}
-                  <div className="legend-item" style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className="legend-circle" style={{ backgroundColor: 'blue' }}></div>
-                    <div style={{ marginLeft: '10px' }}>
-                      <div className="legend-text">{t('input_neuron')}</div>
-                    </div>
-                  </div>
-                  <div className="legend-item" style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className="legend-circle" style={{ backgroundColor: 'white' }}></div>
-                    <div style={{ marginLeft: '10px' }}>
-                      <div className="legend-text">{t('intermediate_neuron')}</div>
-                    </div>
-                  </div>
-                  <div className="legend-item" style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className="legend-circle" style={{ backgroundColor: 'orange' }}></div>
-                    <div style={{ marginLeft: '10px' }}>
-                      <div className="legend-text">{t('output_neuron')}</div>
-                    </div>
-                  </div>
-                </div>
-                <NeuralNetworkVisualizationTraining
-                  showBiases={showBiases}
-                  trainingData={trainingData}
-                  inputMode={inputMode}
-                />
-              </div>
-            )}
-
-            {isTrainingComponentLoaded && (
-              <div
-                style={{ border: '2px solid white', padding: '10px', marginTop: '0px' }}
-                className=" button-container blinking-border"
-              >
-                <div>
-                  <label className="label-text" style={{ position: 'relative', top: '0px', left: '0px' }}>
-                    {t('Model_ready')}
-                  </label>
-                </div>
-                <button
-                  onClick={() => {
-                    handleSetCurrentState(STATES.Testing), setMode('PREDICT');
-                  }}
-                >
-                  {t('testing')}
-                </button>
-              </div>
-            )}
+  return (
+    <div className="container">
+      {isExecuting && (
+        <div className="popup-overlay">
+          <div className="popup-content-title">
+            <p>{t('processing')}</p>
+            <div className="spinner-container">
+              <l-momentum size="70" speed="1.1" color="white"></l-momentum>
+            </div>
           </div>
-        );
+        </div>
+      )}
+      {showInstructions && (
+        <div className="instructions-container">
+          <h4>{t('testing_instructions_title')}</h4>
+          <ol>
+            <li>{t('testing_instruction_step1')}</li>
+            <li>{t('testing_instruction_step2')}</li>
+          </ol>
+          <button onClick={handleExecute} className="execute-btn blinking-border">
+            {t('execute')}
+          </button>
+        </div>
+      )}
+
+      {isTrainingComplete && (
+        <div className="visualization-container">
+          <label className="label-text neural-net-label">{t('Neuralnet_training')}</label>
+          <div className="legend-gradient-container">
+            <div className="legend-item legend-gradient-item">
+              <div className="legend-gradient"></div>
+              <div className="legend-text-container">
+                <div className="legend-text" style={{ position: 'absolute', transform: 'translateY(-250%)' }}>{t('positive_activation')}</div>
+                <div className="legend-text" style={{ position: 'absolute', transform: 'translateY(20%)' }}>{t('no_activation')}</div>
+                <div className="legend-text" style={{ position: 'absolute', transform: 'translateY(300%)' }}>{t('negative_activation')}</div>
+              </div>
+            </div>
+          </div>
+          <div className="legend-neuron-container">
+            <div className="legend-item">
+              <div className="legend-circle" style={{ backgroundColor: 'blue' }}></div>
+              <div className="legend-text">{t('input_neuron')}</div>
+            </div>
+            <div className="legend-item">
+              <div className="legend-circle" style={{ backgroundColor: 'white' }}></div>
+              <div className="legend-text">{t('intermediate_neuron')}</div>
+            </div>
+            <div className="legend-item">
+              <div className="legend-circle" style={{ backgroundColor: 'orange' }}></div>
+              <div className="legend-text">{t('output_neuron')}</div>
+            </div>
+          </div>
+          <div className="neural-net-container">
+            <NeuralNetworkVisualizationTraining
+              showBiases={showBiases}
+              trainingData={trainingData}
+              inputMode={inputMode}
+            />
+          </div>
+        </div>
+      )}
+
+      {isTrainingComponentLoaded && (
+        <div className="button-container blinking-border">
+          <label className="label-text">{t('Model_ready')}</label>
+          <button onClick={() => { handleSetCurrentState(STATES.Testing); setMode('PREDICT'); }}>
+            {t('testing')}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
 
       case STATES.Testing:
         return (
           <div>
             {/* First line: Always the Piano for both modes */}
             <div
-              className="piano-container"
+              className="piano-container-original"
               style={{
                 display: 'flex',
                 flexDirection: 'row',
@@ -1647,13 +1609,13 @@ const App = observer(() => {
                 style={{
                   border: '1px solid white',
                   padding: '10px',
-                  marginRight: '20px',
+                  marginRight: '0px',
                   flexGrow: 1,
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}
-              >
+                >
                 <label style={{ textAlign: 'left' }}>
                   <span className="label-text">
                     2) {inputMode === 'CAPTORS_AND_NOTE' ? t('Input_received') : t('note_recorded')}
@@ -1668,11 +1630,12 @@ const App = observer(() => {
                     left: '50%',
                     transform: 'translateX(-50%)',
                     marginBottom: '10px', 
+                    
                   }}
                 >
                   {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
                 </button>
-                <div style={{ flex: 1 }} className="input_components">
+                <div style={{ flex: 1 }} className="input_components" >
                   {' '}
                   {/*div wraps the ThymioSVG + MusicalStaff */}
                   {inputMode === 'CAPTORS_AND_NOTE' ? (
@@ -1694,16 +1657,16 @@ const App = observer(() => {
                     <MusicalStaff noteRecording={note} />
                   )}
                 </div>
-                <p style={{ margin: '10px 0 0' }}>
+                <p style={{ margin: '-2px 0 0' }}>
                   {t('note_recorded')}: {note ? note : 'None'}
                 </p>
               </div>
               <div
-                className="barchart-container"
+                className="barchart-container ${inputMode === 'NOTE_ONLY' ? 'note-only' : ''}"
                 style={{
                   border: '1px solid white',
-                  padding: '10px',
-                  flexGrow: '2',
+                  padding: '0px',
+                  flexGrow: inputMode === 'NOTE_ONLY' ? 3 : 2,
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'center', // Center content vertically
@@ -1721,16 +1684,16 @@ const App = observer(() => {
               </div>
               {inputMode === 'NOTE_ONLY' && (
                 <div
-                  className="control-buttons-container"
-                  style={{
-                    border: '1px solid white',
-                    padding: '10px',
-                    flexGrow: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                  }}
-                >
+                className="control-buttons-container-original"
+                style={{
+                  border: '1px solid white',
+                  padding: '10px',
+                  flexGrow: 1,  
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                }}
+              >
                   <button onClick={stopExecutionAndReset} className="stop-testing-btn" style={{ marginBottom: '10px' }}>
                     {mode === 'PREDICT' ? t('stop_testing') : t('start_testing')}
                   </button>
@@ -1772,6 +1735,7 @@ const App = observer(() => {
             </div>
           </div>
         );
+        
 
       case STATES.CurrentModelTest:
         if (!model && !loading) {
@@ -1779,7 +1743,7 @@ const App = observer(() => {
         }
         return (
           <>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '0px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '0px', maxHeight: '100vh', overflow: 'hidden'}}>
               
               <div
                 className="recording-container"
@@ -1807,7 +1771,7 @@ const App = observer(() => {
                     <button
                       onClick={toggleContinuousRecording}
                       className="toggle-recording-btn"
-                      style={{ marginBottom: '2px', borderWidth: '3px' }}
+                      style={{ marginBottom: '2px', borderWidth: '3px', width: '250px' }}
                     >
                       {isContinuousRecording ? t('stop_continuous_recording') : t('start_continuous_recording')}
                     </button>
@@ -1890,7 +1854,7 @@ const App = observer(() => {
                 width="300"
                 height="200"
                 style={{
-                  zIndex: 1005,
+                  zIndex: 4005,
                   position: 'absolute',
                   top: '50%',
                   left: '50%',
@@ -2106,7 +2070,7 @@ const App = observer(() => {
           </div>
 
           <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-            {theme === 'light' ? 'Passer au thème sombre' : 'Passer au thème clair'}
+            {theme === 'light' ? t('dark_theme') : t('light_theme')}
           </button>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>

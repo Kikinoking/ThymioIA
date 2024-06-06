@@ -1,3 +1,12 @@
+/**
+ * NeuralNetworkVisualization.tsx
+ *
+ * This component visualizes the neural network model, showing the layers, neurons, weights, and biases.
+ * It dynamically renders based on the model's current state, input mode, and provided sensor data. 
+ * Uses the same color coding as NeuralNetworkVisualizationTraining.tsx
+ * Live updates the diameter of the neurons, bigger activation = bigger neuron.
+ */
+
 import { useEffect, useState, useRef } from 'react';
 import * as React from 'react';
 import './NeuralNetworkVisualization.css';
@@ -113,14 +122,14 @@ const NeuralNetworkVisualization = ({
     const minActivation = -1; // Minimum activation
     const maxActivation = 1; // Maximum activation
     const minRadius = 4; // min radius, else neuron is not visible because too small
-    const maxRadius = 10; // ceiling for max radius
+    const maxRadius = 10; 
 
-    // If activation close to zero, to avoid 0 divisin
+    // If activation close to zero, to avoid 0 division
     if (Math.abs(activationValue) < 0.0001) {
       return minRadius;
     }
 
-    if (activationValue < minActivation) {
+    if (activationValue < minActivation) { //Threshold under which its minradius
       return minRadius;
     } else if (activationValue > maxActivation) {
       return maxRadius;
@@ -131,7 +140,7 @@ const NeuralNetworkVisualization = ({
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { //useffect toupdate neuron coords to pass them to draw arrows
     const updateCoordinates = () => {
       const newCoordinates = neuronRefs.current
         .map(neuron => {
@@ -164,7 +173,7 @@ const NeuralNetworkVisualization = ({
       // get layers from layer 2 onwards
       const modelLayers = model.layers
         .slice(2)
-        .map((layer, index) => {
+        .map((layer, index) => {//maps the neuron layers
           const weightsTensor = layer.getWeights()[0];
           const biasesTensor = layer.getWeights()[1];
           const weights = weightsTensor ? weightsTensor.arraySync() : null;

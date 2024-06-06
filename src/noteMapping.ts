@@ -1,7 +1,26 @@
+/**
+ * noteMapping.ts 
+ * 
+ * Provides utility functions and mappings to convert musical notes into their corresponding numeric values.
+ * This module includes:
+ * - An array of all musical notes within an octave.
+ * - A function to convert a note and its octave into a unique numerical identifier.
+ * - A mapping of each note from multiple octaves to a numerical value based on their sequence.
+ * The numerical value is calculated based on the note's position and the octave.
+ * Includes notes from C0 up to C8, assigning a unique or same index to notes from C4 to above C6.
+ * Anyway we rarely use notes not between C4 or C6 in this app.
+ */
+
 const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 export const noteToNumberMapping: { [key: string]: number } = {};
 
-// Converts note to index 
+
+/**
+ * Convert note to numerical value
+ * @param {string} note - The musical note (e.g., 'C', 'D#', 'F', etc.).
+ * @param {number} octave - The octave number of the note.
+ * @returns {number} The numeric value of the note, calculated as `(octave * 12) + noteIndex`.
+ */
 function noteValue(note, octave) {
   const noteIndex = notes.indexOf(note);
   return octave * 12 + noteIndex; // 12 notes par octave
@@ -10,7 +29,6 @@ function noteValue(note, octave) {
 const valueC4 = noteValue('C', 4);
 const valueC6 = noteValue('C', 6);
 
-let currentIndex = 1; // Index for notes below C4
 let nextIndex = 2; // Index for notes from C4 to C6
 
 for (let octave = 0; octave <= 8; octave++) {

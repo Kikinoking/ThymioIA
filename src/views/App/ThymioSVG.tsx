@@ -1,7 +1,15 @@
+/**
+ * ThymioSVG.tsx
+ *
+ * A component for displaying the Thymio robot SVG image with modifiable traits based on sensor data.
+ * It allows dynamic changes to the SVG's visibility layers depending on the status of Thymio's captors.
+ * Additional functionality includes fetching and rendering two different SVGs based on a boolean flag for showing traits.
+ * One has arrows used in currentmodelTest, the other has no arrows, used everywhere else.
+ */
 import { useEffect, useState, useRef } from 'react';
 import * as React from 'react';
-import thymioSvg from '../assets/ThymioSVG.svg'; 
-import thymioSvgTraits from '../assets/ThymioSVG_modif.svg';
+import thymioSvg from '../../assets/ThymioSVG.svg'; 
+import thymioSvgTraits from '../../assets/ThymioSVG_modif.svg';
 type ThymioSVGProps = {
   captors: number[]; // Array representing the status of the sensors (0 or 1)
   style?: React.CSSProperties;

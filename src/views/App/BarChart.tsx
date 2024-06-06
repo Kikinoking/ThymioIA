@@ -1,3 +1,11 @@
+/**
+ * BarChart.tsx
+ * 
+ * This component renders a bar chart using Chart.js and react-chartjs-2, supporting dynamic data and theming.
+ * It is responsive and internationalized w/ i18n, can display info in various languages.
+ */
+
+
 import { Bar } from 'react-chartjs-2';
 import { useTranslation } from 'react-i18next';
 import Chart from 'chart.js/auto';
@@ -43,7 +51,7 @@ const BarChart: React.FC<BarChartProps> = ({ data, labels, theme, style }) => {
     'rgba(153, 102, 255, 0.9)',
   ];
 
-  const chartData = {
+  const chartData = {   //sets the barChart options, etc
     labels: labels,
     datasets: [
       {

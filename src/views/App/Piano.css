@@ -1,3 +1,11 @@
+/**
+ * Piano.css
+ *
+ * Styles for the piano component in the application.
+ * Includes styles for white and black keys, with specific positioning for black keys.
+ * Responsive design adjustments for full-width and fixed-width layouts.
+ */
+
 .piano {
   position: relative;
   width: auto; 

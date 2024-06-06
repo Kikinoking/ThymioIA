@@ -176,7 +176,9 @@
   "tooltip_control_buttons": "Here you can activate/deactivate the testing phase, or return to the testing state.",
   "show_decision_button" :"Show the probabilistic decision button :",
   "Show_biases": "Show biases :",
-  "no_note_recorded": "No note recorded! Record a note first"
+  "no_note_recorded": "No note recorded! Record a note first",
+  "dark_theme": "Switch to dark theme",
+  "light_theme": "Switch to light theme"
 
   
       

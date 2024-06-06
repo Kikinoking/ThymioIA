@@ -5,7 +5,7 @@ import HttpBackend from 'i18next-http-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
 i18n
-  .use(HttpBackend) // charges translations from your server or public/locales directory
+  .use(HttpBackend) // charges translations from the server or public/locales directory
   .use(LanguageDetector) // detect user language
   .use(initReactI18next) // passes i18n down to react-i18next
   .init({
@@ -15,7 +15,7 @@ i18n
       loadPath: '/locales/{{lng}}/{{ns}}.json', 
     },
     interpolation: {
-      escapeValue: false, // not needed for react as it escapes by default
+      escapeValue: false, 
     },
   });
 
