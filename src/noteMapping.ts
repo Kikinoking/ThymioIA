@@ -21,15 +21,17 @@ export const noteToNumberMapping: { [key: string]: number } = {};
  * @param {number} octave - The octave number of the note.
  * @returns {number} The numeric value of the note, calculated as `(octave * 12) + noteIndex`.
  */
-function noteValue(note, octave) {
+function noteValue(note: string, octave: number): number {
   const noteIndex = notes.indexOf(note);
   return octave * 12 + noteIndex; // 12 notes par octave
 }
 
 const valueC4 = noteValue('C', 4);
 const valueC6 = noteValue('C', 6);
+const valueC8 = noteValue('C', 8);
 
-let nextIndex = 2; // Index for notes from C4 to C6
+let nextIndex = 2; // Index for notes from C4 à C6
+let highNoteIndex = 0; // Index for notes above C6
 
 for (let octave = 0; octave <= 8; octave++) {
   for (let note of notes) {
@@ -41,10 +43,12 @@ for (let octave = 0; octave <= 8; octave++) {
     } else if (noteVal >= valueC4 && noteVal <= valueC6) {
       noteToNumberMapping[noteWithOctave] = nextIndex++;
     } else if (noteVal > valueC6) {
-      noteToNumberMapping[noteWithOctave] = nextIndex; // uses same index for notes higher than C6, just a choice by default.
+      if (highNoteIndex === 0) {  //If not defined yet
+        highNoteIndex = nextIndex++; // Uses next index
+      }
+      noteToNumberMapping[noteWithOctave] = highNoteIndex; 
     }
   }
-  if (noteValue('B', octave) > valueC6) break; // break if above C6
+  if (noteValue('B', octave) > valueC8) break; // Stop if above c8
 }
-
 

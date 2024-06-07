@@ -5,8 +5,6 @@
  * It adjusts note positions based on a hardcoded mapping (bcs reasons) and supports the display of sharps lines.
  * TrebleClef from (SVG Repo) : https://www.svgrepo.com/svg/98269/treble-clef
  */
-
-
 import * as React from 'react';
 import { useEffect } from 'react';
 import TrebleClef from './../../assets/treble-clef.svg';
@@ -55,27 +53,27 @@ const MusicalStaff: React.FC<MusicalStaffProps> = ({ noteRecording, onReady }) =
   }, [onReady]);
 
   const yPos = notesPosition[note];
+  const isNoteDefined = yPos !== undefined;
   const sharp = note.includes('#');
   const sharpX = 140;
   const sharpY = yPos + 7;
 
-  //add bars if needed
-  const needsBarThrough = note === 'A5' || note === 'C4' || note === 'C6' || note === 'A#5' || note === 'C#4';
+  const needsBarThrough = ['A5', 'C4', 'C6', 'A#5', 'C#4'].includes(note);
   const needsBarTangent = note === 'B5';
   const needsExtraBar = note === 'C6';
-  //draw lines and circle
+
   return (
     <svg width="200" height="150" style={{ border: '1px solid black', backgroundColor: 'white' }}>
       {[40, 60, 80, 100, 120].map((y, index) => (
         <line key={index} x1="10" y1={y} x2="190" y2={y} stroke="black" strokeWidth="1" />
       ))}
-      <image href={TrebleClef} x="10" y="20" height="90px" />
-      {sharp && (
+      <image href={TrebleClef} x="10" y="40" height="90px" />
+      {sharp && isNoteDefined && (
         <text x={sharpX} y={sharpY} fontFamily="Arial" fontSize="20px" fill="black">
           #
         </text>
       )}
-      {note && (
+      {isNoteDefined && (
         <>
           <circle cx="130" cy={yPos} r="6" fill="black" />
           {needsBarThrough && <line x1="120" x2="140" y1={yPos} y2={yPos} stroke="black" strokeWidth="2" />}
