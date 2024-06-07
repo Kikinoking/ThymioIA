@@ -217,6 +217,7 @@ const App = observer(() => {
       const loadedModel = await user.getModel();
       setModel(loadedModel);
       setLoading(false);
+
     }
   };
 
@@ -231,6 +232,16 @@ const App = observer(() => {
                 const data = JSON.parse(text);
                 setTrainer(data);
                 console.log('Trainer data loaded from file.');
+                if (model && model != null) {
+                  
+      
+                  setModel(null); // Reset to null model state
+                }
+                //Reset everything
+                setIsTrainingComplete(false);
+                setIsTrainingComponentLoaded(false);
+                setIsExecuteClicked(false);
+                setShowInstructions(true);
             } else {
                 console.error('Expected a string from FileReader but received a different type.');
             }
