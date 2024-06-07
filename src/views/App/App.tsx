@@ -22,7 +22,7 @@ import { observer } from 'mobx-react';
 import { noteToNumberMapping } from '../../noteMapping';
 import * as React from 'react';
 
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';   
 import '../../i18n';
 import BarChart from './BarChart';
 import ThymioSVG from './ThymioSVG';
@@ -30,7 +30,8 @@ import Piano from './Piano';
 import MusicalStaff from './MusicalStaff'; 
 import './Menu.css';
 import SettingsIcon from '../../assets/settings.svg';
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs'; //for visualisation
+//Loading all the assets
 import stopGif from '../../assets/actionsicons/Stopgif.gif';
 import forwardGif from '../../assets/actionsicons/animForwardV2.gif';
 import backwardGif from '../../assets/actionsicons/animBackward.gif';
@@ -43,8 +44,8 @@ import leftStatic from '../../assets/actionsicons/LeftStatic.png';
 import rightStatic from '../../assets/actionsicons/RightStatic.png';
 import NeuralNetworkVisualization from '../../Entities/ThymioManager/Model/NeuralNetworkVisualization';
 import NeuralNetworkVisualizationTraining from '../../Entities/ThymioManager/Model/NeuralNetVisuTraining';
-import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
 import NavigationBar from './NavigationBar';
+import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
 
 //Custom animations from ldrs for loading
 import { momentum } from 'ldrs'
@@ -337,11 +338,11 @@ const App = observer(() => {
     }
   }, []);
 
-  useEffect(() => {
+  useEffect(() => { //Use locally saved theme
     localStorage.setItem('theme', theme); 
   }, [theme]);
 
-  useEffect(() => {
+  useEffect(() => { //used for blinking border
     if (currentState === STATES.MapAction) {
       setActionClicked(false);
     }
@@ -693,7 +694,7 @@ const App = observer(() => {
     }
   }, [currentState, t, isTrainingComplete, robots]);
 
-  const toggleSettings = () => {
+  const toggleSettings = () => {  //SLider of settings
     setShowSettings(prev => !prev);
   };
 
@@ -998,7 +999,7 @@ const App = observer(() => {
 
     
     handleSetCurrentState(STATES.ConsigneTraining);
-    const updatedVisitedStates = {
+    const updatedVisitedStates = {//Set the first 2 states as visited, no need to start from titlepage since the robot is connected already
       Title: true,
    
       ConsigneTraining: true
@@ -1031,7 +1032,7 @@ const App = observer(() => {
     }
   }, [mode, controledRobot, note, user, isWinnerTakesAll, inputMode]);
 
-  const handleTransition = () => {
+  const handleTransition = () => {    //Only move to next state if note has been recorded
     if (noteRecording !== null && noteRecording !== '') {
       handleSetCurrentState(STATES.MapAction);
     } else {
@@ -1481,7 +1482,7 @@ const App = observer(() => {
         </div>
       )}
 
-      {isTrainingComplete && (
+      {isTrainingComplete && ( //All the visualisation of the training goes here
         <div className="visualization-container">
           <label className="label-text neural-net-label">{t('Neuralnet_training')}</label>
           <div className="legend-gradient-container">
@@ -1667,7 +1668,7 @@ const App = observer(() => {
                 </p>
               </div>
               <div
-                className="barchart-container ${inputMode === 'NOTE_ONLY' ? 'note-only' : ''}"
+                className="barchart-container ${inputMode === 'NOTE_ONLY' ? 'note-only' : ''}" //BarChart
                 style={{
                   border: '1px solid white',
                   padding: '0px',
@@ -1705,7 +1706,7 @@ const App = observer(() => {
                   {note !== '' && (
                     <button
                       onClick={() => {
-                        handleSetCurrentState(STATES.CurrentModelTest), setIsWinnerTakesAll(true);
+                        handleSetCurrentState(STATES.CurrentModelTest), setIsWinnerTakesAll(true); //Sets is winner take all to true else id doesn't make sense
                       }}
                       className="visualize-nn-btn blinking-border"
                       style={{
@@ -1837,7 +1838,7 @@ const App = observer(() => {
                   overflow: 'visible',
                 }}
               >
-                <line
+                <line   //Draw arrow from note to neuron of note
                   x1={musicalStaffCoords.x}
                   y1={musicalStaffCoords.y}
                   x2={neuronCoords[0].x - 5}
@@ -1873,7 +1874,7 @@ const App = observer(() => {
                   if (neuron) {
                     return (
                       <>
-                        <line
+                        <line   //draw the other arrows
                           key={index}
                           x1={rect.x}
                           y1={rect.y}
@@ -2074,7 +2075,7 @@ const App = observer(() => {
             />
           </div>
 
-          <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+          <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}> 
             {theme === 'light' ? t('dark_theme') : t('light_theme')}
           </button>
 

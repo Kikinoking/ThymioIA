@@ -18,6 +18,7 @@ import * as tf from '@tensorflow/tfjs';
 
 
 function selectActionBasedOnProbabilities(predictions) { //for probabilistic decisions, produces an index proportional to probabilities
+//used when we are NOT using winner-take-all
   const cumulativeProbabilities = predictions.reduce((acc, prob, i) => {
     if (i === 0) {
       acc.push(prob);
@@ -157,7 +158,7 @@ export class ThymioIA implements IThymioIA {
       },
     });
 
-    this.displayModelWeights();
+    //this.displayModelWeights(); can be useful for debugging
     return trainingData;
   };
 
@@ -229,11 +230,11 @@ export class ThymioIA implements IThymioIA {
           } else {
             predictedIndex = selectActionBasedOnProbabilities(predictions);
           }
-          console.log('Predicted index:', predictedIndex);
+          console.log('Predicted index:', predictedIndex); //Log used for debugging, but useful anyway
           const predictedAction = Object.keys(this.actionMapping).find(
             key => this.actionMapping[key] === predictedIndex
           );
-          console.log('Prediction:', predictedAction);
+          console.log('Prediction:', predictedAction); //Log used for debugging, but useful anyway
 
           if (predictedAction) {
             this.emitMotorEvent(uuid, predictedAction as string);
@@ -298,7 +299,7 @@ export class ThymioIA implements IThymioIA {
         }
       });
 
-      this.captors.set({ ...toJS(this.captors.state), [uuid]: captors });
+      this.captors.set({ ...toJS(this.captors.state), [uuid]: captors }); //set the captors states. Used for by the model
     });
   };
 

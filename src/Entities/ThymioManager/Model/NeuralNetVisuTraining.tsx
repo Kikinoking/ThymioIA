@@ -1,3 +1,12 @@
+    /**
+ * NeuralNetworkVisualizationTraining.tsx
+ * 
+ * A component for visualizing the training process of the network. It dynamically renders the neural network's layers,
+ * weights, and biases based on training data across epochs. This visualization includes options to animate the transition
+ * between epochs, adjust the current epoch via a slider, and display changes in network weights and biases over time.
+ * Its not the same component used for testing!
+ */
+
     import { useState, useEffect, useRef } from 'react';
     import * as React from 'react';
     import { useTranslation } from 'react-i18next';
@@ -59,7 +68,7 @@
     useEffect(() => {
         if (trainingData && trainingData.length > 0 && !isAnimating) {
             setCurrentEpoch(0);
-          //startAnimation(); //start animation auto.
+          //startAnimation(); //start animation auto. Imo its better if the user starts it manually
         }
         
         //stop anim when component deleted
@@ -279,7 +288,7 @@
                     
                     
                     
-                    return (
+                    return ( //draw output layer
                         <React.Fragment key={`fragment-${neuronIndex}-${outputIdx}`}>
                         <line key={`output-line-${neuronIndex}-${outputIdx}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={getColorFromWeight(weight)} strokeWidth="2" />
                         {showBiases={showBiases} && <circle cx={x2} cy={y2} r={5} fill={biasColor} />}
@@ -308,7 +317,7 @@
                 })}
             </g>
             )}
-        </svg>
+        </svg> {/* Buttons and slider below, to interact with animation*/}
         <div style={{ marginTop: '2px', width: '70%', display: 'flex', justifyContent: 'space-around' }}>
                 <input
                     ref={sliderRef}
@@ -322,7 +331,7 @@
                 />
             </div>
         <div>
-        <div style={{ marginTop: '1 0px' }}>
+        <div style={{ marginTop: '1 0px' }}> 
                 <button onClick={() => setCurrentEpoch(Math.max(0, currentEpoch - 1))} disabled={currentEpoch === 0}>{t('previous_epoch')}</button>
                 <button onClick={() => setCurrentEpoch(Math.min(currentEpoch + 1, trainingData.length - 1))}>{t('next_epoch')}</button>
                 <button onClick={toggleAnimation}>{isAnimating ? t('stop_animation') : t('start_animation')}</button> 

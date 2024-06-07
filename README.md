@@ -83,7 +83,16 @@ For further customization and advanced configurations, refer to the official Vit
 
 Contributions to this project are welcome! Please refer to the contributing guidelines for more details.
 
+## Image and SVG Sources
+
+This project utilizes several external images and SVG files. Below are the sources and attributions for these resources:
+
+- **Help Icon**: Created by ByteDance (author), available at [SVGRepo](https://www.svgrepo.com/svg/387779/help).
+- **Thymio SVG**: Originally extracted and reworked from the Mobile Robotics course by F. Mondada at EPFL. Access the original [Thymio Cheat Sheet PDF](https://moodle.epfl.ch/pluginfile.php/2706097/mod_resource/content/1/ThymioCheatSheet.pdf).
+- **Settings Icon**: Created by Mary Akveo, available at [SVGRepo](https://www.svgrepo.com/svg/469755/settings).
+- **Loading Animations**: Sourced from ldrs, available at [UIBall](https://uiball.com/ldrs/).
+- **Treble Clef Icon**: Sourced from SVG Repo (author), available at [SVGRepo](https://www.svgrepo.com/svg/98269/treble-clef).
+- **Flag Icons**: Provided by "flag-icon-css", a library offering SVG images of flags. More information and the library can be found at [Flag icon CSS](https://github.com/lipis/flag-icon-css).
 ## Deployment
 
 The app has been deployed using Vercel : https://thymio-ia.vercel.app/
-

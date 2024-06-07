@@ -68,7 +68,7 @@
 }
 
 .black-key::after {
-  content: attr(data-note); /*Use this attribute to display the note */
+  content: attr(data-note); 
   position: absolute;
   width: 100%;
   top: 50%;

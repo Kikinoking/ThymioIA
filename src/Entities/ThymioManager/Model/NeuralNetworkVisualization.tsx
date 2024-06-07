@@ -276,7 +276,7 @@ const NeuralNetworkVisualization = ({
                 const svgSrc = svgImages[outputIdx % svgImages.length];
                 return (
                   <React.Fragment key={`fragment-${neuronIndex}-${outputIdx}`}>
-                    <line
+                    <line //react fragment drawing line
                       key={`output-line-${neuronIndex}-${outputIdx}`}
                       x1={x1}
                       y1={y1}
@@ -408,12 +408,12 @@ const NeuralNetworkVisualization = ({
                 const radius =
                   layer.activation && !isNaN(layer.activation[neuronIdx])
                     ? calculateRadius(layer.activation[neuronIdx])
-                    : 5;
+                    : 5; //defaults to 5, should not happen
 
                 return (
                   <g key={`neuron-${layerIndex}-${neuronIdx}`}>
                     <circle cx={x} cy={y} r={Math.min(10, radius)} fill="white" />
-                    {showBiases && (
+                    {showBiases && (//Only if biases are meant to be showed
                       <circle cx={x} cy={y} r={Math.min(10, radius / 2)} fill={getBiasColor(layer.biases[neuronIdx])} />
                     )}
                   </g>
@@ -426,12 +426,12 @@ const NeuralNetworkVisualization = ({
                 const radius =
                   layer.activation && !isNaN(layer.activation[neuronIdx])
                     ? calculateRadius(layer.activation[neuronIdx])
-                    : 5;
+                    : 5; //Default to 5 if error, but should not happen
 
                 return (
                   <g key={`neuron-${layerIndex}-${neuronIdx}`}>
-                    <circle cx={x} cy={y} r={Math.min(10, radius)} fill="white" />
-                    {showBiases && (
+                    <circle cx={x} cy={y} r={Math.min(10, radius)} fill="white" /> 
+                    {showBiases && ( //Only if biases are meant to be showed
                       <circle cx={x} cy={y} r={Math.min(10, radius / 2)} fill={getBiasColor(layer.biases[neuronIdx])} />
                     )}
                   </g>
