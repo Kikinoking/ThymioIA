@@ -11,6 +11,7 @@
  * https://moodle.epfl.ch/pluginfile.php/2706097/mod_resource/content/1/ThymioCheatSheet.pdf
  * Setting Icon from (Mary Akveo): https://www.svgrepo.com/svg/469755/settings 
  * Loading animations from ldrs: https://uiball.com/ldrs/
+ * Flag Icons : Provided by "flag-icon-css" :(https://github.com/lipis/flag-icon-css).
  */
 
 
@@ -399,7 +400,7 @@ const App = observer(() => {
         });
       }, 100); // Delay : 100 ms
     }
-  }, [musicalStaffRef.current, mode]);
+  }, [musicalStaffRef.current, mode, thymioSVGLoaded]);
 
   // Handles resizing
   useEffect(() => {
