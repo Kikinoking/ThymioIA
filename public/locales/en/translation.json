@@ -89,9 +89,9 @@
   "note_record_done":"2) Note recorded",
   "trig_sensors": "3) Activate the desired sensors",
 
-  "no_activation": "No activation",
-  "positive_activation": "Positive activation",
-  "negative_activation": "Negative activation",
+  "no_activation": "Zero weight",
+  "positive_activation": "Positive weight",
+  "negative_activation": "Negative weight",
   "input_neuron" : "Input neuron (mic or sensor)",
   "intermediate_neuron": "Intermediate neuron",
   "output_neuron": "Output neuron",
